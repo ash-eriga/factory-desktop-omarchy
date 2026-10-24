@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-DATA="${XDG_DATA_HOME:-$HOME/.local/share}/factory-desktop-arch"
+DATA="${XDG_DATA_HOME:-$HOME/.local/share}/factory-droid-desktop"
 umask 077
 mkdir -p "$DATA/factory-home" "$DATA/user-data"
 unset NODE_OPTIONS ELECTRON_RUN_AS_NODE ELECTRON_NO_ASAR

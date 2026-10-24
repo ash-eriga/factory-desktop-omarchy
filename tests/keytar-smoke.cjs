@@ -5,7 +5,7 @@ const {randomUUID}=require('node:crypto');
 const assert=require('node:assert/strict');
 const bundle=path.resolve(process.argv[2]);
 const keytar=require(path.join(bundle,'resources/app.asar/node_modules/keytar'));
-const service=`factory-desktop-arch-validation-${randomUUID()}`;
+const service=`factory-droid-desktop-validation-${randomUUID()}`;
 (async()=>{
   try{
     await keytar.setPassword(service,'temporary-test','temporary-validation-value');

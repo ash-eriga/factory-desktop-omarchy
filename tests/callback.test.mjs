@@ -68,7 +68,7 @@ test('register, preserve, and rollback keep other associations intact', async ()
     let result = run(dir, ['register']);
     assert.equal(result.status, 0, result.stderr);
     let content = await readFile(mimeapps, 'utf8');
-    assert.ok(content.includes(`${SCHEME}=factory-desktop-arch-callback.desktop`));
+    assert.ok(content.includes(`${SCHEME}=factory-droid-desktop-callback.desktop`));
     // Existing associations preserved.
     assert.ok(content.includes('x-scheme-handler/https=firefox.desktop'));
     assert.ok(content.includes('text/plain=org.gnome.Nano.desktop'));

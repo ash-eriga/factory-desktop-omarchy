@@ -41,7 +41,7 @@ jobs:
 
       - name: Check the shell entry points
         run: |
-          for script in runtime/*.sh packaging/factory-desktop-arch packaging/factory-usage packaging/factory-callback; do
+          for script in runtime/*.sh packaging/factory-droid-desktop packaging/factory-usage packaging/factory-callback; do
             sh -n "$script"
           done
 

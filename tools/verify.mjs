@@ -1,7 +1,8 @@
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import * as asar from '@electron/asar';
-import { changes, preloadChanges, rendererChanges } from './patches.mjs';
+import { changes, preloadChanges, rendererChanges, rendererTitleChanges,
+         htmlTitleChanges } from './patches.mjs';
 import { themeMainChanges } from './theme-main-patches.mjs';
 import {
   htmlChanges as themeHtmlChanges,
@@ -11,8 +12,11 @@ import {
 import { menuRendererChanges, unpatchMenuRenderer } from './menu-renderer-patches.mjs';
 import { remoteControlRendererChanges } from './remote-control-patches.mjs';
 import { applicationMenuMainChanges } from './application-menu-patches.mjs';
+import { computerRegistrationMainChanges, computerRegistrationRendererChanges }
+  from './computer-registration-patches.mjs';
 import { ROOT, versions, elf, run, files, fingerprint, recipeFingerprint, recipeMatches,
          expectedExecutables, outputBundle } from './common.mjs';
+import { PRODUCT_NAME } from './app-identity.mjs';
 
 const bundle = await outputBundle();
 const manifest = JSON.parse(await readFile(path.join(bundle, 'manifest.json'), 'utf8'));
@@ -31,6 +35,11 @@ if (!recipeMatches(manifest, await recipeFingerprint()))
 // patch would resume unnecessary billing polling while the window is hidden.
 const archive = path.join(bundle, 'resources/app.asar');
 let menuPatchedRenderer = asar.extractFile(archive, versions.renderer).toString();
+for (const [name, before, after] of [...computerRegistrationRendererChanges].reverse()) {
+  if (menuPatchedRenderer.split(after).length !== 2)
+    throw new Error(`Shipped computer registration patch missing or duplicated: ${name}`);
+  menuPatchedRenderer = menuPatchedRenderer.replace(after, before);
+}
 for (const [name, before, after] of [...remoteControlRendererChanges].reverse()) {
   if (menuPatchedRenderer.split(after).length !== 2)
     throw new Error(`Shipped relay recovery patch missing or duplicated: ${name}`);
@@ -47,14 +56,16 @@ const shippedRenderer = unpatchMenuRenderer(menuPatchedRenderer);
 const rendererSource = file => file === versions.renderer
   ? shippedRenderer : asar.extractFile(archive, file).toString();
 for (const [file, transformations] of [[versions.lifecycle, changes],
-  ['.vite/build/preload.js', preloadChanges], [versions.renderer, rendererChanges]]) {
+  ['.vite/build/preload.js', preloadChanges], [versions.renderer, rendererChanges],
+  [versions.renderer, rendererTitleChanges]]) {
   const source = rendererSource(file);
   for (const [name, , after] of transformations) {
     if (source.split(after).length !== 2) throw new Error(`Shipped patch missing or duplicated: ${name}`);
   }
 }
 const shippedLifecycle = asar.extractFile(archive, versions.lifecycle).toString();
-for (const [name, , after] of [...themeMainChanges, ...applicationMenuMainChanges]) {
+for (const [name, , after] of [...themeMainChanges, ...applicationMenuMainChanges,
+  ...computerRegistrationMainChanges]) {
   if (shippedLifecycle.split(after).length !== 2)
     throw new Error(`Shipped main theme patch missing or duplicated: ${name}`);
 }
@@ -70,8 +81,23 @@ for (const [file, transformations] of [
   }
 }
 if (versions.themeBridgeSchema !== 1) throw new Error('Unsupported theme bridge schema version');
+// The window title is owned by the renderer and by the page: the shipped
+// bundle must carry the port's own name in both, and no upstream title
+// source may survive next to it.
+for (const [name, , after] of htmlTitleChanges) {
+  if (rendererSource(versions.rendererHtml).split(after).length !== 2)
+    throw new Error(`Shipped application title patch missing or duplicated: ${name}`);
+}
+if (rendererSource(versions.rendererHtml).includes('<title>Factory</title>'))
+  throw new Error('Shipped page title still carries the upstream name');
+if (rendererSource(versions.renderer).includes('GGn="Factory"'))
+  throw new Error('Shipped renderer still falls back to the upstream name');
 const upstreamPackage = JSON.parse(asar.extractFile(archive, 'package.json').toString());
 if (upstreamPackage.version !== versions.desktop) throw new Error('Shipped Desktop version mismatch');
+// The shipped application must carry the port's own name, and the main
+// process must set it at runtime: the manifest alone does not decide what
+// the window and the taskbar show.
+if (upstreamPackage.productName !== PRODUCT_NAME) throw new Error('Shipped application name mismatch');
 const themeBridge = path.join(bundle, 'port/theme-bridge.cjs');
 await stat(themeBridge);
 run(process.execPath, ['--check', themeBridge]);

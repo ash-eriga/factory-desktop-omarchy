@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /opt/factory-droid-desktop/port/launch.sh "$@"

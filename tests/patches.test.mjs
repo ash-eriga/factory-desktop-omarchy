@@ -38,8 +38,9 @@ test('diagnose reports every mismatching anchor at once', () => {
 
 test('patched main guards keep the pacman boundary closed on Linux', () => {
   const names = new Map(changes.map(([name]) => [name, name]));
-  for (const required of ['callback opt-in', 'minimum version prompt', 'manual updater',
-    'update checks', 'update menu', 'keyboard application menu', 'Linux window icon']) {
+  for (const required of ['callback opt-in', 'application name', 'minimum version prompt',
+    'manual updater', 'update checks', 'update menu', 'keyboard application menu',
+    'Linux window icon']) {
     assert.ok(names.has(required), `missing patch: ${required}`);
   }
   // The updater entry points must bail out before touching vendor state, and
@@ -49,7 +50,9 @@ test('patched main guards keep the pacman boundary closed on Linux', () => {
   assert.match(patched, /async function uD\(\)\{if\(process\.platform==="linux"\)return!0;/);
   assert.match(patched, /async function T4\(\{onAborted:e\}=\{\}\)\{if\(process\.platform==="linux"\)\{e\?\.\(\);return;\}/);
   assert.match(patched, /async function iD\(\)\{if\(process\.platform==="linux"\)return;/);
-  assert.match(patched, /function xte\(\)\{if\(process\.platform==="linux"\)\{T\.app\.setDesktopName\("factory-desktop-arch\.desktop"\);return;\}/);
+  assert.match(patched, /function xte\(\)\{if\(process\.platform==="linux"\)\{T\.app\.setDesktopName\("factory-droid-desktop\.desktop"\);return;\}/);
+  // The visible name of the port is set before the first window exists.
+  assert.match(patched, /i\.startupTracker\.beginPhase\("ipc_and_protocol_setup"\),T\.app\.setName\("Factory Droid Desktop"\),xte\(\)/);
   assert.match(patched, /r=process\.platform==="linux"\|\|!t\|\|i\.areDesktopUpdatesDisabledByCachedOrgSettings\(\)\?\[\]:/);
   // Nothing may widen the guards to other platforms.
   for (const [, , after] of changes) {

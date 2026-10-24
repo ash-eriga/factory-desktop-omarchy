@@ -1,9 +1,19 @@
 # Builds the inspected proprietary app locally. Do not publish the payload.
-pkgname=factory-desktop-arch
+pkgname=factory-droid-desktop
 pkgver=0.205.0
-pkgrel=10
-pkgdesc='Unofficial Factory Desktop port for Arch and Omarchy'
+pkgrel=12
+pkgdesc='Unofficial Factory Droid Desktop port for Arch and Omarchy'
 arch=('x86_64')
+# The port was renamed from factory-desktop-arch. Both packages ship
+# /usr/bin/factory-usage and /usr/bin/factory-callback under the same
+# names, so they must never be installed at the same time: conflicts keeps
+# a single owner of the shared paths and replaces hands them over during
+# the transition. provides keeps the old name satisfiable for anything
+# that still depends on it. No data is migrated: the old package's
+# state directories are left untouched.
+conflicts=('factory-desktop-arch')
+replaces=('factory-desktop-arch')
+provides=('factory-desktop-arch')
 # The recipe's own sources are MIT licensed; the assembled payload contains
 # proprietary Factory components, which keep their own rights. The NOTICE
 # file states the split and is shipped next to the license.
@@ -49,16 +59,16 @@ package() {
   install -d "$pkgdir/opt"
   cp -a "dist/$pkgname-$pkgver" "$pkgdir/opt/$pkgname"
   find "$pkgdir/opt/$pkgname" -type d -exec chmod 755 {} +
-  install -Dm755 packaging/factory-desktop-arch "$pkgdir/usr/bin/factory-desktop-arch"
+  install -Dm755 packaging/factory-droid-desktop "$pkgdir/usr/bin/factory-droid-desktop"
   install -Dm755 packaging/factory-usage "$pkgdir/usr/bin/factory-usage"
   install -Dm755 packaging/factory-callback "$pkgdir/usr/bin/factory-callback"
-  install -Dm644 packaging/factory-desktop-arch.desktop "$pkgdir/usr/share/applications/factory-desktop-arch.desktop"
+  install -Dm644 packaging/factory-droid-desktop.desktop "$pkgdir/usr/share/applications/factory-droid-desktop.desktop"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 packaging/NOTICE "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
   # The icons are generated during the build from the checksum-pinned
   # official payload: this repository ships no copy of the mark.
-  install -Dm644 build/brand/factory.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/factory-desktop-arch.svg"
-  install -Dm644 build/brand/factory.png "$pkgdir/usr/share/icons/hicolor/256x256/apps/factory-desktop-arch.png"
+  install -Dm644 build/brand/factory.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/factory-droid-desktop.svg"
+  install -Dm644 build/brand/factory.png "$pkgdir/usr/share/icons/hicolor/256x256/apps/factory-droid-desktop.png"
   # Optional Omarchy service plugin: shipped as a copyable extra. It is not
   # enabled, registered, or scanned from here; see its README.
   install -d "$pkgdir/usr/share/doc/$pkgname/omarchy"
@@ -69,5 +79,5 @@ package() {
   install -Dm644 build/brand/factory-mark-light.svg \
     "$pkgdir/usr/share/doc/$pkgname/omarchy/factory-usage-service/assets/factory-light.svg"
   normalize_plugin_modes "$pkgdir/usr/share/doc/$pkgname/omarchy"
-  desktop-file-validate "$pkgdir/usr/share/applications/factory-desktop-arch.desktop"
+  desktop-file-validate "$pkgdir/usr/share/applications/factory-droid-desktop.desktop"
 }

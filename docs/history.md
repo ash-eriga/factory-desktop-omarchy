@@ -28,6 +28,17 @@ of the public tree; the methodology behind each change is described in
   to at most once per minute and never enables a disabled preference.
 - The Omarchy theme follow was extended to the Glassy window tint, and
   the follow control was placed with the theme editor.
+- The desktop computer registration runs again after the first sign-in,
+  so the local PC is registered with the account without a restart and
+  appears as **This Computer** in Settings → Droid Computers. Upstream
+  only attempts the registration at startup, before a fresh profile can
+  hold an auth token, and never retries; the upstream function itself is
+  reused, with the credentials it already read passed to it, and the
+  remote-access preference, the relay and the organization policy are
+  left alone. A sign-in that completes while an earlier registration is
+  still running gets its own attempt with its own credentials, so
+  switching accounts during a registration never leaves the new account
+  unregistered.
 
 ## Usage accounting
 
@@ -64,6 +75,40 @@ of the public tree; the methodology behind each change is described in
   function, so the packaging test runs the recipe's own logic.
 - The recipe installs the port's own `LICENSE` next to the `NOTICE`, and
   declares `MIT` plus `LicenseRef-Proprietary` for the mixed payload.
+
+## Rename (2026-10-24)
+
+- The port was renamed from `factory-desktop-arch` to **Factory Droid
+  Desktop**, with the technical slug `factory-droid-desktop` for the
+  package, the command and the installed paths. The Arch package, the
+  command `/usr/bin/factory-droid-desktop`, the bundle under
+  `/opt/factory-droid-desktop`, the desktop entry
+  `factory-droid-desktop.desktop`, the generated icons, the license and
+  documentation directories, and the assembled bundle under `dist/` all
+  follow the new name.
+- The recipe declares the previous package name as `conflicts`, `replaces`
+  and `provides`: both packages own `/usr/bin/factory-usage` and
+  `/usr/bin/factory-callback`, so the handover must leave a single owner.
+  No state was migrated: the old data directories stay where they are, and
+  the CLI's own profile in `~/.factory/` is untouched. The opt-in
+  `factory-desktop://` registration is user-local and is not migrated
+  either: the new helper reads only its own journal directory, so the old
+  registration has to be rolled back with the old helper *before* the old
+  package is replaced. The README documents that order.
+- The shipped application now carries the port's own visible name. The
+  official manifest's `productName` is rewritten (that field only, and
+  after the pristine snapshot was taken), and the main process sets the
+  same name before the first window exists. The upstream product name, the
+  `factory-desktop://` scheme, the vendor's mark and the internal Electron
+  binary keep their own names: they are contracts of the payload, not of
+  the port.
+- The independent commands `factory-usage` and `factory-callback`, the
+  Omarchy plugin's own id and the vendor's CLI storage were left alone.
+- The nominal identity of the port has its own regression test: the
+  package name, the desktop entry, the installed paths, the launcher data
+  directory, the collector and callback paths, and the visible application
+  name are asserted together, and the old slug may not survive in the
+  shipped tree.
 
 ## Public preparation (2026-10-24)
 

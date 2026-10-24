@@ -10,7 +10,8 @@ import { rebuild } from '@electron/rebuild';
 import { ROOT, versions, run, hash, files, safePath, validateListing, elf, fingerprint,
          recipeFingerprint, recipeMatches, isBundleExecutable, outputBundle, hostSupported,
          pinnedElectronChecksum, electronDownloadOptions } from './common.mjs';
-import { patch, diagnose, diagnoseRendererHelperCollisions, preloadChanges, rendererChanges } from './patches.mjs';
+import { patch, diagnose, diagnoseRendererHelperCollisions, preloadChanges, rendererChanges,
+         rendererTitleChanges, htmlTitleChanges } from './patches.mjs';
 import { themeMainChanges, diagnoseThemeMainHelpers } from './theme-main-patches.mjs';
 import {
   diagnose as diagnoseThemeRenderer,
@@ -25,8 +26,11 @@ import {
 import { diagnoseMenuRenderer, patchMenuRenderer } from './menu-renderer-patches.mjs';
 import { remoteControlRendererChanges, remoteControlHelperNames } from './remote-control-patches.mjs';
 import { applicationMenuMainChanges } from './application-menu-patches.mjs';
+import { computerRegistrationMainChanges, computerRegistrationRendererChanges,
+  diagnoseComputerRegistrationHelpers } from './computer-registration-patches.mjs';
 import { writeVendorSnapshot } from './vendor-snapshot.mjs';
 import { writeBrandAssets, ensureBrandAssets, brandSource, BRAND_DIR } from './brand-assets.mjs';
+import { applyAppIdentity } from './app-identity.mjs';
 
 const require = createRequire(import.meta.url);
 const zip = require('7zip-bin').path7za;
@@ -163,44 +167,64 @@ async function main() {
   // renderer. Both happen BEFORE the first patch, so the snapshot is
   // pristine and the icon geometry comes from the official payload.
   await writeVendorSnapshot(app);
+  // The port presents itself under its own name. The official manifest
+  // names the application "Factory", so that one field is rewritten after
+  // the pristine snapshot was taken: the snapshot stays the vendor's own
+  // bytes, and only the display name of the shipped application changes.
+  await writeFile(path.join(app, 'package.json'),
+    applyAppIdentity(await readFile(path.join(app, 'package.json'), 'utf8')));
   const generated = await writeBrandAssets(rendererSource);
   console.log(`Generated ${generated.join(', ')} in ${path.relative(ROOT, BRAND_DIR)}`);
   const failures = [...diagnose(lifecycleSource), ...diagnose(preloadSource, preloadChanges),
-    ...diagnose(rendererSource, rendererChanges)];
+    ...diagnose(rendererSource, rendererChanges),
+    ...diagnose(rendererSource, rendererTitleChanges)];
   const linuxLifecycle = patch(lifecycleSource);
   const linuxPreload = patch(preloadSource, preloadChanges);
-  const linuxRenderer = patch(rendererSource, rendererChanges);
+  // The renderer's own title sources and the initial page title carry the
+  // port's name: the window shows it from the first frame on.
+  const linuxRenderer = patch(patch(rendererSource, rendererChanges), rendererTitleChanges);
+  const identityHtml = patch(rendererHtmlSource, htmlTitleChanges);
   const themePatchedRenderer = patchThemeRenderer(linuxRenderer, themeRendererChanges);
   failures.push(...diagnose(linuxLifecycle, themeMainChanges));
   const themedLifecycle = patch(linuxLifecycle, themeMainChanges);
   failures.push(...diagnose(themedLifecycle, applicationMenuMainChanges));
+  // The registration layer is applied last, so its anchors are checked
+  // against the source it will actually patch.
+  const menuLifecycle = patch(themedLifecycle, applicationMenuMainChanges);
+  failures.push(...diagnose(menuLifecycle, computerRegistrationMainChanges));
   failures.push(...diagnoseThemeRenderer(linuxPreload, themePreloadChanges),
     ...diagnoseThemeRenderer(linuxRenderer, themeRendererChanges),
     ...diagnoseMenuRenderer(themePatchedRenderer),
+    ...diagnose(rendererHtmlSource, htmlTitleChanges),
     ...diagnoseThemeRenderer(rendererHtmlSource, themeHtmlChanges));
   const menuRenderer = patchMenuRenderer(themePatchedRenderer);
   failures.push(...diagnose(menuRenderer, remoteControlRendererChanges));
   const linuxMenuRenderer = patch(menuRenderer, remoteControlRendererChanges);
+  failures.push(...diagnose(linuxMenuRenderer, computerRegistrationRendererChanges));
   const rendererHelperCollisions = [...diagnoseRendererHelperCollisions(rendererSource),
     ...diagnoseThemeHelperCollisions(rendererSource),
-    ...remoteControlHelperNames.filter(name => rendererSource.includes(name))];
+    ...remoteControlHelperNames.filter(name => rendererSource.includes(name)),
+    ...diagnoseComputerRegistrationHelpers(rendererSource)];
   const themeHelperCollisions = diagnoseThemeMainHelpers(lifecycleSource);
+  const registrationHelperCollisions = diagnoseComputerRegistrationHelpers(lifecycleSource);
   const themePreloadCollisions = diagnoseThemePreloadCollisions(preloadSource);
   const themeHtmlCollisions = diagnoseThemeHtmlCollisions(rendererHtmlSource);
   if (failures.length || rendererHelperCollisions.length || themeHelperCollisions.length
-      || themePreloadCollisions.length || themeHtmlCollisions.length) {
+      || themePreloadCollisions.length || themeHtmlCollisions.length
+      || registrationHelperCollisions.length) {
     const details = [...failures.map(f => `${f.name} (count=${f.count})`),
       ...rendererHelperCollisions.map(name => `${name} (already declared upstream)`),
       ...themeHelperCollisions.map(name => `${name} (already declared upstream)`),
       ...themePreloadCollisions.map(name => `${name} (already declared upstream)`),
-      ...themeHtmlCollisions.map(name => `${name} (already declared upstream)`)];
+      ...themeHtmlCollisions.map(name => `${name} (already declared upstream)`),
+      ...registrationHelperCollisions.map(name => `${name} (already declared upstream)`)];
     throw new Error(`Patches do not match vendor source ${versions.desktop}: `
       + details.join(', '));
   }
-  await writeFile(lifecycle, patch(themedLifecycle, applicationMenuMainChanges));
+  await writeFile(lifecycle, patch(menuLifecycle, computerRegistrationMainChanges));
   await writeFile(preload, patchThemeRenderer(linuxPreload, themePreloadChanges));
-  await writeFile(renderer, linuxMenuRenderer);
-  await writeFile(rendererHtml, patchThemeRenderer(rendererHtmlSource, themeHtmlChanges));
+  await writeFile(renderer, patch(linuxMenuRenderer, computerRegistrationRendererChanges));
+  await writeFile(rendererHtml, patchThemeRenderer(identityHtml, themeHtmlChanges));
   run(process.execPath, ['--check', lifecycle]);
   run(process.execPath, ['--check', preload]);
   run(process.execPath, ['--check', renderer]);

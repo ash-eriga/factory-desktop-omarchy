@@ -4,6 +4,7 @@ import { readFile, readdir, lstat, stat } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { PRODUCT_SLUG } from './app-identity.mjs';
 
 export const ROOT = fileURLToPath(new URL('../', import.meta.url));
 export const versions = JSON.parse(await readFile(path.join(ROOT, 'versions.json'), 'utf8'));
@@ -145,7 +146,7 @@ export function recipeMatches(manifest, recipe) {
 }
 
 export async function outputBundle() {
-  return path.join(ROOT, 'dist', `factory-desktop-arch-${versions.desktop}`);
+  return path.join(ROOT, 'dist', `${PRODUCT_SLUG}-${versions.desktop}`);
 }
 
 export function hostSupported(release, arch) {

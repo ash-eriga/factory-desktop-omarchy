@@ -12,7 +12,7 @@ this helper yourself:
 Design notes:
 
 - Registration is user-local. The handler lives in
-  ~/.local/share/applications/factory-desktop-arch-callback.desktop and the
+  ~/.local/share/applications/factory-droid-desktop-callback.desktop and the
   association in the user's mimeapps.list files.
 - Only the entry in `[Default Applications]` is read and mutated. Same-key
   entries under `[Added Associations]` and `[Removed Associations]` are
@@ -53,8 +53,8 @@ import tempfile
 from pathlib import Path
 
 SCHEME = "x-scheme-handler/factory-desktop"
-DESKTOP_ID = "factory-desktop-arch-callback.desktop"
-STATE_DIRNAME = "factory-desktop-arch"
+DESKTOP_ID = "factory-droid-desktop-callback.desktop"
+STATE_DIRNAME = "factory-droid-desktop"
 STATE_FILENAME = "callback.json"
 LOCK_FILENAME = "callback.lock"
 MAX_JOURNAL_BYTES = 1 << 20  # refuse to journal absurdly large files
@@ -67,10 +67,10 @@ SAFE_DESKTOP_NAME = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
 
 ENTRY_BODY = f"""[Desktop Entry]
 Type=Application
-Name=Factory Desktop (unofficial port)
+Name=Factory Droid Desktop (unofficial port)
 Comment=Handles factory-desktop:// callback links
-Exec=factory-desktop-arch %u
-Icon=factory-desktop-arch
+Exec=factory-droid-desktop %u
+Icon=factory-droid-desktop
 Terminal=false
 Categories=Development;
 MimeType={SCHEME};

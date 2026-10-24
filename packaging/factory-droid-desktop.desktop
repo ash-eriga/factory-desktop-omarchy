@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Factory Droid Desktop
+Comment=Unofficial Factory Droid Desktop port
+Exec=factory-droid-desktop %u
+TryExec=factory-droid-desktop
+Icon=factory-droid-desktop
+Terminal=false
+Categories=Development;
+StartupWMClass=factory-droid-desktop

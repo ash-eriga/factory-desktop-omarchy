@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Factory Desktop usage collector for the Omarchy agents panel.
+"""Factory Droid Desktop usage collector for the Omarchy agents panel.
 
 Runs the bundled auth helper (Electron in Node mode) to read saved
 credentials the way the desktop app itself does, queries the same billing
@@ -53,7 +53,7 @@ LOCK_TIMEOUT_SECONDS = 10
 FAILURE_TEXTS = {
     "unauthenticated": (
         "Not signed in.",
-        "Open Factory Desktop and sign in to enable usage and limits reporting.",
+        "Open Factory Droid Desktop and sign in to enable usage and limits reporting.",
     ),
     "unsupported-deployment": (
         "This collector supports Factory-managed accounts only.",
@@ -61,19 +61,19 @@ FAILURE_TEXTS = {
     ),
     "schema-error": (
         "Factory reported an unexpected usage schema.",
-        "The record may be outdated until Factory Desktop updates its billing format.",
+        "The record may be outdated until the Factory Desktop app updates its billing format.",
     ),
     "helper-timeout": (
         "Usage refresh timed out.",
-        "Retry later, or check that the Factory Desktop port is installed correctly.",
+        "Retry later, or check that the Factory Droid Desktop port is installed correctly.",
     ),
     "helper-missing": (
         "Usage helper is missing from the bundle.",
-        "Rebuild the Factory Desktop port; the installation looks incomplete.",
+        "Rebuild the Factory Droid Desktop port; the installation looks incomplete.",
     ),
     "helper-error": (
         "Usage helper failed.",
-        "Retry later; if this persists, check the Factory Desktop installation.",
+        "Retry later; if this persists, check the Factory Droid Desktop installation.",
     ),
     "network": (
         "Could not reach Factory.",
@@ -366,12 +366,12 @@ def factory_home(profile):
     if override:
         return Path(override)
     data_home = os.environ.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
-    return Path(data_home) / "factory-desktop-arch" / "factory-home"
+    return Path(data_home) / "factory-droid-desktop" / "factory-home"
 
 
 def cache_dir():
     base = os.environ.get("XDG_CACHE_HOME") or str(Path.home() / ".cache")
-    return Path(base) / "factory-desktop-arch"
+    return Path(base) / "factory-droid-desktop"
 
 
 def state_dir():

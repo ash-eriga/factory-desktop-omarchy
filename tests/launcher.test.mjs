@@ -29,7 +29,7 @@ test('launch.sh survives bundle paths containing spaces', async () => {
     const lines = result.stdout.trim().split('\n');
     assert.ok(lines[0].includes('--user-data-dir'), lines[0]);
     assert.deepEqual(lines.slice(1), ['--flag', 'a b']);
-    assert.ok(lines[0].startsWith(`--user-data-dir=${path.join(dir, 'data')}/factory-desktop-arch/user-data`));
+    assert.ok(lines[0].startsWith(`--user-data-dir=${path.join(dir, 'data')}/factory-droid-desktop/user-data`));
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

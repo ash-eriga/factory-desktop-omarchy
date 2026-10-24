@@ -20,7 +20,7 @@ const PAYLOAD_ENV = home => ({
   XDG_CACHE_HOME: path.join(home, 'cache'),
   XDG_STATE_HOME: path.join(home, 'state'),
   XDG_DATA_HOME: path.join(home, 'data'),
-  FACTORY_DESKTOP_BUNDLE: path.join(ROOT, 'dist', 'factory-desktop-arch-0.195.0'),
+  FACTORY_DESKTOP_BUNDLE: path.join(ROOT, 'dist', 'factory-droid-desktop-0.195.0'),
   FACTORY_DISABLE_KEYRING: '1',
   // Runtime must not write bytecode caches into the verified payload.
   PYTHONDONTWRITEBYTECODE: '1',

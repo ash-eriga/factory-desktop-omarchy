@@ -85,7 +85,7 @@ def default_profiles():
     home = Path.home()
     data_home = os.environ.get("XDG_DATA_HOME") or str(home / ".local" / "share")
     override = os.environ.get("FACTORY_HOME_OVERRIDE")
-    desktop_home = Path(override) if override else Path(data_home) / "factory-desktop-arch" / "factory-home"
+    desktop_home = Path(override) if override else Path(data_home) / "factory-droid-desktop" / "factory-home"
     return [
         ("desktop", desktop_home / ".factory" / "sessions"),
         ("cli", home / ".factory" / "sessions"),

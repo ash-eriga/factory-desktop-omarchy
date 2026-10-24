@@ -5,7 +5,7 @@ usage record fresh for the agents panel, with honest local accounting. It
 runs this plugin's own collector
 (`bin/factory-usage` → `runtime/collector.py` + `runtime/auth-helper.mjs`
 + `runtime/local_usage.py`) against the installed vendor bundle
-(`/opt/factory-desktop-arch`, overridable with `FACTORY_DESKTOP_BUNDLE`)
+(`/opt/factory-droid-desktop`, overridable with `FACTORY_DESKTOP_BUNDLE`)
 on a timer, so a JSON record lands in
 `~/.local/state/omarchy/agents/usage/factory.json`, where the panel looks
 for records.
@@ -60,8 +60,8 @@ model ids only — no session ids, titles, cwd, organization ids, or emails.
 
 ## Install (manual, opt-in)
 
-1. Install the `factory-desktop-arch` package (vendor bundle at
-   `/opt/factory-desktop-arch`).
+1. Install the `factory-droid-desktop` package (vendor bundle at
+   `/opt/factory-droid-desktop`).
 2. Copy this directory into the user plugin folder:
 
    ```bash

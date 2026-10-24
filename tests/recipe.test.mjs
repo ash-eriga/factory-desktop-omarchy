@@ -14,7 +14,7 @@ test('recipe inputs enumerate the shipped runtime and packaging trees determinis
     'package.json', 'package-lock.json', 'versions.json', 'PKGBUILD', 'LICENSE',
     'runtime/collector.py', 'runtime/auth-helper.mjs', 'runtime/launch.sh',
     'runtime/factory-usage.sh', 'runtime/factory-callback.sh', 'runtime/factory-callback.py',
-    'packaging/factory-callback', 'packaging/factory-usage', 'packaging/factory-desktop-arch',
+    'packaging/factory-callback', 'packaging/factory-usage', 'packaging/factory-droid-desktop',
     'tools/build.mjs', 'tools/patches.mjs', 'tools/common.mjs', 'tools/verify.mjs',
     'tools/brand-assets.mjs', 'tools/vendor-snapshot.mjs',
   ]) {

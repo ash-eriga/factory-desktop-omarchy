@@ -18,7 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SCHEME = "x-scheme-handler/factory-desktop"
-OUR_ID = "factory-desktop-arch-callback.desktop"
+OUR_ID = "factory-droid-desktop-callback.desktop"
 
 FAKE_XDG_MIME = r"""#!/bin/sh
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -412,11 +412,11 @@ class PathGuardTest(CallbackTestBase):
         real_dir.mkdir()
         secret = real_dir / "payload.txt"
         secret.write_text("precious")
-        # Point XDG_STATE_HOME at a directory whose factory-desktop-arch
+        # Point XDG_STATE_HOME at a directory whose factory-droid-desktop
         # child is a symlink to a directory holding data.
         (self.tmp / "linked-state").mkdir()
         os.environ["XDG_STATE_HOME"] = str(self.tmp / "linked-state")
-        (self.tmp / "linked-state" / "factory-desktop-arch").symlink_to(real_dir)
+        (self.tmp / "linked-state" / "factory-droid-desktop").symlink_to(real_dir)
         self.write_generic("[Default Applications]\n")
         with self.assertRaises(self.helper.CallbackError):
             self.register()
@@ -523,7 +523,7 @@ class BytePreservationTest(CallbackTestBase):
         written = p.read_bytes()
         # Only the default entry changed; CRLF endings and the unterminated
         # comment survive.
-        self.assertIn(b"factory-desktop-arch-callback.desktop;A.desktop;B.desktop;\r\n", written)
+        self.assertIn(b"factory-droid-desktop-callback.desktop;A.desktop;B.desktop;\r\n", written)
         self.assertTrue(written.endswith(b"without newline"))
         self.rollback()
         self.assertEqual(p.read_bytes(), raw)

@@ -45,11 +45,13 @@ shipping a half-patched application.
 
 | Module | Layer |
 |---|---|
-| `tools/patches.mjs` | Linux main-process and renderer compatibility: native platform branches, the non-darwin title bar, the inline menu API, menu-bar hiding, zoom alignment, the billing polling gate, the injected keyboard handler |
+| `tools/patches.mjs` | Linux main-process and renderer compatibility: native platform branches, the non-darwin title bar, the inline menu API, menu-bar hiding, zoom alignment, the billing polling gate, the injected keyboard handler, and the visible application name |
+| `tools/app-identity.mjs` | the port's own identity: the visible product name and the technical slug, and the single rewrite of the official manifest's display name |
 | `tools/theme-main-patches.mjs` | main-process theme bridge: the palette reader, the follow opt-in, the native transparency decision |
 | `tools/theme-renderer-patches.mjs` | preload and renderer side of the theme bridge: validated DTOs, the follow channel, the appearance overrides, the Glassy tint scope, the navigation transparency, the follow control placement |
 | `tools/menu-renderer-patches.mjs` | the generated application menu in the renderer |
 | `tools/remote-control-patches.mjs` | recovery of the upstream local relay registration, with the upstream connect budget and a back-off |
+| `tools/computer-registration-patches.mjs` | recovery of the upstream desktop computer registration, so the local PC is registered after the first sign-in |
 | `tools/application-menu-patches.mjs` | main-process side of the application menu |
 
 Two invariants are enforced for every layer:
@@ -64,6 +66,119 @@ Two invariants are enforced for every layer:
 anchors: it reverses the newer layers in memory and asserts that every
 expected string is present exactly once in the shipped archive.
 
+### The application name
+
+Upstream's own manifest names the application "Factory". The port ships
+under its own name, **Factory Droid Desktop**, and the name is set in
+three places, because no single one of them is enough:
+
+- `tools/app-identity.mjs` rewrites the `productName` field of the
+  official manifest, and only that field. The rewrite happens *after* the
+  pristine snapshot was taken, so the snapshot keeps the vendor's own bytes
+  and the anchor checks still run against an untouched payload. The field
+  must be there exactly once: a payload that dropped or duplicated it
+  fails the build instead of shipping an application under the upstream
+  name.
+- the `application name` patch in `tools/patches.mjs` calls
+  `app.setName()` during the startup sequence, before the first window
+  exists, so the taskbar entry and the application menu read the port's
+  name.
+- the window title is owned by the page and by the renderer, and Electron
+  propagates a page title to the native window. The `rendererTitleChanges`
+  layer renames the renderer's default title and the session title
+  suffix (the session title itself is preserved), and the
+  `htmlTitleChanges` layer renames the initial page title. Without them
+  the window would keep showing the upstream name, whatever
+  `app.setName()` says.
+
+The same layer fixes the XDG desktop entry name to the package's own
+entry (`factory-droid-desktop.desktop`), so the window and the launcher
+entry describe the same application. Chromium derives the window class
+from the product name, so the entry's `StartupWMClass` is
+`factory-droid-desktop` as well: the class was measured on the payload's
+own Electron (42.11.15), where "Factory" produced the class "factory" and
+"Factory Droid Desktop" produced "factory-droid-desktop", in the X11
+`WM_CLASS` property and in the Wayland application id alike. An entry that
+kept the upstream class would still launch the application, but the
+launcher would not match the window with its own entry.
+
+The upstream product name ("Factory Desktop"), the `factory-desktop://`
+scheme and the vendor's mark are contracts of the payload, not of the
+port's name, and are not renamed. The vendor's own startup copy
+("Starting Factory" and its translations) is upstream interface text and
+is left alone.
+
+### The desktop computer registration
+
+The local PC has to be registered with the account for the desktop to
+show it as **This Computer** in Settings → Droid Computers. Upstream
+owns that registration entirely: its main process holds the whole flow
+in one function, and that function has exactly one call site, the
+startup sequence.
+
+The startup sequence runs before a fresh profile can hold an auth
+token. When the token is missing, upstream logs
+
+```
+[computer] No auth token available, skipping auto-registration
+```
+
+and stops there. Neither sign-in path reaches the registration
+afterwards: the browser sign-in stores the credentials and tells the
+renderer that the account is ready, and the customer-owned sign-in
+commits its credentials through its own session object, but neither
+leads back to the registration. The local host configuration therefore
+never gains a `computerRegistration`, `computer:getLocalId` answers
+null, and the card is never drawn.
+
+The failure is specific to the first sign-in. A profile that was
+already signed in when the app started has a token at startup, the
+registration runs, and the local computer id is there.
+
+`tools/computer-registration-patches.mjs` closes that gap without
+reimplementing anything. A single driver owns the attempt, and it calls
+upstream's own registration function, which keeps upstream's account,
+organization, payload and backend checks. The driver:
+
+- runs the startup attempt through itself, so there is exactly one
+  registration flow;
+- runs a forced attempt when the browser sign-in completes and when the
+  customer-owned sign-in completes. The attempt is not awaited, so the
+  sign-in flow is never delayed by the backend round trip;
+- lets `computer:getLocalId` wait for an attempt in flight, so the
+  renderer reads the registered id instead of the empty one;
+- keeps one attempt at a time, and holds a cooldown between attempts so
+  a renderer re-render cannot turn into a request loop. Only an attempt
+  that actually ran moves the cooldown deadline, so a caller that merely
+  observes the cooldown never postpones the retry;
+- queues a forced attempt that arrives while an older attempt is still
+  running, and runs it once that attempt settles, so a sign-in that
+  lands mid-attempt is not lost. The queue marker is released when the
+  queued attempt starts, not when it ends: a sign-in that completes
+  while the queued attempt is already running gets its own attempt with
+  its own credentials, instead of joining an attempt that may be
+  registering an account that was revoked in the meantime. Sign-ins that
+  arrive before the queued attempt starts still coalesce onto it,
+  because that attempt has not read any credentials yet;
+- reads the credentials once and hands them to upstream's registration
+  function, which now accepts them as an optional argument. Upstream
+  keeps the hosted-services gate and the missing-credentials decision;
+  only the repeated credential read is gone. The driver reads the
+  system clock directly, so no clock seam exists in its API.
+
+The renderer side refreshes the account's computer list when the local
+computer id appears, because the list fetched before the registration
+cannot contain the computer. The refresh is sequenced: the first read
+may be the request the page already had in flight, which was sent
+before the registration, and a second read after that one settles is a
+fresh one. The upstream effect runs on mount only, so this is one extra
+read per mount and never a refetch loop.
+
+Registration is not remote access. This layer never touches the
+remote-access preference, the local relay or the organization policy;
+the relay still needs the user's own toggle and the organization's own
+decision.
+
 ## 4. Native module
 
 `keytar` 7.9.0 is the only native module in the payload. The Windows
@@ -77,7 +192,7 @@ namespaces, and the build probes that with `unshare -Ur true`.
 
 ## 5. Assembly
 
-The bundle is assembled under `dist/factory-desktop-arch-0.205.0`:
+The bundle is assembled under `dist/factory-droid-desktop-0.205.0`:
 
 - the Electron runtime, with the application archive and the rebuilt
   native module,
@@ -158,6 +273,16 @@ enables it explicitly.
 program files, the desktop entry, the generated icons, `LICENSE` and
 `packaging/NOTICE`. The optional plugin tree is copied as a copyable
 extra, with its runner kept executable and its data files kept 0644.
+
+The package is named `factory-droid-desktop` and installs under
+`/opt/factory-droid-desktop`, with the command `/usr/bin/factory-droid-desktop`
+and the desktop entry `factory-droid-desktop.desktop`. The previous name,
+`factory-desktop-arch`, is declared in the recipe as `conflicts`,
+`replaces` and `provides`: both packages own `/usr/bin/factory-usage` and
+`/usr/bin/factory-callback`, so only one of them may own them, and the
+handover must not leave two owners. No state is migrated: the old data
+directories are left alone, and the CLI's own profile in `~/.factory/` is
+never touched by the desktop package.
 
 The package declares `MIT` plus `LicenseRef-Proprietary`: the port's own
 sources are MIT licensed, and the assembled payload contains proprietary

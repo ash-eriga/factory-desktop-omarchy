@@ -36,7 +36,16 @@ What it covers:
 - the theme bridge: trusted frames only, validated payloads, no writes
   outside the whitelisted state files,
 - the menus, the relay recovery and the billing polling gate,
+- the desktop computer registration: the driver on its own, upstream's
+  own registration function executed against synthetic dependencies, the
+  patched sign-in and local-id paths executed from the patched bytes, and
+  a second sign-in that completes while an earlier registration is still
+  running, with the untouched upstream bytes as the negative control,
 - the recipe fingerprint, the executable policy and the package modes,
+- the nominal identity of the port: the package name, the desktop entry,
+  the installed paths, the launcher data directory, the collector and
+  callback paths, the window title and the window class, and the visible
+  application name,
 - the generated brand assets and the packaging path that uses them.
 
 Synthetic fixtures are used on purpose: the vendor logo is never
@@ -90,6 +99,9 @@ compositor, and are therefore outside the automated scope:
 
 - the visual result of the theme follow and of the Glassy tint,
 - the authenticated relay connection and its recovery,
+- the desktop computer registration on a first sign-in: that the local
+  PC is registered without a restart, and that **This Computer** appears
+  in Settings → Droid Computers,
 - the authenticated billing and limits display,
 - the panel that renders the usage record — a separate, user-local
   component that is not part of this repository.
@@ -112,6 +124,20 @@ local step (Layer 3).
 
 ## Known limits
 
+- The rename was validated against the sources and the fixtures only. A
+  real package build, a real installation over the previous
+  `factory-desktop-arch` package and a real first sign-in on a fresh
+  account were not exercised for this release; the Arch handover
+  (`conflicts`, `replaces`, `provides`) is declared in the recipe and
+  asserted in the package content proof against the metadata keys makepkg
+  really writes (`conflict`, `replaces`, `provides`), but the transition
+  itself was not run here. The opt-in `factory-desktop://` registration
+  cannot be migrated either: it must be rolled back with the old helper
+  before the old package is replaced, which the README documents and the
+  offline suite asserts, but which was not performed here. The desktop
+  computer registration is covered by automated regression tests that
+  execute the patched bytes; a fresh real sign-in and any cross-device
+  behavior are outside that scope.
 - The vendor payload's publisher signature is not verified. The pinned
   SHA-256 is the only trust anchor, and the bundle manifest records
   `"publisherSignature": "not verified"`.

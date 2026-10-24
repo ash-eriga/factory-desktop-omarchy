@@ -6,6 +6,6 @@
 # FACTORY_DESKTOP_BUNDLE when needed.
 set -eu
 PLUGIN_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-BUNDLE="${FACTORY_DESKTOP_BUNDLE:-/opt/factory-desktop-arch}"
+BUNDLE="${FACTORY_DESKTOP_BUNDLE:-/opt/factory-droid-desktop}"
 # -B: never write __pycache__ into the fingerprint-verified payload.
 exec python3 -B "$PLUGIN_DIR/runtime/collector.py" --bundle "$BUNDLE" "$@"

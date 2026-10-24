@@ -89,7 +89,10 @@ test('patched real lifecycle is valid and unpatched lacks every Linux guard', { 
   assert.ok(!up.lifecycle.includes('before-input-event'),
     'upstream gained its own before-input-event handler; revisit the keyboard patch');
   assert.ok(patched.includes('before-input-event'));
-  assert.ok(patched.includes('factory-desktop-arch.desktop'), 'desktop entry name not set');
+  assert.ok(patched.includes('factory-droid-desktop.desktop'), 'desktop entry name not set');
+  // The port ships under its own visible name, set before the first window.
+  assert.ok(patched.includes('T.app.setName("Factory Droid Desktop")'),
+    'application name not set');
   // Native daemon IPC transport and hardening survive the patch untouched.
   assert.ok(patched.includes('DesktopDaemonTransportMode.Ipc'));
   assert.ok(patched.includes('contextIsolation:!0'));

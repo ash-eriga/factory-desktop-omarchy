@@ -42,6 +42,9 @@ async function brandFixture({ pins = {}, prefix = 'factory-brand-fixture-' } = {
   await mkdir(path.join(dir, 'tools'), { recursive: true });
   await cp(path.join(ROOT, 'tools', 'brand-assets.mjs'), path.join(dir, 'tools', 'brand-assets.mjs'));
   await cp(path.join(ROOT, 'tools', 'common.mjs'), path.join(dir, 'tools', 'common.mjs'));
+  // common.mjs derives the bundle path from the identity module, so the
+  // fixture carries that module too.
+  await cp(path.join(ROOT, 'tools', 'app-identity.mjs'), path.join(dir, 'tools', 'app-identity.mjs'));
   await writeFile(path.join(dir, 'versions.json'), JSON.stringify({
     ...versions,
     brandRotorAnchor: SYNTHETIC_ANCHOR,
@@ -244,7 +247,7 @@ test('the recipe installs the regenerated icons', {
     await cp(path.join(ROOT, 'omarchy'), path.join(dir, 'omarchy'), { recursive: true });
     await cp(path.join(ROOT, 'LICENSE'), path.join(dir, 'LICENSE'));
     await cp(path.join(ROOT, 'PKGBUILD'), path.join(dir, 'PKGBUILD'));
-    const bundle = path.join(dir, 'dist', `factory-desktop-arch-${versions.desktop}`);
+    const bundle = path.join(dir, 'dist', `factory-droid-desktop-${versions.desktop}`);
     await mkdir(bundle, { recursive: true });
     await writeFile(path.join(bundle, 'factory-desktop'), 'stub');
     const pkgdir = path.join(dir, 'pkg');
@@ -253,13 +256,13 @@ test('the recipe installs the regenerated icons', {
       'bash', path.join(dir, 'PKGBUILD'), pkgdir, dir], { encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);
     const packaged = async (...parts) => readFile(path.join(pkgdir, ...parts));
-    assert.equal((await packaged('usr/share/icons/hicolor/scalable/apps/factory-desktop-arch.svg')).toString(),
+    assert.equal((await packaged('usr/share/icons/hicolor/scalable/apps/factory-droid-desktop.svg')).toString(),
       (await readFile(path.join(brandDir, 'factory.svg'))).toString());
-    const raster = await packaged('usr/share/icons/hicolor/256x256/apps/factory-desktop-arch.png');
+    const raster = await packaged('usr/share/icons/hicolor/256x256/apps/factory-droid-desktop.png');
     assert.equal(raster.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
-    assert.equal((await packaged('usr/share/doc/factory-desktop-arch/omarchy/factory-usage-service/assets/factory.svg')).toString(),
+    assert.equal((await packaged('usr/share/doc/factory-droid-desktop/omarchy/factory-usage-service/assets/factory.svg')).toString(),
       (await readFile(path.join(brandDir, 'factory-mark.svg'))).toString());
-    assert.equal((await packaged('usr/share/doc/factory-desktop-arch/omarchy/factory-usage-service/assets/factory-light.svg')).toString(),
+    assert.equal((await packaged('usr/share/doc/factory-droid-desktop/omarchy/factory-usage-service/assets/factory-light.svg')).toString(),
       (await readFile(path.join(brandDir, 'factory-mark-light.svg'))).toString());
   } finally {
     await rm(dir, { recursive: true, force: true });

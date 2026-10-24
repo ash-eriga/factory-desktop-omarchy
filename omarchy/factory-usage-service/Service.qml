@@ -6,7 +6,7 @@
 // plugin is enabled in shell.json; disabling it stops the timer entirely.
 //
 // The collector runs against the installed vendor bundle
-// (/opt/factory-desktop-arch) but the collector/helper code lives inside
+// (/opt/factory-droid-desktop) but the collector/helper code lives inside
 // THIS plugin directory, so collector updates deploy without reinstalling
 // the package. Paths are resolved from the plugin's own location via
 // Qt.resolvedUrl().toLocalFile() (URL-escaped correctly, no shell
@@ -28,7 +28,7 @@ Item {
 
     readonly property int refreshIntervalSec: 900
     readonly property string bundlePath: Quickshell.env("FACTORY_DESKTOP_BUNDLE") !== ""
-        ? Quickshell.env("FACTORY_DESKTOP_BUNDLE") : "/opt/factory-desktop-arch"
+        ? Quickshell.env("FACTORY_DESKTOP_BUNDLE") : "/opt/factory-droid-desktop"
 
     // This plugin's directory as a plain filesystem path. Decoding the file
     // URL handles spaces and other URL-escaped characters (%20 and friends);

@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /opt/factory-desktop-arch/port/factory-callback.sh "$@"
+exec /opt/factory-droid-desktop/port/factory-callback.sh "$@"

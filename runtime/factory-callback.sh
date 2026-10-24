@@ -1,5 +1,5 @@
 #!/bin/sh
-# Opt-in factory-desktop:// callback registration for the Factory Desktop port.
+# Opt-in factory-desktop:// callback registration for the Factory Droid Desktop port.
 # The implementation lives in factory-callback.py (journaling, exact
 # rollback, desktop-specific overrides); see its header for usage.
 set -eu

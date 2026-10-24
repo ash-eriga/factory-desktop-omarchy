@@ -1,6 +1,12 @@
+import { PRODUCT_NAME, DESKTOP_ENTRY } from './app-identity.mjs';
+
 // Exact anchors from the inspected, checksum-pinned Desktop 0.205.0 bundle.
 // Enable the vendor's integrated header, menu, theme and zoom capabilities
 // while keeping the actual Linux platform identity and daemon transport.
+//
+// This module also owns the port's visible identity anchors: the main
+// process name, the renderer window title and the initial page title all
+// carry the port's own name (tools/app-identity.mjs).
 //
 // 0.205.0 upstream now supports the non-darwin (Linux included) platform
 // natively for: the integrated renderer header (`showApplicationMenu` is
@@ -47,7 +53,14 @@ export const changes = [
   // factory-desktop:// callback opt-in, registered by its own helper with
   // rollback, and only fixes the XDG desktop entry name for Linux badges.
   ['callback opt-in', 'function xte(){try{const e=fa();',
-    'function xte(){if(process.platform==="linux"){T.app.setDesktopName("factory-desktop-arch.desktop");return;}try{const e=fa();'],
+    `function xte(){if(process.platform==="linux"){T.app.setDesktopName("${DESKTOP_ENTRY}");return;}try{const e=fa();`],
+  // The visible name of the port. The official manifest names the
+  // application "Factory"; the port ships as its own product, so the name
+  // is set before the first window exists and before the protocol helper
+  // runs. The window title, the taskbar entry and the application menu
+  // read the name from here.
+  ['application name', 'i.startupTracker.beginPhase("ipc_and_protocol_setup"),xte()',
+    `i.startupTracker.beginPhase("ipc_and_protocol_setup"),T.app.setName("${PRODUCT_NAME}"),xte()`],
   // The pacman boundary: an Arch-managed install must never enforce the
   // vendor's minimum-version quit prompt, run its in-app updater entry
   // points, or offer "Check for Updates" in the menu. Upstream 0.205.0
@@ -102,9 +115,30 @@ export const rendererChanges = [
     'function factoryLinuxBillingFocusSnapshot(){return typeof document==="undefined"||document.visibilityState!=="hidden"&&(typeof document.hasFocus!=="function"||document.hasFocus())}function factoryLinuxBillingFocusSubscribe(t){if(typeof window==="undefined"||typeof document==="undefined")return()=>{};return window.addEventListener("focus",t),window.addEventListener("blur",t),document.addEventListener("visibilitychange",t),()=>{window.removeEventListener("focus",t),window.removeEventListener("blur",t),document.removeEventListener("visibilitychange",t)}}function factoryLinuxBillingUseFocused(){return P.useSyncExternalStore(factoryLinuxBillingFocusSubscribe,factoryLinuxBillingFocusSnapshot,factoryLinuxBillingFocusSnapshot)}function Sit(t){const focused=factoryLinuxBillingUseFocused(),e=z.c(3),n=t===void 0?!0:t,i=Fu(),o=n&&!i&&focused;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Xn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!1,refetchOnWindowFocus:!0,retry:!1},e[2]=r):r=e[2],io(s,r)}'],
 ];
 
+// The window title belongs to the renderer: Electron propagates a page
+// title to the native window, so the upstream default title and the
+// session title suffix are part of the port's visible name. The session
+// title itself is preserved: only the product suffix changes.
+//
+// This is a layer of its own: the renderer compatibility layer above
+// stays scoped to the billing gate, and the identity layers stay
+// separable from it.
+export const rendererTitleChanges = [
+  ['default window title', 'GGn="Factory"', `GGn="${PRODUCT_NAME}"`],
+  ['session window title suffix', 'r=n?`${n} - Factory`:GGn;',
+    `r=n?\`\${n} - ${PRODUCT_NAME}\`:GGn;`],
+];
+
 export function diagnoseRendererHelperCollisions(source) {
   return rendererHelperNames.filter(name => source.includes(name));
 }
+
+// The initial page title: the window carries it before the renderer mounts
+// and replaces it with its own title. The renderer title layer above owns
+// the title the window shows afterwards.
+export const htmlTitleChanges = [
+  ['initial window title', '<title>Factory</title>', `<title>${PRODUCT_NAME}</title>`],
+];
 
 export function diagnose(source, transformations = changes) {
   return transformations.map(([name, before]) => {

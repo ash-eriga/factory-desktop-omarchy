@@ -5,6 +5,11 @@ Factory Desktop, Droid and the Factory mark belong to **The San Francisco
 AI Factory, Inc.**, and no contribution here grants access to their
 products, endorses this port, or changes their rights.
 
+The port itself is named **Factory Droid Desktop** (technical slug
+`factory-droid-desktop`). That name belongs to the port's own work and is
+not a Factory trademark; the upstream product name, the
+`factory-desktop://` scheme and the vendor's mark keep their own names.
+
 ## Before you start
 
 - Keep the vendor payload out of the repository. No installer, no

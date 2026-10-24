@@ -15,7 +15,7 @@ const asar = require('@electron/asar');
 const { _electron } = await import(process.env.FACTORY_PLAYWRIGHT_MODULE || 'playwright');
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const versions = JSON.parse(await readFile(path.join(projectRoot, 'versions.json'), 'utf8'));
-const bundle = path.resolve(process.argv[2] || `dist/factory-desktop-arch-${versions.desktop}`);
+const bundle = path.resolve(process.argv[2] || `dist/factory-droid-desktop-${versions.desktop}`);
 const output = path.resolve(process.argv[3] || `build/menu-smoke-${versions.desktop}`);
 const rendererRelative = versions.renderer;
 

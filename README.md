@@ -1,7 +1,14 @@
-# factory-desktop-arch (unofficial)
+# Factory Droid Desktop (unofficial)
 
-An unofficial, personal-use port of **Factory Desktop 0.205.0** for
-Arch-based systems, built and validated on Omarchy, x86_64.
+**Factory Droid Desktop** is an unofficial, personal-use port of **Factory
+Desktop 0.205.0** for Arch-based systems, built and validated on Omarchy,
+x86_64.
+
+The port was published as `factory-desktop-arch` until it was renamed. The
+Arch package, the command and the installed paths now use the technical
+slug `factory-droid-desktop`; the visible name is **Factory Droid Desktop**.
+See [Renamed](#renamed) for the handover and for what the rename does not
+move.
 
 This repository holds the port's own sources: the Linux compatibility
 recipe, the hardened launcher, the usage collector, the optional Omarchy
@@ -20,16 +27,31 @@ Windows installer (downloaded as data, SHA-256 pinned, never executed),
 extracts the application archive, applies the exact main-process,
 preload and renderer patches, rebuilds the single native module (keytar
 7.9.0) against the pinned Linux Electron, and ships the result under
-`/opt/factory-desktop-arch` with a hardened launcher.
+`/opt/factory-droid-desktop` with a hardened launcher.
+
+The shipped application carries the port's own name: its manifest, the
+main process, the window title and the desktop entry all say **Factory
+Droid Desktop**. The upstream product it is built from is still called
+Factory Desktop, and that name is kept wherever the vendor's own payload,
+protocol or brand is meant. The vendor's own interface copy inside the
+sign-in flow ("Starting Factory") is upstream text and is left as it is.
 
 On top of that, the port adds:
 
 - an isolated Factory home and Chromium profile (no ambient `FACTORY_*`
-  overrides, no writes outside `~/.local/share/factory-desktop-arch/`),
+  overrides, no writes outside `~/.local/share/factory-droid-desktop/`),
 - an optional Omarchy theme follow (palette, background and accent, plus
   Glassy window tint) that never changes Omarchy or system settings,
 - recovery of the upstream local relay/daemon connection, without enabling
   a disabled preference or bypassing organization policy,
+- recovery of the upstream desktop computer registration, so the local PC
+  is registered with the account on the first sign-in and appears as
+  **This Computer** in Settings → Droid Computers. The recovery is covered
+  by automated regression tests that run the patched sign-in path and the
+  registration driver against the patched bytes; a real first sign-in on a
+  fresh account was not exercised for this release, and no cross-device
+  behavior is claimed. None of this is official Linux support from
+  Factory,
 - an opt-in `factory-desktop://` callback registration with a faithful
   rollback,
 - an account usage collector (`factory-usage`) that reports subscription
@@ -97,24 +119,64 @@ with `pacman -U <file>`.
 
 | Path | Purpose |
 |---|---|
-| `/opt/factory-desktop-arch/` | the assembled bundle |
-| `/usr/bin/factory-desktop-arch` | launcher for the desktop app |
+| `/opt/factory-droid-desktop/` | the assembled bundle |
+| `/usr/bin/factory-droid-desktop` | launcher for the desktop app |
 | `/usr/bin/factory-usage` | prints the usage record as JSON |
 | `/usr/bin/factory-callback` | opt-in `factory-desktop://` registration |
-| `/usr/share/applications/factory-desktop-arch.desktop` | desktop entry |
-| `/usr/share/icons/hicolor/…/factory-desktop-arch.{svg,png}` | icons, generated at build time |
-| `/usr/share/licenses/factory-desktop-arch/` | `LICENSE` and `NOTICE` |
-| `/usr/share/doc/factory-desktop-arch/omarchy/` | the optional service plugin, as a copyable extra |
+| `/usr/share/applications/factory-droid-desktop.desktop` | desktop entry |
+| `/usr/share/icons/hicolor/…/factory-droid-desktop.{svg,png}` | icons, generated at build time |
+| `/usr/share/licenses/factory-droid-desktop/` | `LICENSE` and `NOTICE` |
+| `/usr/share/doc/factory-droid-desktop/omarchy/` | the optional service plugin, as a copyable extra |
+
+### Renamed
+
+The port was named `factory-desktop-arch` before. The new package is
+`factory-droid-desktop`, and the Arch handover is declared in the recipe:
+
+- `conflicts=('factory-desktop-arch')` and `replaces=('factory-desktop-arch')`,
+  because both packages own `/usr/bin/factory-usage` and
+  `/usr/bin/factory-callback`: only one of them may own them, and
+  installing the new package hands them over;
+- `provides=('factory-desktop-arch')`, so anything that still depends on
+  the old name stays satisfiable.
+
+Nothing else is migrated. The state of the old package stays where it is
+(`~/.local/share/factory-desktop-arch/`, `~/.cache/factory-desktop-arch/`,
+`~/.local/state/factory-desktop-arch/`), the new package uses the new
+paths, and the old directories are yours to delete or to keep. The CLI
+keeps its own profile in `~/.factory/`, untouched by the rename. No
+credential, profile or keyring entry is imported, and the package never
+writes your user configuration.
+
+#### The handover, in order
+
+The opt-in `factory-desktop://` registration is user-local, and it is not
+migrated. The new helper reads only its own journal directory, so it
+cannot undo a registration made by the old helper: a rollback with it
+would be a no-op and would leave the old entry pointing at the launcher
+the old package owned. Order matters:
+
+1. While the old package is still installed, roll the old registration
+   back with the old helper: `factory-callback rollback`. It restores the
+   associations that were in place before the registration.
+2. Then install the new package (`pacman -U <package file>`), which
+   replaces the old one.
+3. If you want the scheme back, register it again with the new helper:
+   `factory-callback register`.
+
+Skipping the first step leaves a stale handler that names a command the
+new package does not install. Nothing about the scheme itself changes:
+the `factory-desktop://` scheme belongs to the upstream protocol.
 
 ### Update, remove, reset
 
 ```bash
 pacman -U <new package file>   # update
-pacman -R factory-desktop-arch  # remove
+pacman -R factory-droid-desktop  # remove
 ```
 
 Neither the update nor the removal touches your data. The port's state
-lives in `~/.local/share/factory-desktop-arch/` (isolated Factory home and
+lives in `~/.local/share/factory-droid-desktop/` (isolated Factory home and
 Chromium profile), the usage record lives in
 `~/.local/state/omarchy/agents/usage/factory.json`, and the local
 accounting ledger lives in the user cache. `pacman -R` removes the
@@ -131,14 +193,14 @@ factory-callback rollback
 ## Usage
 
 ```bash
-factory-desktop-arch          # the desktop app
+factory-droid-desktop       # the desktop app
 factory-usage                 # print the usage record as JSON
 factory-usage --write         # also write the Omarchy agents-panel record
 factory-usage --force         # bypass the 5-minute cache
 ```
 
 The launcher isolates all Factory state under
-`~/.local/share/factory-desktop-arch/` and scrubs ambient `FACTORY_*`
+`~/.local/share/factory-droid-desktop/` and scrubs ambient `FACTORY_*`
 overrides. It does not auto-register the `factory-desktop://` scheme.
 
 ### Callback registration (opt-in)
@@ -193,8 +255,8 @@ opaque, and saved manual settings stay intact.
 ```bash
 npm ci --ignore-scripts --no-audit --no-fund   # toolchain; lifecycle scripts disabled
 npm test                                       # offline test suite
-npm run build                                  # assembles dist/factory-desktop-arch-0.205.0
-npm run verify                                 # re-checks hashes, modes, ELF, recipe identity
+npm run build                                  # assembles dist/factory-droid-desktop-0.205.0
+npm run verify                                 # re-checks hashes, modes, ELF, recipe identity, application name
 npm run brand                                  # regenerates the icons from the vendor snapshot
 ```
 
@@ -237,7 +299,10 @@ npm test
 The suite is offline: no network, no credentials, no real account, no GUI
 session. It covers the patch recipes, the launcher, the collector and its
 Python tests, the callback rollback, the theme bridge, the menus, the
-recipe fingerprint and the package modes.
+recipe fingerprint and the package modes. The nominal identity of the port
+— the package name, the command, the desktop entry, the installed paths
+and the visible application name — has its own regression test, so a
+rename that reaches only half of the tree fails the suite.
 
 Tests that need the official payload run against the pristine snapshot the
 build produces; they report an explicit skip when it is absent, and the
@@ -268,6 +333,10 @@ Two separate things live here:
    a mixed work, which the package declares as `MIT` plus
    `LicenseRef-Proprietary`. Redistribution of Factory components requires
    permission from the rights holder.
+3. **The names** — *Factory Droid Desktop* and *factory-droid-desktop* are
+   the port's own names. They are not Factory trademarks, they grant no
+   rights over Factory's products, and they do not extend the vendor's
+   license to anything.
 
 `packaging/NOTICE` states the same split inside the package. No Factory
 authorship, endorsement or sponsorship of this port is implied, and this
