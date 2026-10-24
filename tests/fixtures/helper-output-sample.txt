@@ -1,0 +1,5 @@
+[2026-10-11T12:00:00Z] [sdk] Some internal SDK log line that must be ignored
+[2026-10-11T12:00:00Z] [sdk] {"sneaky": "do not parse objects from logs"}
+warning: another stray line
+FACTORY-USAGE-JSON-1
+{"ok": true, "credentialSource": "workos", "orgKnown": true, "region": "global", "standard": {"fiveHour": {"usedPercent": 10, "windowEnd": "2026-10-11T16:00:00Z", "secondsRemaining": 14400}, "weekly": null, "monthly": null}, "core": null, "extraUsageBalanceCents": 100, "extraUsageAllowed": true}

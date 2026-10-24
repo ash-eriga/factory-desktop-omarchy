@@ -1,0 +1,8 @@
+This is an unofficial, experimental, personal-use port.
+Factory Desktop and Droid are proprietary products of The San Francisco AI
+Factory, Inc. They are not covered by the license of the local packaging tools.
+No endorsement or Linux support from Factory is implied.
+Do not publish generated packages, extracted vendor files, or credentials.
+The packaging tools were written for this project. The Fedora port was used
+as an architectural reference, not copied as a licensed code dependency.
+Redistribution of Factory components requires permission from the rights holder.

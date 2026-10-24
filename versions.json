@@ -1,0 +1,17 @@
+{
+  "desktop": "0.205.0",
+  "electron": "42.11.15",
+  "droid": "0.248.0",
+  "themeBridgeSchema": 1,
+  "installerUrl": "https://downloads.factory.ai/factory-desktop/releases/0.205.0/win32/x64/Factory-0.205.0%20Setup.exe",
+  "installerSha256": "ec6998c3cd6a788045ac84ed3f6e1e81eccda7e31ead7d24a12e8952b5e69b5b",
+  "lifecycle": ".vite/build/initLifecycle-DxjvbXRO.js",
+  "authModule": ".vite/build/index-6kbj_fUN.js",
+  "renderer": ".vite/renderer/main_window/assets/index-Czx_74nj.js",
+  "rendererHtml": ".vite/renderer/main_window/index.html",
+  "rendererCss": ".vite/renderer/main_window/assets/index-CqyrAZ3T.css",
+  "upstreamElectron": "42.3.3",
+  "brandRotorAnchor": "M582.594 251.356",
+  "brandRotorSha256": "332815e496a390fc893d22fcf2eda0e211903e6729aca306ab4133ce439e9a7f",
+  "brandRotorOccurrences": 3
+}

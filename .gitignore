@@ -1,0 +1,28 @@
+# Dependencies and build outputs. The build never commits them, and they
+# must never be uploaded: they contain the vendor payload, the generated
+# brand assets and the pristine vendor snapshot.
+node_modules/
+build/
+dist/
+pkg/
+src/
+
+# Packages and archives.
+*.pkg.tar.*
+*.src.tar.*
+
+# Python bytecode.
+__pycache__/
+*.py[co]
+
+# Local state that must never reach the repository: logs, dumps,
+# profiles, local environment files.
+*.log
+*.dump
+*.core
+*.prof
+.env
+.env.*
+playwright-report/
+test-results/
+tests/fake-bin/

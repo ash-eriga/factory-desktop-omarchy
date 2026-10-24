@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "credentialSource": "workos",
+  "orgKnown": true,
+  "region": "global",
+  "standard": {
+    "fiveHour": { "usedPercent": 90.0, "windowEnd": "2026-10-10T00:00:00Z", "secondsRemaining": 0 },
+    "weekly": { "usedPercent": 70.0, "windowEnd": "2026-10-01T00:00:00Z" },
+    "monthly": { "usedPercent": 12.0, "windowEnd": "2026-10-10T00:00:00Z" }
+  },
+  "core": null,
+  "extraUsageBalanceCents": null,
+  "extraUsageAllowed": null
+}

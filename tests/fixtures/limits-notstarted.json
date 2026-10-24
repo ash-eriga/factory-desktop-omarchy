@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "credentialSource": "workos",
+  "orgKnown": false,
+  "region": "eu",
+  "tier": "max",
+  "standard": {
+    "fiveHour": { "usedPercent": 0, "windowEnd": null, "secondsRemaining": null },
+    "weekly": { "usedPercent": 0, "windowEnd": null },
+    "monthly": { "usedPercent": 0, "windowEnd": "2099-01-01T00:00:00Z", "secondsRemaining": 0 }
+  },
+  "core": null,
+  "extraUsageBalanceCents": 0,
+  "extraUsageAllowed": false
+}

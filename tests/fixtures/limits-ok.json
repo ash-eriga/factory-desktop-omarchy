@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "credentialSource": "workos",
+  "orgKnown": true,
+  "region": "global",
+  "tier": "team",
+  "standard": {
+    "fiveHour": { "usedPercent": 42.5, "windowEnd": "2026-10-11T16:00:00Z", "secondsRemaining": 14400 },
+    "weekly": { "usedPercent": 61.0, "windowEnd": "2026-10-09T00:00:00Z" },
+    "monthly": { "usedPercent": 133.4, "windowEnd": "2026-11-01T00:00:00Z", "secondsRemaining": 100 }
+  },
+  "core": {
+    "fiveHour": { "usedPercent": 5.0, "windowEnd": "2026-10-11T14:00:00Z", "secondsRemaining": 7200 },
+    "weekly": { "usedPercent": 2.0, "windowEnd": "2026-10-16T00:00:00Z" },
+    "monthly": { "usedPercent": 1.0, "windowEnd": "2026-11-01T00:00:00Z" }
+  },
+  "extraUsageBalanceCents": 4500,
+  "extraUsageAllowed": true
+}

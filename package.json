@@ -1,0 +1,21 @@
+{
+  "name": "factory-desktop-arch-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "build": "node tools/build.mjs",
+    "brand": "node tools/brand-assets.mjs",
+    "verify": "node tools/verify.mjs",
+    "upstream:check": "node tools/upstream-check.mjs"
+  },
+  "devDependencies": {
+    "@electron/asar": "4.2.0",
+    "@electron/rebuild": "4.0.3",
+    "@factory/cli-linux-x64": "0.248.0",
+    "7zip-bin": "5.2.0",
+    "electron": "42.11.15",
+    "node-addon-api": "4.3.0"
+  }
+}

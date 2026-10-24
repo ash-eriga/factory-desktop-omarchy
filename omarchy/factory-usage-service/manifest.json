@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "factory.usage-service",
+  "name": "Factory Usage Service",
+  "version": "1.0.0",
+  "author": "factory-desktop-arch",
+  "license": "MIT",
+  "description": "Periodically refreshes the Factory usage record for the Omarchy agents panel via factory-usage --write.",
+  "kinds": ["service"],
+  "entryPoints": {
+    "service": "Service.qml"
+  }
+}

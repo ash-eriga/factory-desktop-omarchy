@@ -1,0 +1,49 @@
+# Minimal CI for the source and fixture tests.
+#
+# It runs the offline suite only: no vendor payload, no package build, no
+# credentials, no uploaded artifacts. A green run is not evidence that a
+# full Arch build succeeds; that remains a local step (see
+# docs/validation.md).
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-tests:
+    name: Offline source and fixture tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install the toolchain
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install the icon renderer
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends librsvg2-bin
+
+      - name: Check the shell entry points
+        run: |
+          for script in runtime/*.sh packaging/factory-desktop-arch packaging/factory-usage packaging/factory-callback; do
+            sh -n "$script"
+          done
+
+      - name: Run the offline test suite
+        run: npm test
