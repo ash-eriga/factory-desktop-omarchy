@@ -1,5 +1,7 @@
-// Test-mount the real H5c / IUe / Radix viewport in the existing isolated
-// theme smoke. Only the rows/header/footer are synthetic, with no user data.
+// Test-mount the real session-list wrapper (0.206 alias k8c), which renders
+// the Radix viewport and the session-list edge overlays, in the existing
+// isolated theme smoke. Only the rows/header/footer are synthetic, with no
+// user data.
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { saveDisposableScreenshot } from './application-menu-smoke.mjs';
@@ -16,14 +18,14 @@ function mountSidebarFade(){
  const host=document.createElement("div");host.style.cssText="position:absolute;inset:0";
  host.id="factory-sidebar-fade-fixture";parent.append(host);
  function SidebarFixture(){
-  const viewport=P.useRef(null);
-  return c.jsxs(Zu,{style:{display:"flex",flexDirection:"column",height:"100%",background:"transparent"},children:[
+  const viewport=L.useRef(null);
+  return c.jsxs(df,{style:{display:"flex",flexDirection:"column",height:"100%",background:"transparent"},children:[
    c.jsx("div",{style:{height:32,flexShrink:0,padding:"6px 12px",boxSizing:"border-box"},children:"Projects"}),
-   c.jsx("div",{style:{flex:1,minHeight:0,position:"relative"},children:c.jsx(H5c,{viewportRef:viewport,children:c.jsx("div",{children:Array.from({length:48},(_,index)=>c.jsx(Bve,{"data-fade-row":index,style:{height:32},onClick:event=>{event.currentTarget.dataset.clicked="true"},children:"Session "+String(index+1).padStart(2,"0")},index))})})}),
+   c.jsx("div",{style:{flex:1,minHeight:0,position:"relative"},children:c.jsx(k8c,{viewportRef:viewport,children:c.jsx("div",{children:Array.from({length:48},(_,index)=>c.jsx("button",{"data-fade-row":index,style:{height:32},onClick:event=>{event.currentTarget.dataset.clicked="true"},children:"Session "+String(index+1).padStart(2,"0")},index))})})}),
    c.jsx("div",{style:{height:48,flexShrink:0,padding:12,boxSizing:"border-box"},children:"Test account"})
   ]});
  }
- const root=hGo.createRoot(host);root.render(c.jsx(SidebarFixture,{}));
+ const root=IKo.createRoot(host);root.render(c.jsx(SidebarFixture,{}));
  return()=>{root.unmount();host.remove();texture.remove();parent.style.position=oldPosition;old.forEach(([node,value])=>{node.style.visibility=value})};
 }
 `;

@@ -6,8 +6,8 @@ import { glassyNavigationChanges, glassyNavigationCss } from '../tools/glassy-na
 import { patch, rendererChanges } from '../tools/theme-renderer-patches.mjs';
 import { navigationFixtureSource } from './glassy-navigation-smoke.mjs';
 
-const vendor = new URL('../build/upstream-pristine-0.205.0/app/.vite/renderer/main_window/assets/', import.meta.url);
-const renderer = new URL('index-Czx_74nj.js', vendor);
+const vendor = new URL('../build/upstream-pristine-0.206.0/app/.vite/renderer/main_window/assets/', import.meta.url);
+const renderer = new URL('index-DTd1u_pI.js', vendor);
 
 test('navigation transparency is restricted to structural painters inside the sidebar', () => {
   const selectors = glassyNavigationCss.slice(0, glassyNavigationCss.indexOf('{')).trim().split(',').map(s => s.trim());
@@ -20,17 +20,18 @@ test('navigation transparency is restricted to structural painters inside the si
 test('actual appearance atom appends navigation CSS only inside the existing Glassy gate', () => {
   const change = rendererChanges.find(([name]) => name === 'derive palette tokens without changing stored Factory settings');
   const glass = Symbol('glass'), snapshot = Symbol('snapshot');
-  const { Wni, V5e } = vm.runInNewContext(change[2].replace(/,$/, ';') + '({Wni,V5e})', {
-    c4e: () => ({}), ZRc: {}, Qx: {}, ITr: {},
-    as: value => typeof value === 'function' ? value : { initial: value },
+  const { Xsi, wke } = vm.runInNewContext(change[2].replace(/,$/, ';') + '({Xsi,wke})', {
+    F5e: () => ({}), q9c: {}, mx: {}, L8r: {},
+    fs: value => typeof value === 'function' ? value : { initial: value },
     factoryPortGlassActive: glass, factoryPortThemeSnapshot: snapshot,
     factoryPortNavigationGlassCss: glassyNavigationCss,
-    HTr: () => 'base;', factoryPortGlassCss: () => 'glass;',
+    e7r: () => 'base;', factoryPortGlassCss: () => 'glass;',
+    Ur: { Dark: 'dark', Light: 'light' }, $H: Symbol('$H'),
   });
-  const get = (enabled, active) => atom => atom === V5e ? enabled : atom === glass ? active : {};
-  assert.equal(Wni(get(false, true)), '');
-  assert.equal(Wni(get(true, false)), 'base;');
-  assert.equal(Wni(get(true, true)), 'base;glass;' + glassyNavigationCss);
+  const get = (enabled, active) => atom => atom === wke ? enabled : atom === glass ? active : {};
+  assert.equal(Xsi(get(false, true)), '');
+  assert.equal(Xsi(get(true, false)), 'base;');
+  assert.equal(Xsi(get(true, true)), 'base;glass;' + glassyNavigationCss);
 });
 
 test('pinned settings component is marked without altering its routing, search or control logic', {
@@ -44,7 +45,7 @@ test('pinned settings component is marked without altering its routing, search o
   for (const selector of ['data-analytics-nav-root-v2', 'data-wiki-nav-pane-v2', 'data-academy-nav-root-v2']) {
     assert.ok(css.includes(`[${selector}]{display:flex;flex:1;flex-direction:column;min-height:0;background:var(--core-v2-bg-surface)}`));
   }
-  assert.ok(source.includes('Q=G,oe=f,de=w.bg.surface,le=!0,ae="column",ue=1,Se="100%"'),
+  assert.ok(source.includes('Q=G,oe=f,fe=w.bg.surface,de=!0,ae="column",ue=1,Ce="100%"'),
     'Software Factory has its own surface painter too');
 });
 

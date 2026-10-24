@@ -35,7 +35,7 @@ and the Python suites.
 
 Some tests validate the patch anchors against the real upstream sources.
 They read the pristine vendor snapshot that the build produces under
-`build/upstream-pristine-0.205.0/`; without it they report an explicit
+`build/upstream-pristine-0.206.0/`; without it they report an explicit
 skip saying that the recipe is unvalidated. If you changed a patch
 recipe, run a real build before you ask for a review, so those tests
 actually execute.

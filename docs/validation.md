@@ -60,7 +60,7 @@ apply the recipe, and then execute the patched billing hook and theme
 bridge extracted from the patched bytes.
 
 They read the pristine vendor snapshot that the build produces in
-`build/upstream-pristine-0.205.0/` (see
+`build/upstream-pristine-0.206.0/` (see
 [architecture](architecture.md#7-generated-outputs)). The snapshot is
 copied out of the freshly extracted application before any patch is
 applied, and it stays in the ignored build directory: it is proprietary

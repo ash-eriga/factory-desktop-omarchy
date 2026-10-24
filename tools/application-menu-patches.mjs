@@ -94,13 +94,13 @@ export const applicationMenuPreload = `applicationMenu:{
 onOpen:listener=>{
  if(typeof listener!=="function")return()=>{};
  const open=(_event,value)=>listener(value),close=()=>listener(null);
- U.ipcRenderer.on("factory-linux-menu:open",open);
- U.ipcRenderer.on("factory-linux-menu:close",close);
- void U.ipcRenderer.invoke("factory-linux-menu:ready",true).catch(()=>{});
- return()=>{U.ipcRenderer.removeListener("factory-linux-menu:open",open);U.ipcRenderer.removeListener("factory-linux-menu:close",close);void U.ipcRenderer.invoke("factory-linux-menu:ready",false).catch(()=>{})};
+ M.ipcRenderer.on("factory-linux-menu:open",open);
+ M.ipcRenderer.on("factory-linux-menu:close",close);
+ void M.ipcRenderer.invoke("factory-linux-menu:ready",true).catch(()=>{});
+ return()=>{M.ipcRenderer.removeListener("factory-linux-menu:open",open);M.ipcRenderer.removeListener("factory-linux-menu:close",close);void M.ipcRenderer.invoke("factory-linux-menu:ready",false).catch(()=>{})};
 },
-activate:(token,command)=>typeof token==="string"&&Number.isInteger(command)?U.ipcRenderer.invoke("factory-linux-menu:activate",{token,command}).catch(()=>false):Promise.resolve(false),
-dismiss:token=>typeof token==="string"?U.ipcRenderer.invoke("factory-linux-menu:dismiss",token).catch(()=>{}):Promise.resolve()
+activate:(token,command)=>typeof token==="string"&&Number.isInteger(command)?M.ipcRenderer.invoke("factory-linux-menu:activate",{token,command}).catch(()=>false):Promise.resolve(false),
+dismiss:token=>typeof token==="string"?M.ipcRenderer.invoke("factory-linux-menu:dismiss",token).catch(()=>{}):Promise.resolve()
 },`;
 
 // Uses textContent, not HTML from the menu DTO. No new window, preload
@@ -277,9 +277,9 @@ export function factoryPortMountApplicationMenu(api) {
 
 export const applicationMenuMainChanges = [
   ['share the presentation bridge with the menu and window factories',
-    'function Hte(){T.ipcMain.handle("window:showApplicationMenu"',
-    'var factoryLinuxApplicationMenu;function Hte(){T.ipcMain.handle("window:showApplicationMenu"'],
+    'function Qne(){x.ipcMain.handle("window:showApplicationMenu"',
+    'var factoryLinuxApplicationMenu;function Qne(){x.ipcMain.handle("window:showApplicationMenu"'],
   ['route a followed Glassy menu through the existing application commands',
-    'if(!n||n.isDestroyed())return;const r=n.webContents.getZoomFactor();if(t!==void 0){const l=zte.safeParse(t);',
-    'if(!n||n.isDestroyed())return;if(process.platform==="linux"&&factoryLinuxApplicationMenu?.show(e,t))return;const r=n.webContents.getZoomFactor();if(t!==void 0){const l=zte.safeParse(t);'],
+    'if(!n||n.isDestroyed())return;const r=n.webContents.getZoomFactor();if(t!==void 0){const l=Zne.safeParse(t);',
+    'if(!n||n.isDestroyed())return;if(process.platform==="linux"&&factoryLinuxApplicationMenu?.show(e,t))return;const r=n.webContents.getZoomFactor();if(t!==void 0){const l=Zne.safeParse(t);'],
 ];

@@ -51,7 +51,7 @@ function factoryLinuxAbTestTo(config,options){
     phase:window.__factoryBillingAbPhase||"unknown",
     atMs:Number(performance.now().toFixed(1))
   });
-  return Oa({...options,enabled:config.enabled,queryKey:config.queryKey,queryFn:async()=>{
+  return Da({...options,enabled:config.enabled,queryKey:config.queryKey,queryFn:async()=>{
     const response=await fetch("https://api.factory.ai"+config.endpoint,{
       method:config.method||"GET",credentials:"omit",cache:"no-store",
       headers:{Accept:"application/json"}
@@ -61,7 +61,7 @@ function factoryLinuxAbTestTo(config,options){
   }});
 }
 function FactoryLinuxBillingAbProbe(){
-  const query=Sit();
+  const query=Sst();
   window.__factoryBillingAbState={
     status:query.status,isFetching:query.isFetching,dataUpdatedAt:query.dataUpdatedAt
   };
@@ -82,8 +82,8 @@ if(window.__factoryBillingAbTest===true){
   const host=document.createElement("div");
   host.id="factory-billing-ab-probe";
   document.body.appendChild(host);
-  const client=new Wqs();
-  hGo.createRoot(host).render(c.jsx(Vqs,{client,children:c.jsx(FactoryLinuxBillingAbProbe,{})}));
+  const client=new aZs();
+  IKo.createRoot(host).render(c.jsx(lZs,{client,children:c.jsx(FactoryLinuxBillingAbProbe,{})}));
   window.__factoryBillingAbMounted=true;
 }
 `;
@@ -199,8 +199,8 @@ async function instrumentBundle(label) {
   const occurrences = sourceText.split(anchor).length - 1;
   assert.equal(occurrences, 1, `${PATCH_NAME} source anchor for ${label} must occur exactly once`);
   const probeHook = anchor
-    .replace('Fu()', 'factoryLinuxAbTestAirgap()')
-    .replace('io(s,r)', 'factoryLinuxAbTestTo(s,r)');
+    .replace('Gu()', 'factoryLinuxAbTestAirgap()')
+    .replace('Ji(s,r)', 'factoryLinuxAbTestTo(s,r)');
   assert.notEqual(probeHook, anchor, 'Probe must replace only the auth gate and transport adapter');
   await writeFile(clonedAssetPath, sourceText.replace(anchor, probeHook) + CLONE_INJECTION);
   const instrumentedText = await readFile(clonedAssetPath, 'utf8');
@@ -718,8 +718,8 @@ async function runOne(label, { pilot = false } = {}) {
       focusEvents,
       focusFallbackUsed,
       limits: [
-        'Controlled integration: real Sit hook, React/compiler runtime, useQuery, QueryClientProvider, and QueryClient from each packaged renderer.',
-        'The isolated test adapter replaces only Fu() with false and io(s,r) transport with a credential-free local fixture query; polling and focus policy remain the original hook options.',
+        'Controlled integration: real Sst hook, React/compiler runtime, useQuery, QueryClientProvider, and QueryClient from each packaged renderer.',
+        'The isolated test adapter replaces only Gu() with false and Ji(s,r) transport with a credential-free local fixture query; polling and focus policy remain the original hook options.',
         'Only /api/billing/limits is fulfilled by Playwright with a fixed local JSON fixture; other HTTP(S) requests are aborted, and Chromium has a dead local proxy as startup fail-safe.',
         'Each run uses a temporary HOME/profile and FACTORY_DISABLE_KEYRING=1; no login, real API credentials, model request, or user app profile is used.',
         'CPU and memory report Electron app.getAppMetrics process aggregates; external Droid daemon is excluded.',

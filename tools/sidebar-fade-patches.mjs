@@ -1,5 +1,5 @@
 // Fade the scroll content itself, not a painted/blurred rectangle over glass.
-// Reuse IUe's existing scroll/resize/mutation observer; other scroll areas
+// Reuse yQe's existing scroll/resize/mutation observer; other scroll areas
 // keep their upstream rendering and behavior.
 export function factoryPortUpdateSidebarMask(viewport, offset, range) {
   if (!viewport.closest('[data-factory-port-sidebar-scroll]')) return;
@@ -40,10 +40,13 @@ export const sidebarMaskCss = `
 `;
 
 export const sidebarFadeChanges = [
+  // The marker belongs to the session-list scroll root, the styled root the
+  // session wrapper renders. The other scroll-area roots are shared with
+  // unrelated panels, so marking one of them would mask the wrong content.
   ['mask only the session-list viewport instead of painting rectangular edge overlays',
-    'F5c=J(qKe)`',
-    `F5c=J(qKe).attrs({"data-factory-port-sidebar-scroll":!0})\`${sidebarMaskCss}`],
+    'E8c=J(HJe)`',
+    `E8c=J(HJe).attrs({"data-factory-port-sidebar-scroll":!0})\`${sidebarMaskCss}`],
   ['reuse upstream edge observers for continuous sidebar mask depths',
-    'k={end:_<T-$_n,start:_>$_n};p(R=>',
-    'k={end:_<T-$_n,start:_>$_n};if(!v)factoryPortUpdateSidebarMask(y,_,T);p(R=>'],
+    'k={end:_<T-QTn,start:_>QTn};p(R=>',
+    'k={end:_<T-QTn,start:_>QTn};if(!v)factoryPortUpdateSidebarMask(y,_,T);p(R=>'],
 ];

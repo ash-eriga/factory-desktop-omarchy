@@ -163,7 +163,7 @@ test('relay observer handles replacement and removes every local subscription', 
 });
 
 const upstreamFile = new URL(
-  '../build/upstream-pristine-0.205.0/app/.vite/renderer/main_window/assets/index-Czx_74nj.js', import.meta.url);
+  '../build/upstream-pristine-0.206.0/app/.vite/renderer/main_window/assets/index-DTd1u_pI.js', import.meta.url);
 const sourceOptions = { skip: existsSync(upstreamFile) ? false : 'the pristine vendor snapshot is absent; run the build to produce it' };
 const upstream = existsSync(upstreamFile) ? readFileSync(upstreamFile, 'utf8') : '';
 test('all recovery anchors match the actual vendor renderer and reverse exactly', sourceOptions, () => {
@@ -182,12 +182,12 @@ test('negative control: real upstream auto-start abandons a first relay error', 
   const source = remoteControlRendererChanges.find(([name]) => name.startsWith('recover the existing'))[1];
   assert.ok(upstream.includes(source));
   let starts = 0;
-  const run = vm.runInNewContext(`${source};Ce`, {
+  const run = vm.runInNewContext(`${source};Se`, {
     window: { electronAPI: { getRemoteAccessEnabled: async () => true, getLocalComputerId: async () => 'test' } },
-    E: { current: true }, eo: 'local', le: { getDaemonConnection: () => ({
+    x: { current: true }, Ki: 'local', de: { getDaemonConnection: () => ({
       getRelayStatus: async () => ({ connected: false }),
       startRelay: async () => { starts++; throw new Error('simulated transient error'); },
-    }) }, XWc: 10, JWc: 1000, et: () => {},
+    }) }, YXc: 10, KXc: 1000, et: () => {},
   });
   await run(); assert.equal(starts, 1, 'vendor returns instead of retrying after failure');
 });

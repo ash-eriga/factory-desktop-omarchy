@@ -192,7 +192,7 @@ namespaces, and the build probes that with `unshare -Ur true`.
 
 ## 5. Assembly
 
-The bundle is assembled under `dist/factory-droid-desktop-0.205.0`:
+The bundle is assembled under `dist/factory-droid-desktop-0.206.0`:
 
 - the Electron runtime, with the application archive and the rebuilt
   native module,
@@ -222,7 +222,7 @@ recipe differs from the current sources.
 Two directories under `build/` are produced by the build and ignored by
 Git. Neither is ever packaged as a source, uploaded, or committed.
 
-### `build/upstream-pristine-0.205.0/`
+### `build/upstream-pristine-0.206.0/`
 
 The untouched official files the test suite validates the anchors
 against. `tools/vendor-snapshot.mjs` copies them out of the freshly

@@ -5,6 +5,26 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## 0.206.0 support
+
+- The recipe targets Factory Desktop 0.206.0, Electron 42.11.15 and the
+  official Linux Droid CLI 0.249.0. The CLI pin was moved forward from
+  0.248.0 to 0.249.0, the latest public npm release of
+  `@factory/cli-linux-x64`. The 0.206.0 payload declares no CLI version
+  requirement, so the pin is not derived from the desktop release; it is
+  kept on the current upstream CLI so the port does not deliberately ship
+  a release behind. The pin is exact in `versions.json`, the package is
+  installed from the public registry with the published integrity hash,
+  and the build still fails closed when the binary reports a different
+  version than the pin.
+- The payload renames its release-specific files (the renderer asset and
+  the main-process lifecycle chunk), so every patch anchor was
+  re-derived against the new bytes. The anchor self-check still proves
+  that each anchor matches exactly once, and the patches still fail
+  closed when an anchor is missing, duplicated or ambiguous.
+- The brand geometry is unchanged: the official mark carries the same
+  path, occurrence count and digest, so the generated icons are identical.
+
 ## 0.205.0 support
 
 - The recipe targets Factory Desktop 0.205.0, Electron 42.11.15 and the

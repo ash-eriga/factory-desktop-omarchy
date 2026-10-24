@@ -19,7 +19,7 @@ test('main theme bridge patch is unique and syntactically valid', () => {
   assert.ok(patched.includes('factory-linux-theme:get'));
   assert.ok(patched.includes('factory-linux-theme:changed'));
   assert.ok(patched.includes('factory-linux-theme:follow'));
-  assert.ok(patched.includes('process.platform==="linux"&&factoryLinuxOmarchyTrack&&factoryLinuxOmarchyTrack(v,W)'),
+  assert.ok(patched.includes('process.platform==="linux"&&factoryLinuxOmarchyTrack&&factoryLinuxOmarchyTrack(A,W)'),
     'the vendor background IPC must keep its vendor behavior first and only then call the Linux tracking hook');
   assert.ok(patched.includes('setBackgroundColor("#00000000")'),
     'native transparency is a fully transparent native background, not a fade of the whole window');
@@ -95,22 +95,22 @@ function harness({ state, stateFn, env, platform = 'linux' } = {}) {
       assert.equal(request, path.resolve('/opt/factory/resources', '..', 'port', 'theme-bridge.cjs'));
       return bridge;
     },
-    // 0.205.0 initLifecycle-DxjvbXRO.js module aliases verified upstream:
-    X: path,
-    $w: { fileURLToPath },
+    // 0.206.0 initLifecycle-2n3P7GZx.js module aliases verified upstream:
+    Q: path,
+    vv: { fileURLToPath },
     i: { DESKTOP_RENDERER_ORIGIN: undefined },
-    T: {
+    x: {
       app: { getPath: name => { assert.equal(name, 'home'); return '/tmp/theme-fixture'; },
         on: (name, listener) => appEvents.set(name, listener) },
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: sender => windows.find(w => w.webContents === sender) ?? null },
     },
-    or: registeredSet,
-    Er: sender => !sender.isDestroyed() && !sender.isCrashed(),
-    ts: () => windows,
+    fr: registeredSet,
+    $r: sender => !sender.isDestroyed() && !sender.isCrashed(),
+    ps: () => windows,
     // Vendor main-bundle collaborators the integration reaches through:
-    O7: () => '#17181c',
-    hte: (color, win) => {
+    ww: () => '#17181c',
+    kne: (color, win) => {
       vendorBackground.push([color, win]);
       if (win && !win.isDestroyed()) { win.setBackgroundColor(color); return; }
       for (const w of windows) if (!w.isDestroyed()) w.setBackgroundColor(color);
@@ -201,17 +201,17 @@ test('webview frames can never authenticate the bridge or opt into transparency'
     process: { platform: 'linux', resourcesPath: '/opt/factory/resources' },
     __dirname: APP_DIR,
     require: () => bridge,
-    X: path,
-    $w: { fileURLToPath },
+    Q: path,
+    vv: { fileURLToPath },
     i: { DESKTOP_RENDERER_ORIGIN: undefined },
-    T: {
+    x: {
       app: { getPath: () => '/tmp/theme-fixture', on: () => {} },
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: () => owner },
     },
-    or: new Set([owner]),
-    Er: () => true,
-    ts: () => [owner],
+    fr: new Set([owner]),
+    $r: () => true,
+    ps: () => [owner],
   };
   vm.runInNewContext(patch(
     `${themeMainChanges.map(([, before]) => before).join('\n')},async()=>{})`, themeMainChanges),

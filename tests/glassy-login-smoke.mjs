@@ -1,5 +1,5 @@
 // Signed-out fail-solid proof against the unmodified application.
-// Upstream kdf mounts jtf in nnf under _authenticated/app-providers, not on
+// Upstream tdf (the app-providers route component) mounts Ncf, not on
 // login. Stored Follow must not produce an unpainted transparent login window.
 // Positive Glassy proof belongs to theme-smoke + glassy-compositor-playwright.
 // Uses a disposable HOME. No login, credential, or model request.

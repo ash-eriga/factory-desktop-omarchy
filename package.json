@@ -13,7 +13,7 @@
   "devDependencies": {
     "@electron/asar": "4.2.0",
     "@electron/rebuild": "4.0.3",
-    "@factory/cli-linux-x64": "0.248.0",
+    "@factory/cli-linux-x64": "0.249.0",
     "7zip-bin": "5.2.0",
     "electron": "42.11.15",
     "node-addon-api": "4.3.0"

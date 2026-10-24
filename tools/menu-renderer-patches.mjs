@@ -4,17 +4,17 @@
 
 export const menuRendererChanges = [
   ['hide native macOS font smoothing control off macOS',
-    '$e=c.jsx(Wc,{control:je,description:ze,searchId:"appearance-font-smoothing",title:Be})',
-    '$e=hh?c.jsx(Wc,{control:je,description:ze,searchId:"appearance-font-smoothing",title:Be}):null'],
+    'Fe=c.jsx(Kc,{control:Ne,description:Qe,searchId:"appearance-font-smoothing",title:je})',
+    'Fe=Sh?c.jsx(Kc,{control:Ne,description:Qe,searchId:"appearance-font-smoothing",title:je}):null'],
   ['show platform-appropriate feedback shortcut hint',
     'hotkey:"⌘ Enter"',
-    'hotkey:hh?"⌘ Enter":"Ctrl+Enter"'],
+    'hotkey:Sh?"⌘ Enter":"Ctrl+Enter"'],
   ['use a generic non-Mac file manager label in the editor list',
-    'label:hh?"Finder":"File Explorer"',
-    'label:hh?"Finder":"File manager"'],
+    'label:Sh?"Finder":"File Explorer"',
+    'label:Sh?"Finder":"File manager"'],
   ['use a generic non-Mac file manager label in file actions',
-    'children:hh?"Finder":"File Explorer"',
-    'children:hh?"Finder":"File manager"'],
+    'children:Sh?"Finder":"File Explorer"',
+    'children:Sh?"Finder":"File manager"'],
 ];
 
 export function diagnoseMenuRenderer(source) {

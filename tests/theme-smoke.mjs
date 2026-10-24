@@ -1,17 +1,17 @@
 // Renderer/ThemeSync integration smoke in a disposable, instrumented copy of
 // the candidate bundle. No authenticated profile, credential, or model call is
-// used. The fixture root mounts the real renderer atoms, `jtf`, `iuf`, `Zu`,
-// `oa`, and `Wc`; only the extra test root is synthetic. Target bundle, version and
-// renderer asset come from versions.json (Factory Desktop 0.205.0).
+// used. The fixture root mounts the real renderer atoms, `Ncf`, `pAf`, `df`,
+// `ia`, and `Kc`; only the extra test root is synthetic. Target bundle, version and
+// renderer asset come from versions.json (Factory Desktop 0.206.0).
 //
-// Glass scope, stated honestly: upstream mounts `jtf` (the appearance override
+// Glass scope, stated honestly: upstream mounts `Ncf` (the appearance override
 // styles that carry the glass tint) only inside the authenticated shell, so a
 // signed-out window stays opaque by design (covered by the separate negative
 // login smoke). This test measures glass through the real production components
-// (`jtf`, `iuf`, the atoms, the real follow row using `oa` and `Wc`) explicitly
+// (`Ncf`, `pAf`, the atoms, the real follow row using `ia` and `Kc`) explicitly
 // mounted from the fixture root, the same provider set the authenticated shell
 // mounts. While measuring alpha the disposable clone hides the original
-// signed-out root and body portals so the real `Zu` fixture surface is the only
+// signed-out root and body portals so the real `df` fixture surface is the only
 // composited content; production code is untouched. Alpha is proven with
 // capturePage bitmaps because BrowserWindow.getBackgroundColor() reports
 // '#000000' even when the native surface is transparent. The glassy windowMode
@@ -123,26 +123,26 @@ async function instrumentClone(tempRoot) {
   const renderer = await readFile(rendererPath, 'utf8');
   for (const symbol of ['factoryPortThemeFollow', 'factoryPortThemeSnapshot', 'factoryPortBuildThemeRow',
     'factoryPortGlassCss', 'factoryPortSyncNativeFollow', 'factoryPortNativeFollowAccepted',
-    'factoryPortGlassActive', 'function jtf()', 'function iuf(']) {
+    'factoryPortGlassActive', 'function Ncf()', 'function pAf(']) {
     assert.ok(renderer.includes(symbol), `candidate renderer contains ${symbol}`);
   }
 
   // These references and this root exist only in this disposable copy. The
   // row, atom hooks, CSS generator and native ThemeSync are production code.
-  // 0.205.0 aliases: ns=useAtom, oa=Checkbox, Wc=SettingRow, hGo=react-dom
-  // client, Cfe=jotai default store, jtf=appearance override styles, iuf=
-  // ThemeSync, Tmu=Appearance screen, oH=resolved theme, V5e=overrides
-  // enabled, eGe=theme preference, W5e=appearance settings. Include the
+  // 0.206.0 aliases: cs=useAtom, ia=Checkbox, Kc=SettingRow, IKo=react-dom
+  // client, Lhe=jotai default store, Ncf=appearance override styles, pAf=
+  // ThemeSync, pCu=Appearance screen, $H=resolved theme, wke=overrides
+  // enabled, JWe=theme preference, Ske=appearance settings. Include the
   // unscoped backdrop, native content wrapper and border-box frame gradient.
   const instrumentation = `\n;window.__factoryThemeSmoke=(()=>{\n` +
     glassyShellFixtureSource('factory-theme-smoke') +
     sidebarFadeFixtureSource() +
     navigationFixtureSource(renderer) +
     `const rootFactory=container=>{\n` +
-    `function Fixture(){const[enabled,setEnabled]=ns(factoryPortThemeFollow),[state]=ns(factoryPortThemeSnapshot);` +
-    `return c.jsx(NativeContent,{style:{position:"fixed",inset:0,zIndex:2147482999},children:c.jsx(Zu,{id:"factory-theme-smoke-theme",style:{position:"relative",minHeight:"100vh",display:"grid",placeContent:"center",gap:20,padding:32,boxSizing:"border-box",backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)"},children:c.jsxs(P.Fragment,{children:[c.jsx("div",{id:"factory-theme-smoke-surface",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",border:"3px solid var(--core-v2-accent-fill)",padding:"24px"},children:"Omarchy theme fixture"}),factoryPortBuildThemeRow(enabled,state,setEnabled)]})})})}` +
-    `const root=hGo.createRoot(container);root.render(c.jsx(iuf,{children:c.jsxs(P.Fragment,{children:[c.jsx(jtf,{}),c.jsx(Fixture,{})]})}));return root};` +
-    `const store=Cfe();return{mount:rootFactory,mountSidebarFade,mountNavigation,appearanceComponent:Tmu,themeSync:iuf,themeStyles:jtf,followAtom:factoryPortThemeFollow,snapshotAtom:factoryPortThemeSnapshot,themeActiveAtom:factoryPortThemeActive,themeModeAtom:oH,themeSyncEnabledAtom:V5e,store,themePreferenceAtom:eGe,appearanceSettingsAtom:W5e,getDiagnostics:()=>{const snapshot=store.get(factoryPortThemeSnapshot),appearance=store.get(factoryPortEffectiveAppearance),settings=store.get(W5e),pick=t=>t?{background:t.background??null,foreground:t.foreground??null,accentColor:t.accentColor??null}:null;return{manualPreference:store.get(eGe),effectiveMode:store.get(oH),follow:store.get(factoryPortThemeFollow),available:snapshot.available,snapshot:{mode:snapshot.mode,background:snapshot.background,foreground:snapshot.foreground,accent:snapshot.accent,revision:snapshot.revision,windowMode:snapshot.windowMode},active:store.get(factoryPortThemeActive),glass:store.get(factoryPortGlassActive),followAccepted:store.get(factoryPortNativeFollowAccepted),themeSyncEnabled:store.get(V5e),appearance:{light:pick(appearance.light),dark:pick(appearance.dark)},manualAppearance:{light:pick(settings.light),dark:pick(settings.dark)}}}}})();\n`;
+    `function Fixture(){const[enabled,setEnabled]=cs(factoryPortThemeFollow),[state]=cs(factoryPortThemeSnapshot);` +
+    `return c.jsx(NativeContent,{style:{position:"fixed",inset:0,zIndex:2147482999},children:c.jsx(df,{id:"factory-theme-smoke-theme",style:{position:"relative",minHeight:"100vh",display:"grid",placeContent:"center",gap:20,padding:32,boxSizing:"border-box",backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)"},children:c.jsxs(L.Fragment,{children:[c.jsx("div",{id:"factory-theme-smoke-surface",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",border:"3px solid var(--core-v2-accent-fill)",padding:"24px"},children:"Omarchy theme fixture"}),factoryPortBuildThemeRow(enabled,state,setEnabled)]})})})}` +
+    `const root=IKo.createRoot(container);root.render(c.jsx(pAf,{children:c.jsxs(L.Fragment,{children:[c.jsx(Ncf,{}),c.jsx(Fixture,{})]})}));return root};` +
+    `const store=Lhe();return{mount:rootFactory,mountSidebarFade,mountNavigation,appearanceComponent:pCu,themeSync:pAf,themeStyles:Ncf,followAtom:factoryPortThemeFollow,snapshotAtom:factoryPortThemeSnapshot,themeActiveAtom:factoryPortThemeActive,themeModeAtom:$H,themeSyncEnabledAtom:wke,store,themePreferenceAtom:JWe,appearanceSettingsAtom:Ske,getDiagnostics:()=>{const snapshot=store.get(factoryPortThemeSnapshot),appearance=store.get(factoryPortEffectiveAppearance),settings=store.get(Ske),pick=t=>t?{background:t.background??null,foreground:t.foreground??null,accentColor:t.accentColor??null}:null;return{manualPreference:store.get(JWe),effectiveMode:store.get($H),follow:store.get(factoryPortThemeFollow),available:snapshot.available,snapshot:{mode:snapshot.mode,background:snapshot.background,foreground:snapshot.foreground,accent:snapshot.accent,revision:snapshot.revision,windowMode:snapshot.windowMode},active:store.get(factoryPortThemeActive),glass:store.get(factoryPortGlassActive),followAccepted:store.get(factoryPortNativeFollowAccepted),themeSyncEnabled:store.get(wke),appearance:{light:pick(appearance.light),dark:pick(appearance.dark)},manualAppearance:{light:pick(settings.light),dark:pick(settings.dark)}}}}})();\n`;
   const activation = 'void api.activate(token, item.command);';
   assert.equal(renderer.split(activation).length - 1, 1);
   const observed = renderer.replace(activation, 'void api.activate(token, item.command).then(accepted=>{window.__factoryMenuSmokeActivation={accepted}});');
@@ -386,7 +386,7 @@ try {
     root.id = 'factory-theme-smoke-root';
     document.body.appendChild(root);
     // Test-only isolation inside this disposable clone: hide the signed-out
-    // app root and body portals so the real Zu fixture surface below is the
+    // app root and body portals so the real df fixture surface below is the
     // only composited content when alpha is measured. The production
     // components stay mounted (display only) and keep driving ThemeSync.
     for (const child of [...document.body.children]) {
@@ -454,7 +454,7 @@ try {
   assertColor(followedDarkCss.foreground, palettes.dark.foreground, 'dark text token uses Omarchy foreground');
   assertColor(followedDarkCss.accent, palettes.dark.accent, 'dark accent token uses Omarchy accent');
   assert.equal(followedDarkCss.visibleSurface.background, 'rgba(0, 0, 0, 0)',
-    'the real Zu surface stays transparent over the content frame tint');
+    'the real df surface stays transparent over the content frame tint');
   assertColor(followedDarkCss.visibleSurface.foreground, palettes.dark.foreground, 'visible fixture text uses the foreground token');
   assertColor(followedDarkCss.visibleSurface.accentBorder, palettes.dark.accent, 'visible fixture border uses the accent token');
   assert.equal(followedDarkCss.mode, 'dark');
@@ -553,7 +553,7 @@ try {
   assertColor(followedLightCss.foreground, palettes.light.foreground, 'light text token uses Omarchy foreground');
   assertColor(followedLightCss.accent, palettes.light.accent, 'light accent token uses Omarchy accent');
   assert.equal(followedLightCss.visibleSurface.background, 'rgba(0, 0, 0, 0)',
-    'the real Zu surface stays transparent in light glass');
+    'the real df surface stays transparent in light glass');
   assertColor(followedLightCss.visibleSurface.foreground, palettes.light.foreground, 'visible fixture text uses the light foreground token');
   assertColor(followedLightCss.visibleSurface.accentBorder, palettes.light.accent, 'visible fixture border uses the light accent token');
   assert.equal(followedLightCss.mode, 'light');
@@ -614,7 +614,7 @@ try {
   report.alphaProof = 'capturePage bitmap alpha; getBackgroundColor() is not trusted for transparency';
   report.checkbox = 'real renderer setting row factoryPortBuildThemeRow using oa and Wc; test-mounted with original hooks';
   report.signedIn = false;
-  report.glassScope = 'real jtf/iuf/atoms/row, unscoped opaque-token backdrop, Fe/gm native content and upstream border-gradient frame; test-mounted, not an authenticated session';
+  report.glassScope = 'real Ncf/pAf/atoms/row, unscoped opaque-token backdrop, Ue/Om native content and upstream border-gradient frame; test-mounted, not an authenticated session';
   report.blockedNetworkByOriginAndMethod = Object.fromEntries(blockedNetwork);
   await writeFile(path.join(output, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
   console.log(JSON.stringify(report));

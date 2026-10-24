@@ -1,5 +1,5 @@
 // Appearance layout smoke in a disposable, instrumented copy of a built
-// bundle. It mounts the real Tmu and Amu renderer components; no login,
+// bundle. It mounts the real pCu and iCu renderer components; no login,
 // credential, production profile, or external request is used.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -60,9 +60,9 @@ async function instrumentClone(tempRoot) {
   await asar.extractAll(sourceAsar, extracted);
   const rendererPath = path.join(extracted, rendererRelative);
   const renderer = await readFile(rendererPath, 'utf8');
-  for (const symbol of ['function Tmu(){', 'function Amu(t){', 'function t7c(t){',
-    'function H6c(t){', 'function n7c(t){', 'function L9c(t){const e=z.c(21),{authContext:n,router:i}=t,',
-    'function iuf(t){', 'function jtf()', 'const jLt=Cuf(eFo())', 'c.jsx(qAo,{target:R9c',
+  for (const symbol of ['function pCu(){', 'function iCu(t){', 'function qOc(t){',
+    'function _Mc(t){', 'function KOc(t){', 'function _jc(t){const e=z.c(21),{authContext:n,router:i}=t,',
+    'function pAf(t){', 'function Ncf()', 'const JPt=MAf(pHo())', 'c.jsx(kbo,{target:',
     'factoryPortBuildThemeRow', 'factoryPortGlassCss', 'factoryPortGlassActive',
     'appearance-font-smoothing']) {
     assert.ok(renderer.includes(symbol), `candidate renderer contains ${symbol}`);
@@ -70,8 +70,8 @@ async function instrumentClone(tempRoot) {
   const preload = await readFile(path.join(extracted, '.vite/build/preload.js'), 'utf8');
   assert.ok(preload.includes('setOmarchyFollow'), 'candidate preload exposes the native follow opt-in');
 
-  const authCaptureBefore = 'function L9c(t){const e=z.c(21),{authContext:n,router:i}=t,';
-  const authCaptureAfter = 'function L9c(t){window.__factoryMenuSmokeAuth=t.authContext;const e=z.c(21),{authContext:n,router:i}=t,';
+  const authCaptureBefore = 'function _jc(t){const e=z.c(21),{authContext:n,router:i}=t,';
+  const authCaptureAfter = 'function _jc(t){window.__factoryMenuSmokeAuth=t.authContext;const e=z.c(21),{authContext:n,router:i}=t,';
   assert.equal(renderer.split(authCaptureBefore).length - 1, 1,
     'test-only auth context capture has one exact entrypoint anchor');
   const capturedRenderer = renderer.replace(authCaptureBefore, authCaptureAfter);
@@ -80,10 +80,11 @@ async function instrumentClone(tempRoot) {
   // theme editor and Follow row. It reuses the app's real environment and
   // signed-out auth context; only the extra mount point is synthetic.
   const instrumentation = `\n;window.__factoryMenuSmoke=(()=>{\n` +
-    `const store=Cfe();\n` +
+    `const store=Lhe();\n` +
     glassyShellFixtureSource('factory-menu-smoke') +
-    `return{mount(container){const root=hGo.createRoot(container);root.render(c.jsx(H6c,{env:jLt,children:c.jsx(n7c,{value:window.__factoryMenuSmokeAuth,children:c.jsx(qAo,{target:R9c,children:c.jsx(t7c,{children:c.jsx(iuf,{children:c.jsxs(P.Fragment,{children:[c.jsx(jtf,{}),c.jsx(NativeContent,{children:c.jsx(Zu,{id:"factory-menu-smoke-theme",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",minHeight:"100%",padding:"16px",boxSizing:"border-box"},children:c.jsx(Tmu,{})})})]})})})})})}));return root},` +
-    `seed(){store.set(eGe,"dark");const saved=store.get(W5e);store.set(W5e,{...saved,dark:{...saved.dark,background:"#20242a"}})},` +
+    `const factoryPortMenuSmokeTarget={type:T1.Global};\n` +
+    `return{mount(container){const root=IKo.createRoot(container);root.render(c.jsx(_Mc,{env:JPt,children:c.jsx(KOc,{value:window.__factoryMenuSmokeAuth,children:c.jsx(kbo,{target:factoryPortMenuSmokeTarget,children:c.jsx(qOc,{children:c.jsx(pAf,{children:c.jsxs(L.Fragment,{children:[c.jsx(Ncf,{}),c.jsx(NativeContent,{children:c.jsx(df,{id:"factory-menu-smoke-theme",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",minHeight:"100%",padding:"16px",boxSizing:"border-box"},children:c.jsx(pCu,{})})})]})})})})})}));return root},` +
+    `seed(){store.set(JWe,"dark");const saved=store.get(Ske);store.set(Ske,{...saved,dark:{...saved.dark,background:"#20242a"}})},` +
     `glass(){const snapshot=store.get(factoryPortThemeSnapshot);return{active:store.get(factoryPortGlassActive),accepted:store.get(factoryPortNativeFollowAccepted),windowMode:snapshot.windowMode,available:snapshot.available}},` +
     `unmount(root){root.unmount()}}})();\n`;
   await writeFile(rendererPath, capturedRenderer + instrumentation);
@@ -379,7 +380,7 @@ try {
 
   report.nativeContentGlass = {
     contentAlpha, controlAlpha, restoredAlpha, manualSettingsIdentical: true,
-    scope: 'real Tmu/Fe/gm, unscoped opaque-token backdrop and upstream frame gradient; test-mounted, not an authenticated route',
+    scope: 'real pCu/Ue/Om, unscoped opaque-token backdrop and upstream frame gradient; test-mounted, not an authenticated route',
   };
   report.runtime = runtime;
   report.appearance = appearance;

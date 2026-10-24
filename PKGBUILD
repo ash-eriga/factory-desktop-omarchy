@@ -1,7 +1,7 @@
 # Builds the inspected proprietary app locally. Do not publish the payload.
 pkgname=factory-droid-desktop
-pkgver=0.205.0
-pkgrel=12
+pkgver=0.206.0
+pkgrel=13
 pkgdesc='Unofficial Factory Droid Desktop port for Arch and Omarchy'
 arch=('x86_64')
 # The port was renamed from factory-desktop-arch. Both packages ship

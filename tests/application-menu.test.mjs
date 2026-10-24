@@ -114,7 +114,7 @@ test('closed cleanup never reads native properties of the destroyed window', () 
   assert.equal(h.api.isOpen(h.win), false);
 });
 
-const lifecycleFile = new URL('../build/upstream-pristine-0.205.0/app/.vite/build/initLifecycle-DxjvbXRO.js', import.meta.url);
+const lifecycleFile = new URL('../build/upstream-pristine-0.206.0/app/.vite/build/initLifecycle-2n3P7GZx.js', import.meta.url);
 test('application menu patch matches the actual pinned lifecycle exactly once', {
   skip: existsSync(lifecycleFile) ? false : 'the pristine vendor snapshot is absent; run the build to produce it',
 }, () => {
