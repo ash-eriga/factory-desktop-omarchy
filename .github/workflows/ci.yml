@@ -34,10 +34,10 @@ jobs:
       - name: Install the toolchain
         run: npm ci --ignore-scripts --no-audit --no-fund
 
-      - name: Install the icon renderer
+      - name: Install the desktop test tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends librsvg2-bin
+          sudo apt-get install -y --no-install-recommends librsvg2-bin desktop-file-utils xdg-utils python3
 
       - name: Check the shell entry points
         run: |

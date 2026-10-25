@@ -629,50 +629,49 @@ test('the recipe builds from the source tree and never from the checkout', async
     /^source=\('https:\/\/github\.com\/ash-eriga\/factory-droid-desktop\/releases\/download\/v[0-9.]+-[0-9]+\/factory-droid-desktop-port-[0-9.]+-[0-9]+\.tar\.gz'\)$/m);
   assert.match(recipe, /^sha256sums=\('[a-f0-9]{64}'\)$/m);
   // The rename and the packaging change keep their shape.
-  assert.match(recipe, /^pkgrel=16$/m);
+  assert.match(recipe, /^pkgrel=17$/m);
   for (const field of ['conflicts', 'replaces', 'provides'])
     assert.match(recipe, new RegExp(`^${field}=\\('factory-desktop-arch'\\)$`, 'm'));
 });
 
-test('the AUR checkout builds from the same sources as the clone', async () => {
-  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-'));
-  try {
-    // The AUR holds the recipe, its metadata and the license. Nothing else.
-    const aur = path.join(work, 'aur');
-    await mkdir(aur, { recursive: true });
-    await copyFile(RECIPE, path.join(aur, 'PKGBUILD'));
-    await copyFile(SRCINFO, path.join(aur, '.SRCINFO'));
-    await copyFile(path.join(ROOT, 'LICENSE'), path.join(aur, 'LICENSE'));
+for (const umask of ['0022', '0077']) {
+  test(`the AUR checkout builds from the same sources as the clone with umask ${umask}`, async () => {
+    const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-'));
+    try {
+      const aur = path.join(work, 'aur');
+      await mkdir(aur, { recursive: true });
+      await copyFile(RECIPE, path.join(aur, 'PKGBUILD'));
+      await copyFile(SRCINFO, path.join(aur, '.SRCINFO'));
+      await copyFile(path.join(ROOT, 'LICENSE'), path.join(aur, 'LICENSE'));
 
-    // The archive is downloaded and unpacked the way makepkg does it.
-    const tree = path.join(work, 'tree');
-    await mkdir(tree, { recursive: true });
-    await sourceTree(tree);
-    const archive = await buildArchive(tree);
-    const srcdir = path.join(aur, 'src');
-    await mkdir(srcdir, { recursive: true });
-    const unpack = spawnSync('tar', ['-xzf', archive, '-C', srcdir], { encoding: 'utf8' });
-    assert.equal(unpack.status, 0, unpack.stderr);
-    const sourceRoot = path.join(srcdir, topLevelName());
-    assert.ok((await lstat(sourceRoot)).isDirectory());
+      const tree = path.join(work, 'tree');
+      await mkdir(tree, { recursive: true });
+      await sourceTree(tree);
+      const archive = await buildArchive(tree);
+      const srcdir = path.join(aur, 'src');
+      await mkdir(srcdir, { recursive: true });
+      const unpack = spawnSync('sh', ['-c',
+        'umask "$1"; exec tar -xzpf "$2" -C "$3"',
+        'sh', umask, archive, srcdir], { encoding: 'utf8' });
+      assert.equal(unpack.status, 0, unpack.stderr);
+      const sourceRoot = path.join(srcdir, topLevelName());
+      assert.ok((await lstat(sourceRoot)).isDirectory());
 
-    // The prepare step puts the canonical recipe into the sources.
-    const prepare = spawnSync('bash', ['-c',
-      'source "$1" >/dev/null 2>&1; srcdir="$2"; startdir="$3"; prepare',
-      'bash', path.join(aur, 'PKGBUILD'), srcdir, aur], { encoding: 'utf8' });
-    assert.equal(prepare.status, 0, prepare.stderr);
-    assert.equal(await readFile(path.join(sourceRoot, 'PKGBUILD'), 'utf8'),
-      await readFile(RECIPE, 'utf8'), 'the sources carry the canonical recipe');
-    assert.equal(await readFile(path.join(sourceRoot, '.SRCINFO'), 'utf8'),
-      await readFile(SRCINFO, 'utf8'), 'the sources carry the canonical metadata');
+      const prepare = spawnSync('bash', ['-c',
+        'source "$1" >/dev/null 2>&1; srcdir="$2"; startdir="$3"; prepare',
+        'bash', path.join(aur, 'PKGBUILD'), srcdir, aur], { encoding: 'utf8' });
+      assert.equal(prepare.status, 0, prepare.stderr);
+      assert.equal(await readFile(path.join(sourceRoot, 'PKGBUILD'), 'utf8'),
+        await readFile(RECIPE, 'utf8'), 'the sources carry the canonical recipe');
+      assert.equal(await readFile(path.join(sourceRoot, '.SRCINFO'), 'utf8'),
+        await readFile(SRCINFO, 'utf8'), 'the sources carry the canonical metadata');
 
-    // The recipe identity of the unpacked tree is the recipe identity of
-    // the checkout: the archive carries exactly the build inputs.
-    assert.deepEqual(await recipeFingerprint(sourceRoot), await recipeFingerprint(ROOT));
-  } finally {
-    await rm(work, { recursive: true, force: true });
-  }
-});
+      assert.deepEqual(await recipeFingerprint(sourceRoot), await recipeFingerprint(ROOT));
+    } finally {
+      await rm(work, { recursive: true, force: true });
+    }
+  });
+}
 
 function parseSrcinfo(text) {
   const sections = [];

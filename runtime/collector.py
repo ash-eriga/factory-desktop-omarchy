@@ -462,7 +462,7 @@ def write_record(path, record):
         os.fsync(handle.fileno())
     finally:
         handle.close()
-    os.chmod(handle.name, 0o644)
+    os.chmod(handle.name, 0o600)
     os.replace(handle.name, path)
 
 

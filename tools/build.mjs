@@ -1,5 +1,5 @@
 import { createWriteStream } from 'node:fs';
-import { mkdir, readFile, writeFile, chmod, cp, copyFile, rename, access, unlink, stat, readdir } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, chmod, cp, copyFile, rename, access, unlink, stat, readdir, rm } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { pipeline } from 'node:stream/promises';
 import { Readable } from 'node:stream';
@@ -324,4 +324,5 @@ async function main() {
   await rename(bundle, output);
   console.log(`Built ${output}. Nothing installed or registered.`);
 }
-main().catch(error => { console.error(error.message); process.exitCode = 1; });
+main().finally(() => rm(stage, { recursive: true, force: true }))
+  .catch(error => { console.error(error.message); process.exitCode = 1; });

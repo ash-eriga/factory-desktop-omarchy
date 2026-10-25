@@ -67,7 +67,14 @@ Normal upgrades preserve your Desktop profile and standalone CLI. Keep the previ
 
 ## Uninstall
 
-Quit the app, then run:
+If you ran `factory-callback register`, restore the previous browser callback
+handler before removing the package:
+
+```bash
+factory-callback rollback
+```
+
+Quit the app, then remove the package:
 
 ```bash
 sudo pacman -R factory-droid-desktop

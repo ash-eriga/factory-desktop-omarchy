@@ -8,6 +8,7 @@ spawned and no real credentials, home directories, or network are touched.
 import importlib.util
 import json
 import os
+import stat
 import sys
 import tempfile
 import time
@@ -380,6 +381,24 @@ class LockingTest(unittest.TestCase):
         self.assertEqual(stored["id"], "factory")
         leftovers = [p.name for p in target.parent.iterdir()]
         self.assertEqual(leftovers, ["factory.json"])
+
+    def test_write_record_is_private(self):
+        target = Path(self.tmp.name) / "factory.json"
+        record = self.c.build_record({"standard": None, "core": None}, now_s=0)
+        self.c.write_record(target, record)
+        self.assertEqual(stat.S_IMODE(target.stat().st_mode), 0o600)
+
+    def test_write_record_replaces_a_public_record_privately(self):
+        target = Path(self.tmp.name) / "factory.json"
+        target.write_text('{"id": "stale"}\n')
+        target.chmod(0o644)
+        record = self.c.build_record({"standard": None, "core": None}, now_s=0)
+        self.c.write_record(target, record)
+        self.assertEqual(stat.S_IMODE(target.stat().st_mode), 0o600)
+        stored = json.loads(target.read_text())
+        self.assertEqual(stored["id"], "factory")
+        self.assertIn("updatedAt", stored)
+        self.assertEqual(stored["schemaVersion"], self.c.RECORD_SCHEMA_VERSION)
 
 
 if __name__ == "__main__":

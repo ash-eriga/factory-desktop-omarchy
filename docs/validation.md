@@ -24,13 +24,16 @@ What it covers:
 - the patch recipes and their exact anchors, including the negative
   controls (a duplicated or missing anchor must fail),
 - the launcher: isolated home, environment scrubbing, quoting of paths
-  that contain spaces,
+  that contain spaces, private profile directories without changing the
+  caller's project-file permissions,
 - the auth helper and the collector, including the field continuity of
   the account inventory, the real-zero and missing-value cases, and the
   credential handling rules,
 - the local accounting: per-model growth, session dedup, day buckets and
   credit fractions — all of it device-local; this repository does not
   merge the records of two devices,
+- the usage record's private file permissions, including replacement of
+  an older world-readable record,
 - the callback registration and its rollback, including third-party
   changes and files removed by another action,
 - the theme bridge: trusted frames only, validated payloads, no writes
@@ -150,6 +153,31 @@ The optional Playwright scripts under `tests/` (`gui-smoke.mjs`,
 (`FACTORY_PLAYWRIGHT_MODULE`) and a short writable temporary path, and
 they are never part of `npm test`.
 
+Use a disposable profile for runtime checks. These commands do not require
+sign-in or change the installed Desktop profile:
+
+```bash
+node tests/gui-smoke.mjs "$PWD/dist/factory-droid-desktop-0.206.0" "$PWD/build/gui-smoke"
+node tests/theme-ipc-smoke.mjs "$PWD/dist/factory-droid-desktop-0.206.0" "$PWD/build/theme-ipc-smoke"
+node tests/ipc-smoke.mjs "$PWD/dist/factory-droid-desktop-0.206.0"
+```
+
+Set `FACTORY_PLAYWRIGHT_MODULE` to an existing Playwright module when it is
+not installed in the checkout. The GUI checks block external networking
+and disable keyring access. They verify a signed-out window, not browser
+authentication or an authenticated relay.
+
+## Dependency security
+
+Run `npm audit` before publishing a package revision. The Electron package
+is a build dependency in npm metadata, but its runtime ships in the
+finished app. An Electron advisory therefore requires a runtime update
+and a full package build, not just a clean production-only npm audit.
+
+The build uses the checksum map from the locked Electron package. Keep
+that verification enabled when updating Electron, and rerun the real GUI
+checks against the new bundle.
+
 ## CI
 
 `.github/workflows/ci.yml` runs Layer 1 on a synthetic Linux, with
@@ -163,18 +191,18 @@ local step (Layer 3).
 ## Known limits
 
 - The AUR path is prepared but not reachable: the repository is private,
-  the release `v0.206.0-16` and its source asset do not exist, and the
+  the release `v0.206.0-17` and its source asset do not exist, and the
   AUR's own rules and license review are still open. The recipe, its
   `.SRCINFO` and the unpacked archive are validated locally; the
   download from the release was not exercised.
-- The rename was validated against the sources and the fixtures only. A
-  real package build, a real installation over the previous
-  `factory-desktop-arch` package and a real first sign-in on a fresh
-  account were not exercised for this release; the Arch handover
+- A package build and a disposable signed-out window do not prove a
+  successful upgrade of an existing profile. A real installation over
+  the previous `factory-desktop-arch` package and a real first sign-in
+  on a fresh account remain separate checks. The Arch handover
   (`conflicts`, `replaces`, `provides`) is declared in the recipe and
   asserted in the package content proof against the metadata keys makepkg
   really writes (`conflict`, `replaces`, `provides`), but the transition
-  itself was not run here. The opt-in `factory-desktop://` registration
+  itself is not part of the automated checks. The opt-in `factory-desktop://` registration
   cannot be migrated either: it must be rolled back with the old helper
   before the old package is replaced, which the upgrade guide documents and the
   offline suite asserts, but which was not performed here. The desktop

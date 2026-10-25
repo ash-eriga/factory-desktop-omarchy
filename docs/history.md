@@ -5,6 +5,27 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## Security and file permissions
+
+- Port revision `0.206.0-17` updates the shipped Electron runtime to
+  `42.11.18`. This includes the mitigation for compromised eMudhra
+  intermediate certificates in
+  [GHSA-jr5w-w6x2-84p9](https://github.com/advisories/GHSA-jr5w-w6x2-84p9).
+  The locked build dependencies `undici` and `ip-address` also receive
+  their security fixes.
+- Profile creation keeps private permissions without imposing the same
+  restriction on files the Droid creates in your projects. The launcher
+  preserves your inherited file-creation mask.
+- Usage records, which can contain session titles, are written with
+  owner-only permissions.
+- Temporary assembly directories are removed after both successful and
+  failed builds. Existing build directories are not deleted.
+- CI installs the desktop tools its tests require. The source archive
+  tests preserve archived permissions under both standard and restrictive
+  file-creation masks.
+- The uninstall instructions now restore an explicitly registered
+  browser callback before the package removes the rollback helper.
+
 ## Port update notifications
 
 - Added a separate File-menu release check and an optional daily check

@@ -17,7 +17,7 @@
     "@electron/rebuild": "4.0.3",
     "@factory/cli-linux-x64": "0.249.0",
     "7zip-bin": "5.2.0",
-    "electron": "42.11.15",
+    "electron": "42.11.18",
     "node-addon-api": "4.3.0"
   }
 }

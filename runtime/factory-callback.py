@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Opt-in factory-desktop:// handler registration with exact rollback.
 
-Nothing registers the URL scheme automatically: not at install time and not
-at app startup (the vendor registration call is patched out on Linux). Run
-this helper yourself:
+The packaged desktop entry advertises the URL scheme without replacing an
+existing user default. App startup never changes the default handler.
+Use this helper to override the default explicitly and restore it later:
 
     factory-callback register   # make this port the factory-desktop:// handler
     factory-callback rollback   # restore exactly the pre-registration state
