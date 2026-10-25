@@ -63,7 +63,8 @@ export const changes = [
     `i.startupTracker.beginPhase("ipc_and_protocol_setup"),x.app.setName("${PRODUCT_NAME}"),jne()`],
   // The pacman boundary: an Arch-managed install must never enforce the
   // vendor's minimum-version quit prompt, run its in-app updater entry
-  // points, or offer "Check for Updates" in the menu. Upstream 0.206.0
+  // points, or offer its own updater in the menu. The port notification
+  // layer adds a separate release check without installation. Upstream 0.206.0
   // already refuses to *start* the auto-updater for externally managed
   // Linux installs (fs()/dl() detect the vendor's own packages); these
   // guards keep the manual and prompted paths equally closed.

@@ -9,7 +9,7 @@ import * as asar from '@electron/asar';
 import { rebuild } from '@electron/rebuild';
 import { ROOT, versions, run, hash, files, safePath, validateListing, elf, fingerprint,
          recipeFingerprint, recipeMatches, isBundleExecutable, outputBundle, hostSupported,
-         pinnedElectronChecksum, electronDownloadOptions } from './common.mjs';
+         pinnedElectronChecksum, electronDownloadOptions, portVersion } from './common.mjs';
 import { patch, diagnose, diagnoseRendererHelperCollisions, preloadChanges, rendererChanges,
          rendererTitleChanges, htmlTitleChanges } from './patches.mjs';
 import { themeMainChanges, diagnoseThemeMainHelpers } from './theme-main-patches.mjs';
@@ -31,6 +31,7 @@ import { computerRegistrationMainChanges, computerRegistrationRendererChanges,
 import { writeVendorSnapshot } from './vendor-snapshot.mjs';
 import { writeBrandAssets, ensureBrandAssets, brandSource, BRAND_DIR } from './brand-assets.mjs';
 import { applyAppIdentity } from './app-identity.mjs';
+import { updateNotificationMainChanges, diagnoseUpdateNotificationHelpers } from './update-notification-patches.mjs';
 
 const require = createRequire(import.meta.url);
 const zip = require('7zip-bin').path7za;
@@ -193,6 +194,8 @@ async function main() {
   // against the source it will actually patch.
   const menuLifecycle = patch(themedLifecycle, applicationMenuMainChanges);
   failures.push(...diagnose(menuLifecycle, computerRegistrationMainChanges));
+  const registeredLifecycle = patch(menuLifecycle, computerRegistrationMainChanges);
+  failures.push(...diagnose(registeredLifecycle, updateNotificationMainChanges));
   failures.push(...diagnoseThemeRenderer(linuxPreload, themePreloadChanges),
     ...diagnoseThemeRenderer(linuxRenderer, themeRendererChanges),
     ...diagnoseMenuRenderer(themePatchedRenderer),
@@ -208,21 +211,23 @@ async function main() {
     ...diagnoseComputerRegistrationHelpers(rendererSource)];
   const themeHelperCollisions = diagnoseThemeMainHelpers(lifecycleSource);
   const registrationHelperCollisions = diagnoseComputerRegistrationHelpers(lifecycleSource);
+  const updateHelperCollisions = diagnoseUpdateNotificationHelpers(lifecycleSource);
   const themePreloadCollisions = diagnoseThemePreloadCollisions(preloadSource);
   const themeHtmlCollisions = diagnoseThemeHtmlCollisions(rendererHtmlSource);
   if (failures.length || rendererHelperCollisions.length || themeHelperCollisions.length
       || themePreloadCollisions.length || themeHtmlCollisions.length
-      || registrationHelperCollisions.length) {
+      || registrationHelperCollisions.length || updateHelperCollisions.length) {
     const details = [...failures.map(f => `${f.name} (count=${f.count})`),
       ...rendererHelperCollisions.map(name => `${name} (already declared upstream)`),
       ...themeHelperCollisions.map(name => `${name} (already declared upstream)`),
       ...themePreloadCollisions.map(name => `${name} (already declared upstream)`),
       ...themeHtmlCollisions.map(name => `${name} (already declared upstream)`),
-      ...registrationHelperCollisions.map(name => `${name} (already declared upstream)`)];
+      ...registrationHelperCollisions.map(name => `${name} (already declared upstream)`),
+      ...updateHelperCollisions.map(name => `${name} (already declared upstream)`)];
     throw new Error(`Patches do not match vendor source ${versions.desktop}: `
       + details.join(', '));
   }
-  await writeFile(lifecycle, patch(menuLifecycle, computerRegistrationMainChanges));
+  await writeFile(lifecycle, patch(registeredLifecycle, updateNotificationMainChanges));
   await writeFile(preload, patchThemeRenderer(linuxPreload, themePreloadChanges));
   await writeFile(renderer, patch(linuxMenuRenderer, computerRegistrationRendererChanges));
   await writeFile(rendererHtml, patchThemeRenderer(identityHtml, themeHtmlChanges));
@@ -230,6 +235,7 @@ async function main() {
   run(process.execPath, ['--check', preload]);
   run(process.execPath, ['--check', renderer]);
   run(process.execPath, ['--check', path.join(ROOT, 'runtime/theme-bridge.cjs')]);
+  run(process.execPath, ['--check', path.join(ROOT, 'runtime/update-notifier.cjs')]);
 
   // Rebuild only the inspected keytar 7.9.0 sources (they ship inside the
   // vendor archive) against this port's Linux Electron. The Windows prebuilt
@@ -286,6 +292,7 @@ async function main() {
   await cp(path.join(ROOT, 'runtime'), path.join(bundle, 'port'), { recursive: true,
     filter: source => !source.includes('__pycache__') });
   await writeFile(path.join(bundle, 'port/versions.json'), JSON.stringify(versions));
+  await writeFile(path.join(bundle, 'port/release.json'), JSON.stringify({ version: await portVersion() }) + '\n');
 
   for (const file of await files(bundle)) {
     if (file.endsWith('.exe') || file.endsWith('.dll')) throw new Error('Windows executable survived assembly');

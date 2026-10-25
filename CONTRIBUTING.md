@@ -68,7 +68,7 @@ npm run package:sources            # build the archive, check the pinned digest
 npm run package:sources:update     # refresh the inventory, digest and .SRCINFO
 ```
 
-`package:sources` writes `build/factory-droid-desktop-port-0.206.0-14.tar.gz`,
+`package:sources` writes the versioned archive under `build/`,
 compares its SHA-256 with the one the recipe pins, and **fails** on a
 mismatch. It never rewrites the recipe.
 

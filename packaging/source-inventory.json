@@ -90,6 +90,10 @@
       "mode": "0644"
     },
     {
+      "path": "runtime/update-notifier.cjs",
+      "mode": "0644"
+    },
+    {
       "path": "tests/app-identity.test.mjs",
       "mode": "0644"
     },
@@ -302,6 +306,10 @@
       "mode": "0644"
     },
     {
+      "path": "tests/update-notifier.test.mjs",
+      "mode": "0644"
+    },
+    {
       "path": "tools/app-identity.mjs",
       "mode": "0644"
     },
@@ -355,6 +363,10 @@
     },
     {
       "path": "tools/theme-renderer-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/update-notification-patches.mjs",
       "mode": "0644"
     },
     {

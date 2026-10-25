@@ -5,6 +5,15 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## Port update notifications
+
+- Added a separate File-menu release check and an optional daily check
+  against the port's public stable releases, including package revisions.
+  The native notice links to release notes and a profile-backup/update
+  guide; no update is downloaded or installed automatically.
+- Private repositories, missing releases and network failures are reported
+  as unavailable on manual checks, never as an up-to-date installation.
+
 ## Scope cleanup
 
 - Removed the optional Omarchy service plugin and its duplicated runtime,

@@ -15,8 +15,9 @@ import { applicationMenuMainChanges } from './application-menu-patches.mjs';
 import { computerRegistrationMainChanges, computerRegistrationRendererChanges, computerRegistrationPreloadChanges }
   from './computer-registration-patches.mjs';
 import { ROOT, versions, elf, run, files, fingerprint, recipeFingerprint, recipeMatches,
-         expectedExecutables, outputBundle } from './common.mjs';
+         expectedExecutables, outputBundle, portVersion } from './common.mjs';
 import { PRODUCT_NAME } from './app-identity.mjs';
+import { updateNotificationMainChanges, unpatchUpdateNotifications } from './update-notification-patches.mjs';
 
 const bundle = await outputBundle();
 const manifest = JSON.parse(await readFile(path.join(bundle, 'manifest.json'), 'utf8'));
@@ -53,8 +54,11 @@ for (const [name, , after] of menuRendererChanges) {
 // strings. Reverse only the newer menu layer in memory; do not weaken their
 // anchor checks or alter the shipped ASAR.
 const shippedRenderer = unpatchMenuRenderer(menuPatchedRenderer);
+const finalLifecycle = asar.extractFile(archive, versions.lifecycle).toString();
+const notificationUnpatchedLifecycle = unpatchUpdateNotifications(finalLifecycle);
 const rendererSource = file => file === versions.renderer
-  ? shippedRenderer : asar.extractFile(archive, file).toString();
+  ? shippedRenderer : file === versions.lifecycle
+    ? notificationUnpatchedLifecycle : asar.extractFile(archive, file).toString();
 for (const [file, transformations] of [[versions.lifecycle, changes],
   ['.vite/build/preload.js', preloadChanges], [versions.renderer, rendererChanges],
   ['.vite/build/preload.js', computerRegistrationPreloadChanges],
@@ -66,7 +70,7 @@ for (const [file, transformations] of [[versions.lifecycle, changes],
 }
 const shippedLifecycle = asar.extractFile(archive, versions.lifecycle).toString();
 for (const [name, , after] of [...themeMainChanges, ...applicationMenuMainChanges,
-  ...computerRegistrationMainChanges]) {
+  ...computerRegistrationMainChanges, ...updateNotificationMainChanges]) {
   if (shippedLifecycle.split(after).length !== 2)
     throw new Error(`Shipped main theme patch missing or duplicated: ${name}`);
 }
@@ -102,6 +106,9 @@ if (upstreamPackage.productName !== PRODUCT_NAME) throw new Error('Shipped appli
 const themeBridge = path.join(bundle, 'port/theme-bridge.cjs');
 await stat(themeBridge);
 run(process.execPath, ['--check', themeBridge]);
+run(process.execPath, ['--check', path.join(bundle, 'port/update-notifier.cjs')]);
+const portRelease = JSON.parse(await readFile(path.join(bundle, 'port/release.json'), 'utf8'));
+if (portRelease.version !== await portVersion()) throw new Error('Shipped port package revision mismatch');
 
 // 3. Native binaries must be x86_64 ELF and link against present libraries.
 for (const name of ['factory-desktop', 'resources/bin/droid',

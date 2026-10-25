@@ -17,6 +17,7 @@ test('recipe inputs enumerate the shipped runtime and packaging trees determinis
     'packaging/factory-callback', 'packaging/factory-usage', 'packaging/factory-droid-desktop',
     'tools/build.mjs', 'tools/patches.mjs', 'tools/common.mjs', 'tools/verify.mjs',
     'tools/brand-assets.mjs', 'tools/vendor-snapshot.mjs',
+    'runtime/update-notifier.cjs', 'tools/update-notification-patches.mjs',
   ]) {
     assert.ok(inputs.includes(required), `missing recipe input: ${required}`);
   }

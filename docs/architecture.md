@@ -261,6 +261,7 @@ altered; the recipe does not repeat that decision.
 | `runtime/collector.py` | turns validated metrics into the usage record; it writes only counters, model ids and titles |
 | `runtime/local_usage.py` | device-local accounting from the local session files: observed growth per model, session totals, Factory Standard Credits |
 | `runtime/factory-callback.sh`, `runtime/factory-callback.py` | opt-in callback registration with journaling and rollback |
+| `runtime/update-notifier.cjs` | public port release checks and native notifications; never installs packages |
 
 The installed desktop entry declares `x-scheme-handler/factory-desktop`.
 Arch's desktop database hook makes it discoverable on a clean machine,
@@ -272,6 +273,36 @@ The `accountRecentSessions` inventory carries `sessionCount`,
 `creditsSampleTotal`, `unknownOwnerRows`, `hasMore` and `complete`.
 It is explicitly incomplete: account-global day and model history is not
 available for personal plans, and the collector never fabricates it.
+
+### Port update notifications
+
+`tools/update-notification-patches.mjs` initializes the notifier before the
+application menu is built. File-menu commands check manually or disable
+automatic checks; no new renderer IPC is exposed. The proprietary updater
+remains disabled on Linux.
+
+The notifier queries only this repository's public GitHub latest-release
+endpoint, without credentials, redirects, account identifiers or telemetry.
+It accepts published stable tags in `vMAJOR.MINOR.PATCH-REVISION` form and
+compares all four numeric components against `port/release.json`, generated
+from the current `PKGBUILD`. A package-only revision therefore counts as an
+update. Drafts, prereleases, upstream-only tags and malformed responses are
+not update candidates.
+
+Automatic checks wait 15 seconds after startup/focus and run at most once
+per day while a window is focused. Deployment, airgap and organization
+policy gates apply; automatic checks also honor the upstream automatic
+update preference. A new release shows a native dialog once, with links
+to the update guide and canonical release notes. URLs are constructed
+locally, never taken from the response. No packages or scripts are fetched.
+Network requests have an eight-second timeout and metadata is limited to
+256 KiB. Failures are silent automatically and explicit on manual checks;
+a private repository or no published release is unavailable, not current.
+
+Only `port-updates.json` in the isolated Electron profile is written, with
+mode 0600 and atomic replacement. It stores the opt-out, last-check time
+and notified version, not credentials. Installation stays with pacman;
+the [README update guide](../README.md#update) describes backup and rebuild.
 
 ## 9. Packaging and licensing
 
@@ -300,7 +331,7 @@ The recipe does not build from a checkout. It declares one source, the
 port's own source archive, and one pinned SHA-256 for it:
 
 ```
-source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-15/factory-droid-desktop-port-0.206.0-15.tar.gz')
+source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-16/factory-droid-desktop-port-0.206.0-16.tar.gz')
 sha256sums=('<digest>')
 ```
 

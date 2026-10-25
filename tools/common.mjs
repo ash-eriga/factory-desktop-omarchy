@@ -9,6 +9,17 @@ import { PRODUCT_SLUG } from './app-identity.mjs';
 export const ROOT = fileURLToPath(new URL('../', import.meta.url));
 export const versions = JSON.parse(await readFile(path.join(ROOT, 'versions.json'), 'utf8'));
 
+// Read the package revision too: a Linux-only fix is an update even when
+// the upstream Desktop version has not changed.
+export async function portVersion(root = ROOT) {
+  const recipe = await readFile(path.join(root, 'PKGBUILD'), 'utf8');
+  const desktop = recipe.match(/^pkgver=((?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))$/m)?.[1];
+  const revision = recipe.match(/^pkgrel=([1-9]\d*)$/m)?.[1];
+  if (desktop !== versions.desktop || !revision || !Number.isSafeInteger(Number(revision)))
+    throw new Error('Invalid port package version');
+  return `${desktop}-${revision}`;
+}
+
 // The pristine snapshot of the official payload: the untouched files the
 // suite validates the patch anchors against, and the source of the
 // generated brand assets. The writer and every reader share this path,
