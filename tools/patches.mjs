@@ -49,9 +49,9 @@ if(process.platform==="linux"){
 `;
 
 export const changes = [
-  // Also skip the upstream protocol registration helper: the port keeps the
-  // factory-desktop:// callback opt-in, registered by its own helper with
-  // rollback, and only fixes the XDG desktop entry name for Linux badges.
+  // The package's desktop entry advertises factory-desktop:// through XDG.
+  // Skip upstream's default-handler takeover; existing user choices stay
+  // intact. Only fix the XDG desktop entry name for Linux badges here.
   ['callback opt-in', 'function jne(){try{const e=i.getDesktopProtocol();',
     `function jne(){if(process.platform==="linux"){x.app.setDesktopName("${DESKTOP_ENTRY}");return;}try{const e=i.getDesktopProtocol();`],
   // The visible name of the port. The official manifest names the

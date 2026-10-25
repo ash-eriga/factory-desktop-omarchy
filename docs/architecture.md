@@ -262,6 +262,12 @@ altered; the recipe does not repeat that decision.
 | `runtime/local_usage.py` | device-local accounting from the local session files: observed growth per model, session totals, Factory Standard Credits |
 | `runtime/factory-callback.sh`, `runtime/factory-callback.py` | opt-in callback registration with journaling and rollback |
 
+The installed desktop entry declares `x-scheme-handler/factory-desktop`.
+Arch's desktop database hook makes it discoverable on a clean machine,
+without a launch-time command or a user `mimeapps.list` override. An existing
+default handler is preserved; the callback helper remains an explicit
+repair/override tool, not a prerequisite for first login.
+
 The account inventory is explicitly incomplete: account-global day and
 model history is not available for personal plans, and the collector
 never fabricates it.
@@ -304,7 +310,7 @@ The recipe does not build from a checkout. It declares one source, the
 port's own source archive, and one pinned SHA-256 for it:
 
 ```
-source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-14/factory-droid-desktop-port-0.206.0-14.tar.gz')
+source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-15/factory-droid-desktop-port-0.206.0-15.tar.gz')
 sha256sums=('<digest>')
 ```
 

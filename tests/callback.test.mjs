@@ -136,3 +136,91 @@ test('status works without registration', async () => {
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+// Use real XDG discovery/dispatch, not the helper's fake xdg-mime. The
+// executable is a recorder; no browser, GUI, credentials or account is used.
+async function desktopFixture() {
+  const dir = await mkdtemp(path.join(tmpdir(), 'factory-xdg-'));
+  for (const name of ['data/applications', 'config', 'system', 'bin', '.factory'])
+    await mkdir(path.join(dir, name), { recursive: true });
+  await writeFile(path.join(dir, '.factory', 'sentinel'), 'standalone CLI untouched');
+  await writeFile(path.join(dir, 'bin', 'factory-droid-desktop'),
+    '#!/bin/sh\nprintf "%s\\n" "$@" > "$HOME/received"\n', { mode: 0o755 });
+  const env = {
+    ...process.env, HOME: dir,
+    XDG_CONFIG_HOME: path.join(dir, 'config'),
+    XDG_CONFIG_DIRS: path.join(dir, 'system'),
+    XDG_DATA_HOME: path.join(dir, 'data'),
+    XDG_DATA_DIRS: path.join(dir, 'system'),
+    XDG_CURRENT_DESKTOP: 'X-Generic', DE: 'generic', DISPLAY: ':0',
+    PATH: `${path.join(dir, 'bin')}:/usr/bin:/bin`,
+  };
+  for (const name of ['DBUS_SESSION_BUS_ADDRESS', 'BROWSER', 'KDE_FULL_SESSION',
+    'GNOME_DESKTOP_SESSION_ID', 'DESKTOP_SESSION'])
+    delete env[name];
+  const apps = path.join(dir, 'data', 'applications');
+  const entry = path.join(apps, 'factory-droid-desktop.desktop');
+  const source = await readFile(path.join(ROOT, 'packaging', 'factory-droid-desktop.desktop'), 'utf8');
+  const run = (command, args) => {
+    const result = spawnSync(command, args, { env, encoding: 'utf8', timeout: 15000 });
+    assert.equal(result.status, 0, result.stderr || String(result.error));
+    return result.stdout.trim();
+  };
+  const refresh = () => run('/usr/bin/update-desktop-database', [apps]);
+  const handler = () => run('/usr/bin/xdg-mime', ['query', 'default', SCHEME]);
+  return { dir, apps, entry, source, run, refresh, handler };
+}
+
+test('a clean install discovers and dispatches browser callbacks without a registration command', async () => {
+  const h = await desktopFixture();
+  try {
+    // Negative control: the old packaged entry cannot be discovered.
+    await writeFile(h.entry, h.source.replace(/^MimeType=.*\n/m, ''));
+    h.refresh();
+    assert.equal(h.handler(), '');
+    await writeFile(h.entry, h.source);
+    h.run('/usr/bin/desktop-file-validate', [h.entry]);
+    h.refresh();
+    assert.equal(h.handler(), 'factory-droid-desktop.desktop');
+    const uri = 'factory-desktop://auth/callback?code=synthetic-test-only&state=synthetic';
+    h.run('/usr/bin/xdg-open', [uri]);
+    assert.equal(await readFile(path.join(h.dir, 'received'), 'utf8'), `${uri}\n`);
+    assert.equal(await readFile(path.join(h.dir, '.factory', 'sentinel'), 'utf8'),
+      'standalone CLI untouched');
+    await assert.rejects(readFile(path.join(h.dir, 'config', 'mimeapps.list')), { code: 'ENOENT' });
+  } finally {
+    await rm(h.dir, { recursive: true, force: true });
+  }
+});
+
+test('installing protocol support preserves an existing user default', async () => {
+  const h = await desktopFixture();
+  try {
+    await writeFile(path.join(h.apps, 'existing.desktop'),
+      '[Desktop Entry]\nType=Application\nName=Existing app\nExec=true %u\n'
+        + `MimeType=${SCHEME};\n`);
+    const mimeapps = path.join(h.dir, 'config', 'mimeapps.list');
+    const previous = `[Default Applications]\n${SCHEME}=existing.desktop\n`;
+    await writeFile(mimeapps, previous);
+    await writeFile(h.entry, h.source);
+    h.refresh();
+    assert.equal(h.handler(), 'existing.desktop');
+    assert.equal(await readFile(mimeapps, 'utf8'), previous);
+  } finally {
+    await rm(h.dir, { recursive: true, force: true });
+  }
+});
+
+test('uninstalling the desktop entry removes its clean-install protocol association', async () => {
+  const h = await desktopFixture();
+  try {
+    await writeFile(h.entry, h.source);
+    h.refresh();
+    assert.equal(h.handler(), 'factory-droid-desktop.desktop');
+    await rm(h.entry);
+    h.refresh();
+    assert.equal(h.handler(), '');
+  } finally {
+    await rm(h.dir, { recursive: true, force: true });
+  }
+});

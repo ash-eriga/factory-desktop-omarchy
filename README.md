@@ -16,7 +16,9 @@ Not affiliated with, endorsed by, or supported by Factory.
 - First-login computer registration and local relay recovery.
 - Usage collector and optional [Omarchy service plugin](omarchy/factory-usage-service/).
 
-Remote control, callback registration and the plugin are never enabled automatically.
+Remote control and the plugin are never enabled automatically.
+Installation makes the app available for browser sign-in callbacks without
+overwriting an existing default handler.
 The personal usage panel is not included.
 
 ## Build and install
@@ -50,7 +52,7 @@ and packages are not published by this repository.
 The package is not published on the AUR yet; use the GitHub build above.
 The AUR recipe is prepared: it is the same `PKGBUILD` and the same
 `.SRCINFO` as this repository, and it downloads the same archive from the
-release `v0.206.0-14`. That release and its asset do not exist yet, so
+release `v0.206.0-15`. That release and its asset do not exist yet, so
 the AUR path cannot be used before the release is published, and the
 AUR's own rules and license review are still open.
 
@@ -99,9 +101,19 @@ published.
 ```bash
 factory-droid-desktop
 factory-usage                     # usage JSON
-factory-callback register         # optional browser sign-in callback
+factory-callback register         # repair/override an existing callback default
 factory-callback rollback         # restore previous callback associations
 ```
+
+On a clean install, browser sign-in needs no registration command. The
+package declares support for `factory-desktop://` links; accept the browser's
+request to open Factory Droid Desktop when prompted. The browser controls
+whether it asks each time or remembers permission.
+
+If another app already owns this protocol, its default is preserved.
+Select Factory Droid Desktop in the system's app chooser, or explicitly
+use `factory-callback register` to switch the default with rollback support.
+The callback uses the Desktop's isolated profile, never the standalone CLI's.
 
 Enable **Follow Omarchy theme** in Settings → Appearance if wanted.
 Desktop state lives under `~/.local/share/factory-droid-desktop/`;

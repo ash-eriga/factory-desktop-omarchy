@@ -7,4 +7,5 @@ TryExec=factory-droid-desktop
 Icon=factory-droid-desktop
 Terminal=false
 Categories=Development;
+MimeType=x-scheme-handler/factory-desktop;
 StartupWMClass=factory-droid-desktop

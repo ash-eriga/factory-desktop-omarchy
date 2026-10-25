@@ -163,7 +163,7 @@ local step (Layer 3).
 ## Known limits
 
 - The AUR path is prepared but not reachable: the repository is private,
-  the release `v0.206.0-14` and its source asset do not exist, and the
+  the release `v0.206.0-15` and its source asset do not exist, and the
   AUR's own rules and license review are still open. The recipe, its
   `.SRCINFO` and the unpacked archive are validated locally; the
   download from the release was not exercised.

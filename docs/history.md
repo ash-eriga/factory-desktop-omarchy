@@ -5,6 +5,16 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## First-install browser sign-in
+
+- The packaged desktop entry now advertises `factory-desktop://` support.
+  A clean install can return from browser sign-in without a registration
+  command. Existing protocol defaults are not overwritten, and the browser
+  still controls its external-app permission prompt.
+- Regression tests use real `xdg-mime`, `xdg-open` and the desktop database
+  in temporary XDG directories. They cover discovery, delivery of a synthetic
+  callback URI, existing defaults and removal, without touching real accounts.
+
 ## Deleted-computer recovery
 
 - A re-registration that replaces the local computer id now reaches the
