@@ -5,6 +5,111 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## Deleted-computer recovery
+
+- A re-registration that replaces the local computer id now reaches the
+  relay while Remote Control is on. The main process broadcasts the id
+  transition after any registration attempt (startup, sign-in, the
+  explicit registration request), including a transition from a cleared
+  or absent id: the backend's deletion clears the stored id and the
+  repair attempt can fail after that, so the next successful attempt
+  must still announce what the relay may be serving. The renderer's
+  recovery compares the id the relay reports it serves with the current
+  local id: a mismatch stops and starts the relay once, so the daemon
+  re-reads the new id, while a relay that serves no id, or the current
+  one, is left untouched. A disabled or disallowed state never starts
+  the relay. An id change that arrives while a recovery run is already
+  in flight is retained and re-checked once after that run settles, so
+  it is not lost to the ids the run had already captured. The relay
+  never restarts in a notification loop: the relay-status notifications
+  the daemon broadcasts for the recovery's own stop and start (and for
+  a failed start's cleanup, and for every later disconnect) are
+  distinguished from external id-change requests and never cancel or
+  bypass a failure backoff. A disconnect notification that arrives
+  while a run is still comparing ids — including one that lands after
+  an in-flight status read already captured connected:true — is
+  retained as one pending recheck instead of dropped, so a relay that
+  drops right after such a read still recovers; the retention is
+  bounded, because a successful restart costs the recheck at most one
+  extra status read and a failed run leaves the recheck to the armed
+  backoff timer. What the status reports right after the
+  restart decides the outcome: a relay that is still down, or one that
+  is still serving another id, is a failure that retries on the bounded
+  1s-to-60s schedule, so a restart whose id never becomes current
+  cannot repeat immediately. A retained id change that outlives a
+  failed run is served by the armed backoff timer, not by cancelling
+  it.
+- Explicit Remote Control enable now waits for upstream registration
+  verification/repair, including a locally stored ID deleted in the
+  backend. Failure before registration completes leaves the preference
+  unchanged and never starts the relay.
+- Droid Computers offers a registration action when the local computer
+  is absent from the loaded account list. Opening the page does not
+  force repair of a stale registration. The explicit action refreshes
+  the local ID and computer list without enabling remote access.
+- The preload forwards the explicit registration option; ordinary
+  local-ID reads keep their existing fast path and the shared driver
+  still serializes registration attempts.
+- The bundled daemon (the same `droid` the Windows build ships in
+  `resources/bin`) answers its first relay start from a host identity
+  captured when it started. The Desktop starts the daemon before it
+  registers the computer, so after a first sign-in or a re-registration
+  that first start reported "No computer registered" even though the
+  registration was already on disk, and the toast appeared while the
+  automatic recovery connected the relay a moment later. Manual enable
+  and recovery now retry that exact reply once; any other error, or a
+  second identical reply, still surfaces unchanged.
+
+## Packaging
+
+- The recipe no longer builds from a checkout. It declares one source,
+  the port's own source archive, with its pinned SHA-256, and the build,
+  check and package steps run inside the extracted sources. The same
+  recipe and the same archive serve the GitHub clone and the AUR, so
+  both workflows ship the same bytes; the release asset does not exist
+  yet, and the repository is still private.
+- The archive is deterministic: sorted paths, zeroed timestamps, numeric
+  root ownership, fixed modes and a gzip stream without a timestamp. The
+  same tree produces the same bytes on every machine, so the pinned
+  digest is a checksum of the sources and not of one directory.
+- The archive is built from a checked-in source inventory
+  (`packaging/source-inventory.json`), not from a directory walk and not
+  from a git index. The default mode therefore works in a clone, in a
+  source ZIP, in a release download and in an AUR checkout alike, and it
+  needs no git at all. The maintainer's mode refreshes the inventory from
+  the tracked files of the checkout.
+- A source file the inventory does not name and a source file the tree
+  does not hold are both refused, and so is any path that traverses, that
+  is absolute, that is a link or a special file, or that carries a
+  payload, a credential or personal material. Every source tree has to
+  be a real directory as well, and so has every directory on the way to
+  a source file. The recipe files are not part of the archive, because a
+  checksum inside the recipe cannot cover the recipe.
+- A personal artifact is never a source: a log, a dump, a core file,
+  profiler output and generated bytecode are ignored in a working tree,
+  and a source may not name one of them. The bytes of the archive are
+  decided by the inventory alone: the packing step is given no override
+  from the environment, not an option of tar or gzip, not a shell startup
+  file and not a function an outer shell exported.
+- The maintainer's mode is a transaction. A failing update (a missing or
+  a broken makepkg, a source that changed under it, a read-only recipe
+  or metadata file) restores the inventory, the recipe and the metadata
+  exactly as they were, removes the archive that was still pending and
+  leaves the published archive alone, so the recipe and the metadata can
+  never disagree about the digest they pin. Every file is restored even
+  when one of them cannot be written, and the pending archive is removed
+  in any case.
+- The archive is built without git: the default mode reads the inventory
+  and nothing else, and the maintainer's mode refuses the update when
+  there is no checkout to read. The test suite runs with every tool of
+  the system except git, with no skipped test.
+- `.SRCINFO` is checked in and is written by makepkg itself. The
+  maintainer's mode regenerates the pinned checksum and the metadata
+  together; the default mode reports a mismatch and never rewrites the
+  recipe on someone's machine.
+- `pkgrel` moved from 13 to 14 for this packaging change alone. The
+  Desktop, Electron and Droid pins are unchanged.
+
 ## 0.206.0 support
 
 - The recipe targets Factory Desktop 0.206.0, Electron 42.11.15 and the

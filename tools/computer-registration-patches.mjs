@@ -32,6 +32,11 @@
 // The port never touches the remote-access preference, the local relay or
 // the organization policy. Registration is not remote access: the relay
 // still needs the user's own toggle and the organization's own decision.
+// The one thing the registration announces beyond its own scope is a
+// changed local computer id, including the transition from a cleared one:
+// the relay can stay connected for the id that was cleared or replaced,
+// and only a listener that learns about the change can decide to restart
+// it.
 //
 // The one change to upstream's own function is its signature: it now
 // accepts the credentials the driver already read, so upstream's preflight
@@ -48,6 +53,7 @@ export function factoryPortCreateComputerRegistration({
   getToken,
   getLocalComputerId,
   register,
+  onIdChanged = () => {},
   logInfo = () => {},
   logWarn = () => {},
   logError = () => {},
@@ -88,11 +94,23 @@ export function factoryPortCreateComputerRegistration({
       // own preflight reuses that read instead of repeating it, and
       // upstream still decides whether a registration happens, what it
       // contains and which existing record it adopts, verifies or repairs.
+      const previousComputerId = await getLocalComputerId();
       await register(token);
       const computerId = await getLocalComputerId();
       if (computerId) logInfo('[computer] Local computer registered', { computerId });
       else logWarn('[computer] The desktop computer registration finished '
         + 'without a local computer id');
+      // A re-registration can replace the id the relay is connected for
+      // while Remote Control is on. The daemon only reads the id when a
+      // relay starts, so an id transition has to be announced for anything
+      // to serve the replacement. A transition from a missing id is
+      // announced too: upstream clears the stored registration when the
+      // backend deletes it, and the repair attempt can fail after that
+      // clearing while the relay still serves the deleted id. The
+      // listener's served-id comparison stays a no-op unless the relay
+      // really serves a different id.
+      if (computerId && computerId !== previousComputerId)
+        onIdChanged(computerId, previousComputerId);
       return computerId;
     } catch (error) {
       logError('[computer] The desktop computer registration attempt failed', error);
@@ -168,6 +186,7 @@ const registrationInstance = `const factoryPortComputerRegistration=factoryPortC
 getToken:()=>i.getAuthToken(i.getRuntimeAuthConfig()),
 getLocalComputerId:()=>xj(),
 register:token=>Rj(token),
+onIdChanged:(computerId,previousComputerId)=>{Dr("computer:localIdChanged",{computerId,previousComputerId})},
 logInfo:(message,details)=>i.logInfo(message,details),
 logWarn:(message,details)=>i.logWarn(message,details),
 logError:(message,error)=>i.logException(error,message)
@@ -215,12 +234,41 @@ export const computerRegistrationMainChanges = [
   // settled state, so a sign-in that lands while an attempt is running is
   // not missed, and the renderer reads the registered id instead of the
   // empty one.
+  // An explicit registration request bypasses that fast path and asks
+  // upstream to verify/repair a record deleted after login, even within
+  // the cooldown. Merely opening settings does not force that repair.
   ['settle the local computer id before reporting it',
     'x.ipcMain.handle("computer:getLocalId",async()=>xj())',
-    'x.ipcMain.handle("computer:getLocalId",async()=>{const computerId=await xj();if(computerId)return computerId;await factoryPortComputerRegistration.ensure();await factoryPortComputerRegistration.settled();return xj()})'],
+    'x.ipcMain.handle("computer:getLocalId",async(event,options)=>{if(options?.register===!0){await factoryPortComputerRegistration.ensure({force:!0});await factoryPortComputerRegistration.settled();return xj()}const computerId=await xj();if(computerId)return computerId;await factoryPortComputerRegistration.ensure();await factoryPortComputerRegistration.settled();return xj()})'],
+];
+
+// Only an explicit action asks upstream to verify and repair a deleted
+// registration. Ordinary local-id reads retain their inexpensive path.
+export const computerRegistrationPreloadChanges = [
+  // A re-registration that replaces the id the relay is connected for has
+  // to reach the renderer while Remote Control is on: the relay keeps
+  // serving the old id until it is restarted. The main process broadcasts
+  // the replacement; the renderer decides what to do with it.
+  ['forward the local computer id change notification',
+    'getLocalHostId:()=>M.ipcRenderer.invoke("computer:getLocalHostId")',
+    'onLocalComputerIdChanged:A=>{const e=(t,n)=>A(n);return M.ipcRenderer.on("computer:localIdChanged",e),()=>M.ipcRenderer.removeListener("computer:localIdChanged",e)},getLocalHostId:()=>M.ipcRenderer.invoke("computer:getLocalHostId")'],
+  ['forward the explicit computer registration request',
+    'getLocalComputerId:()=>M.ipcRenderer.invoke("computer:getLocalId")',
+    'getLocalComputerId:options=>M.ipcRenderer.invoke("computer:getLocalId",options)'],
 ];
 
 export const computerRegistrationRendererChanges = [
+  ['offer explicit registration when this computer is absent from the list',
+    'function Yjo(){',
+    `function factoryPortRegisterThisComputer({onRegistered}){
+const[busy,setBusy]=L.useState(!1),{showError}=_o();
+return c.jsx(ma,{title:"This Computer",description:"This computer is not listed in your account. Register it to make it available here. Remote Control stays off until you enable it.",action:c.jsx($e,{disabled:busy,onClick:async()=>{
+if(busy)return;setBusy(!0);
+try{const id=await window.electronAPI?.getLocalComputerId?.({register:!0});if(!id)throw new Error("Computer registration did not complete. Try again.");await onRegistered(id)}
+catch(error){showError(error instanceof Error?error:new Error("Computer registration failed."),"Failed to register this computer")}
+finally{setBusy(!1)}
+},children:busy?"Registering…":"Register this computer"})})
+}function Yjo(){`],
   // The settings page resolves the local computer id once per mount and
   // needs the account's computer list to match it. When the id only appears
   // after the registration, the list fetched before that point is stale, so
@@ -236,12 +284,16 @@ export const computerRegistrationRendererChanges = [
   ['refresh the computer list when the local computer id appears',
     '[b,C]=L.useState(null),[S,I]=L.useState(!s);Xt(()=>{if(!s)return;async function K(){try{const Z=await window.electronAPI?.getLocalComputerId?.();C(Z??null)}catch(Z){et("Failed to fetch local computer ID (v2)",{cause:Z}),C(null)}finally{I(!0)}}K()});',
     '[b,C]=L.useState(null),[S,I]=L.useState(!s);const factoryPortLocalComputerIdRef=L.useRef(null);Xt(()=>{if(!s)return;async function K(){try{const Z=await window.electronAPI?.getLocalComputerId?.();C(Z??null);if(Z&&Z!==factoryPortLocalComputerIdRef.current){factoryPortLocalComputerIdRef.current=Z;try{const result=await u();const computers=result?.data?.data?.computers??result?.data?.computers??result?.computers??[];if(!computers.some(computer=>computer.id===Z))await u()}catch(error){et("Failed to refresh the computer list",{cause:error})}}}catch(Z){et("Failed to fetch local computer ID (v2)",{cause:Z}),C(null)}finally{I(!0)}}K()});'],
+  ['keep a registration action visible after the local computer is deleted',
+    'children:[x&&P?c.jsx(wEu,{computer:x,droidConnectionManager:o}):null,P?c.jsx(hai,',
+    'children:[x&&P?c.jsx(wEu,{computer:x,droidConnectionManager:o}):s&&S&&P&&!l&&!d?c.jsx(factoryPortRegisterThisComputer,{onRegistered:async id=>{C(id);const result=await u();const computers=result?.data?.data?.computers??result?.data?.computers??result?.computers??[];if(!computers.some(computer=>computer.id===id))await u()}}):null,P?c.jsx(hai,'],
 ];
 
 export const computerRegistrationHelperNames = [
   'factoryPortCreateComputerRegistration',
   'factoryPortComputerRegistration',
   'factoryPortLocalComputerIdRef',
+  'factoryPortRegisterThisComputer',
 ];
 
 export function diagnoseComputerRegistrationHelpers(source) {

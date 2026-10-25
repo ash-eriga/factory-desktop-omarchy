@@ -8,7 +8,9 @@
     "build": "node tools/build.mjs",
     "brand": "node tools/brand-assets.mjs",
     "verify": "node tools/verify.mjs",
-    "upstream:check": "node tools/upstream-check.mjs"
+    "upstream:check": "node tools/upstream-check.mjs",
+    "package:sources": "node tools/package-sources.mjs",
+    "package:sources:update": "node tools/package-sources.mjs --update"
   },
   "devDependencies": {
     "@electron/asar": "4.2.0",

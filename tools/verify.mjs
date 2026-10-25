@@ -12,7 +12,7 @@ import {
 import { menuRendererChanges, unpatchMenuRenderer } from './menu-renderer-patches.mjs';
 import { remoteControlRendererChanges } from './remote-control-patches.mjs';
 import { applicationMenuMainChanges } from './application-menu-patches.mjs';
-import { computerRegistrationMainChanges, computerRegistrationRendererChanges }
+import { computerRegistrationMainChanges, computerRegistrationRendererChanges, computerRegistrationPreloadChanges }
   from './computer-registration-patches.mjs';
 import { ROOT, versions, elf, run, files, fingerprint, recipeFingerprint, recipeMatches,
          expectedExecutables, outputBundle } from './common.mjs';
@@ -57,6 +57,7 @@ const rendererSource = file => file === versions.renderer
   ? shippedRenderer : asar.extractFile(archive, file).toString();
 for (const [file, transformations] of [[versions.lifecycle, changes],
   ['.vite/build/preload.js', preloadChanges], [versions.renderer, rendererChanges],
+  ['.vite/build/preload.js', computerRegistrationPreloadChanges],
   [versions.renderer, rendererTitleChanges]]) {
   const source = rendererSource(file);
   for (const [name, , after] of transformations) {

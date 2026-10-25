@@ -1,7 +1,7 @@
 # Builds the inspected proprietary app locally. Do not publish the payload.
 pkgname=factory-droid-desktop
 pkgver=0.206.0
-pkgrel=13
+pkgrel=14
 pkgdesc='Unofficial Factory Droid Desktop port for Arch and Omarchy'
 arch=('x86_64')
 # The port was renamed from factory-desktop-arch. Both packages ship
@@ -25,8 +25,29 @@ depends=('alsa-lib' 'at-spi2-core' 'cairo' 'cups' 'dbus' 'expat' 'glib2'
 makedepends=('nodejs' 'npm' 'base-devel' 'desktop-file-utils' 'librsvg' 'python')
 options=('!strip' '!debug')
 
+# The recipe builds from the port's own source archive, not from a
+# checkout: the same archive serves the GitHub clone and the AUR, so both
+# workflows ship the same bytes. The release asset does not exist yet, so
+# a clone generates the very same archive locally with
+# `npm run package:sources` before makepkg runs.
+source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-14/factory-droid-desktop-port-0.206.0-14.tar.gz')
+sha256sums=('e37d58fd9412faa44c4c07eb3c2d15ff438bdc2433ae3d1c192232801aa654ee')
+
+# The root directory of the archive. It is derived from the source name,
+# so the recipe and the archive cannot disagree about it.
+_source_root="${source[0]##*/}"
+_source_root="${_source_root%.tar.gz}"
+
+prepare() {
+  # The canonical recipe travels with the sources: the build and the test
+  # suite inside the source tree must see the recipe that is really being
+  # executed, not an older copy that was archived with it.
+  install -Dm644 "$startdir/PKGBUILD" "$srcdir/$_source_root/PKGBUILD"
+  install -Dm644 "$startdir/.SRCINFO" "$srcdir/$_source_root/.SRCINFO"
+}
+
 build() {
-  cd "$startdir"
+  cd "$srcdir/$_source_root"
   npm ci --ignore-scripts --no-audit --no-fund
   # The build owns the generated icons: it generates them for a fresh
   # bundle and verifies every one of them when a bundle is reused. The
@@ -36,7 +57,7 @@ build() {
 }
 
 check() {
-  cd "$startdir"
+  cd "$srcdir/$_source_root"
   npm test
 }
 
@@ -55,7 +76,7 @@ normalize_plugin_modes() {
 }
 
 package() {
-  cd "$startdir"
+  cd "$srcdir/$_source_root"
   install -d "$pkgdir/opt"
   cp -a "dist/$pkgname-$pkgver" "$pkgdir/opt/$pkgname"
   find "$pkgdir/opt/$pkgname" -type d -exec chmod 755 {} +

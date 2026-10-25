@@ -1,0 +1,417 @@
+{
+  "format": 1,
+  "files": [
+    {
+      "path": "CONTRIBUTING.md",
+      "mode": "0644"
+    },
+    {
+      "path": "LICENSE",
+      "mode": "0644"
+    },
+    {
+      "path": "README.md",
+      "mode": "0644"
+    },
+    {
+      "path": "docs/architecture.md",
+      "mode": "0644"
+    },
+    {
+      "path": "docs/history.md",
+      "mode": "0644"
+    },
+    {
+      "path": "docs/validation.md",
+      "mode": "0644"
+    },
+    {
+      "path": "omarchy/factory-usage-service/README.md",
+      "mode": "0644"
+    },
+    {
+      "path": "omarchy/factory-usage-service/Service.qml",
+      "mode": "0644"
+    },
+    {
+      "path": "omarchy/factory-usage-service/bin/factory-usage",
+      "mode": "0755"
+    },
+    {
+      "path": "omarchy/factory-usage-service/manifest.json",
+      "mode": "0644"
+    },
+    {
+      "path": "omarchy/factory-usage-service/runtime/auth-helper.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "omarchy/factory-usage-service/runtime/collector.py",
+      "mode": "0644"
+    },
+    {
+      "path": "omarchy/factory-usage-service/runtime/local_usage.py",
+      "mode": "0644"
+    },
+    {
+      "path": "package-lock.json",
+      "mode": "0644"
+    },
+    {
+      "path": "package.json",
+      "mode": "0644"
+    },
+    {
+      "path": "packaging/NOTICE",
+      "mode": "0644"
+    },
+    {
+      "path": "packaging/factory-callback",
+      "mode": "0755"
+    },
+    {
+      "path": "packaging/factory-droid-desktop",
+      "mode": "0755"
+    },
+    {
+      "path": "packaging/factory-droid-desktop.desktop",
+      "mode": "0644"
+    },
+    {
+      "path": "packaging/factory-usage",
+      "mode": "0755"
+    },
+    {
+      "path": "packaging/source-inventory.json",
+      "mode": "0644"
+    },
+    {
+      "path": "runtime/auth-helper.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "runtime/collector.py",
+      "mode": "0644"
+    },
+    {
+      "path": "runtime/factory-callback.py",
+      "mode": "0644"
+    },
+    {
+      "path": "runtime/factory-callback.sh",
+      "mode": "0755"
+    },
+    {
+      "path": "runtime/factory-usage.sh",
+      "mode": "0755"
+    },
+    {
+      "path": "runtime/launch.sh",
+      "mode": "0755"
+    },
+    {
+      "path": "runtime/local_usage.py",
+      "mode": "0644"
+    },
+    {
+      "path": "runtime/theme-bridge.cjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/app-identity.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/application-menu-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/application-menu.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/brand-assets.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/callback.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/common.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/computer-registration.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/electron-download.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/field-continuity.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/fixtures/drift-limits-array.json",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/fixtures/drift-no-ok.json",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/fixtures/drift-not-object.json",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/fixtures/drift-percent-string.json",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/fixtures/helper-output-sample.txt",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/fixtures/limits-core-full.json",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/fixtures/limits-expired.json",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/fixtures/limits-notstarted.json",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/fixtures/limits-ok.json",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/glassy-compositor-playwright.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/glassy-login-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/glassy-navigation-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/glassy-navigation.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/glassy-shell-fixture.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/gui-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/helper-contract.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/icon-smoke.cpp",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/ipc-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/ipc-smoke.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/keytar-smoke.cjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/launcher.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/main-upstream-0.206.0.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/menu-renderer.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/menu-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/menu-upstream-0.206.0.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/package-content-proof.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/package-modes.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/package-sources.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/patches.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/performance-ab.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/performance-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/plugin-readme.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/python.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/recipe.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/remote-control.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/renderer-patches.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/service-payload.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/sidebar-fade-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/sidebar-fade.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/test_callback.py",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/test_collector.py",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/test_local_usage.py",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/theme-bridge.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/theme-ipc-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/theme-main-patches.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/theme-renderer.test.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tests/theme-smoke.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/app-identity.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/application-menu-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/brand-assets.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/build.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/common.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/computer-registration-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/glassy-navigation-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/menu-renderer-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/package-sources.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/remote-control-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/sidebar-fade-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/theme-main-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/theme-renderer-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/upstream-check.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/vendor-snapshot.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/verify.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "versions.json",
+      "mode": "0644"
+    }
+  ]
+}

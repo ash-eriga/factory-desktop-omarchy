@@ -25,6 +25,7 @@ import { spawnSync } from 'node:child_process';
 import { factoryPortCreateComputerRegistration,
   computerRegistrationMainChanges,
   computerRegistrationRendererChanges,
+  computerRegistrationPreloadChanges,
   computerRegistrationHelperNames,
   diagnoseComputerRegistrationHelpers,
 } from '../tools/computer-registration-patches.mjs';
@@ -43,6 +44,8 @@ const SKIP = 'the pristine vendor snapshot is absent; run the build to produce i
 const sourceOptions = { skip: present ? false : SKIP };
 const upstreamMain = present ? readFileSync(upstreamMainPath, 'utf8') : '';
 const upstream = present ? readFileSync(upstreamRendererPath, 'utf8') : '';
+const upstreamPreload = present
+  ? readFileSync(path.join(SNAPSHOT_DIR, 'app/.vite/build/preload.js'), 'utf8') : '';
 
 function sliceBetween(source, from, to) {
   const start = source.indexOf(from);
@@ -148,6 +151,48 @@ test('a stored local id is not treated as a verified registration', async () => 
   await h.driver.ensure();
   assert.equal(h.state.registrations, 1,
     'upstream must still be asked to verify the stored registration');
+});
+
+test('a replaced id is announced once, with both ids', async () => {
+  const notifications = [];
+  const h = driverHarness({
+    onIdChanged: (computerId, previousComputerId) =>
+      notifications.push({ computerId, previousComputerId }),
+  });
+  h.state.token = 'token';
+  assert.equal(await h.driver.ensure(), 'computer-1');
+  assert.deepEqual(notifications, [{ computerId: 'computer-1', previousComputerId: null }],
+    'a first registration announces the absent-to-present transition; the'
+    + ' listener decides, and a relay serving no id is left alone');
+  h.state.computerId = 'deleted-computer';
+  assert.equal(await h.driver.ensure({ force: true }), 'computer-1');
+  assert.deepEqual(notifications, [{ computerId: 'computer-1',
+    previousComputerId: null }, { computerId: 'computer-1',
+    previousComputerId: 'deleted-computer' }], 'the replacement reaches the renderer');
+  assert.equal(await h.driver.ensure({ force: true }), 'computer-1');
+  assert.equal(notifications.length, 2, 'an unchanged id is not announced again');
+});
+
+test('a failed or id-less registration announces nothing', async () => {
+  const notifications = [];
+  const failing = factoryPortCreateComputerRegistration({
+    getToken: async () => 'token',
+    getLocalComputerId: async () => 'deleted-computer',
+    register: async () => { throw new Error('backend unavailable'); },
+    onIdChanged: (computerId, previousComputerId) =>
+      notifications.push({ computerId, previousComputerId }),
+  });
+  await failing.ensure({ force: true });
+  const cleared = factoryPortCreateComputerRegistration({
+    getToken: async () => 'token',
+    getLocalComputerId: async () => null,
+    register: async () => {},
+    onIdChanged: (computerId, previousComputerId) =>
+      notifications.push({ computerId, previousComputerId }),
+  });
+  await cleared.ensure({ force: true });
+  assert.deepEqual(notifications, [],
+    'nothing is announced while no current id exists to serve');
 });
 
 test('concurrent callers share a single registration attempt', async () => {
@@ -422,6 +467,7 @@ function patchedRegistration(source, options = {}) {
     warnings: [],
     infos: [],
     errors: [],
+    broadcasts: [],
     host: 'host-A',
   };
   const key = context => (context ? `${context.userId}/${context.organizationId}` : null);
@@ -471,6 +517,9 @@ function patchedRegistration(source, options = {}) {
   };
   const sandbox = {
     i,
+    // The broadcast the main process sends to every window when a
+    // registration replaces the local computer id.
+    Dr: (channel, payload) => state.broadcasts.push([channel, payload]),
     fl: async () => {
       const context = await i.getAuthedUser(i.getRuntimeAuthConfig());
       return context?.organizationId ? context : null;
@@ -554,6 +603,7 @@ test('every registration anchor matches the real unpatched 0.206.0 source once',
     'main-process registration anchors drifted');
   assert.deepEqual(diagnose(upstream, computerRegistrationRendererChanges), [],
     'renderer registration anchor drifted');
+  assert.deepEqual(diagnose(upstreamPreload, computerRegistrationPreloadChanges), []);
   assert.deepEqual(diagnoseComputerRegistrationHelpers(upstreamMain), []);
   assert.deepEqual(diagnoseComputerRegistrationHelpers(upstream), []);
 });
@@ -561,11 +611,203 @@ test('every registration anchor matches the real unpatched 0.206.0 source once',
 test('the patched main process and renderer stay valid JavaScript', sourceOptions, () => {
   const patchedMain = patch(upstreamMain, computerRegistrationMainChanges);
   const patchedRenderer = patch(upstream, computerRegistrationRendererChanges);
-  for (const [label, source] of [['main', patchedMain], ['renderer', patchedRenderer]]) {
+  const patchedPreload = patch(upstreamPreload, computerRegistrationPreloadChanges);
+  for (const [label, source] of [['main', patchedMain], ['renderer', patchedRenderer],
+    ['preload', patchedPreload]]) {
     const syntax = spawnSync(process.execPath, ['--check', '--input-type=module'],
       { input: source, encoding: 'utf8' });
     assert.equal(syntax.status, 0, `${label}: ${syntax.stderr?.split('\n')[0]}`);
   }
+});
+
+test('explicit registration repairs a backend deletion even during the cooldown', sourceOptions, async () => {
+  let deleted = false;
+  const h = patchedRegistration(patch(upstreamMain, computerRegistrationMainChanges), {
+    token: 'synthetic-token',
+    context: { userId: 'synthetic-user', organizationId: 'synthetic-org' },
+    request: async ({ url }) => {
+      if (deleted && url === '/api/v0/computers/deleted-computer')
+        throw { response: { status: 404 } };
+    },
+  });
+  h.state.configs.set('synthetic-user/synthetic-org', { computerId: 'deleted-computer' });
+  await h.driver.ensure();
+  deleted = true;
+  const reads = h.state.requests.length;
+  assert.equal(await h.handler(), 'deleted-computer');
+  assert.equal(h.state.requests.length, reads, 'ordinary reads retain their fast path');
+  assert.equal(await h.handler(null, { register: true }), 'new-computer');
+  assert.ok(h.state.requests.slice(reads).some(request =>
+    request.url === '/api/v0/computers/deleted-computer'));
+  assert.equal(h.state.requests.filter(request => request.method === 'POST').length, 1);
+  assert.equal(h.state.configs.get('synthetic-user/synthetic-org').computerId, 'new-computer');
+});
+
+test('a registration that replaces the id broadcasts it to the renderer', sourceOptions, async () => {
+  let deleted = false;
+  const h = patchedRegistration(patch(upstreamMain, computerRegistrationMainChanges), {
+    token: 'synthetic-token',
+    context: { userId: 'synthetic-user', organizationId: 'synthetic-org' },
+    request: async ({ url }) => {
+      if (deleted && url === '/api/v0/computers/old-computer')
+        throw { response: { status: 404 } };
+    },
+  });
+  h.state.configs.set('synthetic-user/synthetic-org', { computerId: 'old-computer' });
+  await h.driver.ensure();
+  assert.deepEqual(h.state.broadcasts, [],
+    'a verified registration broadcasts nothing');
+  deleted = true;
+  assert.equal(await h.handler(null, { register: true }), 'new-computer');
+  assert.equal(h.state.broadcasts.length, 1,
+    'the deleted-computer repair must announce the replaced id');
+  assert.equal(h.state.broadcasts[0][0], 'computer:localIdChanged');
+  assert.deepEqual({ ...h.state.broadcasts[0][1] },
+    { computerId: 'new-computer', previousComputerId: 'old-computer' });
+  assert.equal(await h.handler(null, { register: true }), 'new-computer');
+  assert.equal(h.state.broadcasts.length, 1, 'the same id is not announced twice');
+});
+
+test('a repair after an id-clearing failure still announces the new id', sourceOptions, async () => {
+  // Upstream clears the stored registration when the backend 404s it, and
+  // the list that follows can fail too: upstream logs and returns, the
+  // attempt ends with no local id, and the relay can still serve the id
+  // that was cleared. The next successful attempt sees no previous id, but
+  // the old-to-null-to-new transition has to be announced anyway, or the
+  // relay keeps serving the deleted computer until an unrelated event.
+  let phase = 'verified';
+  const h = patchedRegistration(patch(upstreamMain, computerRegistrationMainChanges), {
+    token: 'synthetic-token',
+    context: { userId: 'synthetic-user', organizationId: 'synthetic-org' },
+    request: async ({ url }) => {
+      if (phase === 'deleted' && url === '/api/v0/computers/old-computer') {
+        phase = 'down';
+        throw { response: { status: 404 } };
+      }
+      if (phase === 'down') {
+        phase = 'repaired';
+        throw new Error('synthetic backend outage');
+      }
+    },
+  });
+  h.state.configs.set('synthetic-user/synthetic-org', { computerId: 'old-computer' });
+  await h.driver.ensure();
+  assert.deepEqual(h.state.broadcasts, [],
+    'a verified registration broadcasts nothing');
+  phase = 'deleted';
+  assert.equal(await h.handler(null, { register: true }), null,
+    'the failed repair leaves no local computer id');
+  assert.equal(h.state.configs.get('synthetic-user/synthetic-org'), undefined,
+    'the 404 cleared the stored registration on the way down');
+  assert.ok(h.state.warnings.some(message =>
+    /could not list existing computers/.test(message)),
+    'the list failure is what ended the clearing attempt');
+  assert.deepEqual(h.state.broadcasts, [],
+    'nothing is announced while no current id exists to serve');
+  assert.equal(await h.handler(null, { register: true }), 'new-computer');
+  assert.equal(h.state.broadcasts.length, 1,
+    'the null-to-new transition must be announced: the relay may still serve the cleared id');
+  assert.equal(h.state.broadcasts[0][0], 'computer:localIdChanged');
+  assert.deepEqual({ ...h.state.broadcasts[0][1] },
+    { computerId: 'new-computer', previousComputerId: null });
+  assert.equal(h.state.configs.get('synthetic-user/synthetic-org').computerId,
+    'new-computer');
+  assert.equal(await h.handler(null, { register: true }), 'new-computer');
+  assert.equal(h.state.broadcasts.length, 1, 'the same id is not announced twice');
+});
+
+test('explicit registration without credentials cannot create a computer', sourceOptions, async () => {
+  const h = patchedRegistration(patch(upstreamMain, computerRegistrationMainChanges));
+  assert.equal(await h.handler(null, { register: true }), null);
+  assert.equal(h.state.requests.length, 0);
+});
+
+test('preload forwards registration only when the caller explicitly asks', sourceOptions, async () => {
+  const source = patch(upstreamPreload, computerRegistrationPreloadChanges);
+  const start = source.indexOf('getLocalComputerId:') + 'getLocalComputerId:'.length;
+  const end = source.indexOf(',onLocalComputerIdChanged:', start);
+  const calls = [];
+  const getId = vm.runInNewContext(`(${source.slice(start, end)})`, {
+    M: { ipcRenderer: { invoke: (...args) => { calls.push(args); return 'synthetic-id'; } } },
+  });
+  assert.equal(await getId(), 'synthetic-id');
+  assert.equal(calls[0][0], 'computer:getLocalId');
+  assert.equal(calls[0][1], undefined);
+  await getId({ register: true });
+  assert.equal(calls[1][1].register, true);
+});
+
+test('preload forwards the id change notification and its release', sourceOptions, () => {
+  const source = patch(upstreamPreload, computerRegistrationPreloadChanges);
+  const start = source.indexOf('onLocalComputerIdChanged:') + 'onLocalComputerIdChanged:'.length;
+  const end = source.indexOf(',getLocalHostId:', start);
+  const listeners = [];
+  const subscribe = vm.runInNewContext(`(${source.slice(start, end)})`, {
+    M: { ipcRenderer: {
+      on: (channel, listener) => { listeners.push({ channel, listener }); },
+      removeListener: (channel, listener) => {
+        listeners.splice(listeners.findIndex(entry => entry.listener === listener), 1);
+      },
+    } },
+  });
+  const seen = [];
+  const unsubscribe = subscribe(payload => seen.push(payload));
+  assert.equal(listeners.length, 1);
+  assert.equal(listeners[0].channel, 'computer:localIdChanged');
+  listeners[0].listener(null, { computerId: 'new-computer', previousComputerId: 'old-computer' });
+  assert.deepEqual(seen, [{ computerId: 'new-computer', previousComputerId: 'old-computer' }],
+    'the payload reaches the renderer, not the IPC event wrapper');
+  unsubscribe();
+  assert.equal(listeners.length, 0, 'the renderer can release the subscription');
+});
+
+test('a missing computer has an explicit registration action, not a mount side effect', sourceOptions, async () => {
+  const source = patch(upstream, computerRegistrationRendererChanges);
+  const component = sliceUntil(source, 'function factoryPortRegisterThisComputer(', 'function Yjo(){');
+  const calls = [];
+  const errors = [];
+  let id = 'new-computer';
+  const Component = vm.runInNewContext(`${component};factoryPortRegisterThisComputer`, {
+    L: { useState: () => [false, value => calls.push(['busy', value])] },
+    _o: () => ({ showError: (...args) => errors.push(args) }),
+    c: { jsx: (type, props) => ({ type, props }) },
+    ma: 'card', $e: 'button',
+    window: { electronAPI: { getLocalComputerId: async options => {
+      calls.push(['register', options.register]);
+      return id;
+    } } },
+  });
+  const card = Component({ onRegistered: async value => calls.push(['registered', value]) });
+  assert.equal(calls.length, 0, 'rendering the card must not recreate a deleted computer');
+  assert.equal(card.props.action.props.children, 'Register this computer');
+  await card.props.action.props.onClick();
+  assert.deepEqual(calls, [['busy', true], ['register', true],
+    ['registered', 'new-computer'], ['busy', false]]);
+  assert.equal(errors.length, 0);
+  calls.length = 0;
+  id = null;
+  await card.props.action.props.onClick();
+  assert.equal(errors.length, 1);
+  assert.ok(!calls.some(([action]) => action === 'registered'));
+  assert.deepEqual(calls.at(-1), ['busy', false]);
+});
+
+test('registration fallback respects desktop, loading and organization gates', sourceOptions, () => {
+  const source = patch(upstream, computerRegistrationRendererChanges);
+  const start = source.indexOf('children:[x&&P?c.jsx(wEu,{computer:x,droidConnectionManager:o})')
+    + 'children:['.length;
+  assert.ok(start > 'children:['.length);
+  const end = source.indexOf(',P?c.jsx(hai,', start);
+  const expression = source.slice(start, end);
+  const render = overrides => vm.runInNewContext(`(${expression})`, {
+    s: true, S: true, P: true, l: false, d: false, x: null, o: {},
+    factoryPortRegisterThisComputer: 'register', wEu: 'registered',
+    c: { jsx: (type, props) => ({ type, props }) }, ...overrides,
+  });
+  assert.equal(render({}).type, 'register');
+  for (const gate of [{ s: false }, { S: false }, { P: false }, { l: true }, { d: true }])
+    assert.equal(render(gate), null);
+  assert.equal(render({ x: { id: 'existing' } }).type, 'registered');
 });
 
 test('the registration patch reverses exactly', sourceOptions, () => {
@@ -674,6 +916,9 @@ async function runScenario({ upstreamBytes }) {
 const state = { token: null, computerId: null, registrations: 0, registeredWith: null };
 const xj = async () => state.computerId;
 const Rj = async token => { state.registrations++; state.registeredWith = token; state.computerId = 'computer-1'; };
+// The patched main bytes broadcast the id transition through Dr; the
+// real main defines it, so the scenario does too.
+const Dr = () => {};
 const i = {
   getHostedServicesEnabled: () => true,
   getRuntimeAuthConfig: () => ({}),
@@ -911,5 +1156,5 @@ test('the upstream effect runs on mount only', sourceOptions, () => {
 test('the helper names are unique to this layer', () => {
   assert.deepEqual(computerRegistrationHelperNames,
     ['factoryPortCreateComputerRegistration', 'factoryPortComputerRegistration',
-      'factoryPortLocalComputerIdRef']);
+      'factoryPortLocalComputerIdRef', 'factoryPortRegisterThisComputer']);
 });

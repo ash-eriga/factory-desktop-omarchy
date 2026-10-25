@@ -243,17 +243,28 @@ test('the recipe installs the regenerated icons', {
     await module.writeBrandAssets(SYNTHETIC_SOURCE);
     await rm(path.join(brandDir, 'factory.png'));
     assert.deepEqual(await module.ensureBrandAssets(SYNTHETIC_SOURCE), ['factory.png']);
-    await cp(path.join(ROOT, 'packaging'), path.join(dir, 'packaging'), { recursive: true });
-    await cp(path.join(ROOT, 'omarchy'), path.join(dir, 'omarchy'), { recursive: true });
-    await cp(path.join(ROOT, 'LICENSE'), path.join(dir, 'LICENSE'));
+    // The recipe installs from the extracted sources, so the synthetic
+    // tree is laid out the way makepkg lays it out: the archive's root
+    // directory inside the source directory.
+    const sourceRoot = spawnSync('bash', ['-c',
+      'source "$1" >/dev/null 2>&1; printf %s "$_source_root"',
+      'bash', path.join(ROOT, 'PKGBUILD')], { encoding: 'utf8' }).stdout;
+    const srcdir = path.join(dir, 'src');
+    const tree = path.join(srcdir, sourceRoot);
+    await mkdir(tree, { recursive: true });
+    await cp(path.join(ROOT, 'packaging'), path.join(tree, 'packaging'), { recursive: true });
+    await cp(path.join(ROOT, 'omarchy'), path.join(tree, 'omarchy'), { recursive: true });
+    await cp(path.join(ROOT, 'LICENSE'), path.join(tree, 'LICENSE'));
+    // The generated icons live in the source tree's build directory.
+    await cp(brandDir, path.join(tree, 'build', 'brand'), { recursive: true });
     await cp(path.join(ROOT, 'PKGBUILD'), path.join(dir, 'PKGBUILD'));
-    const bundle = path.join(dir, 'dist', `factory-droid-desktop-${versions.desktop}`);
+    const bundle = path.join(tree, 'dist', `factory-droid-desktop-${versions.desktop}`);
     await mkdir(bundle, { recursive: true });
     await writeFile(path.join(bundle, 'factory-desktop'), 'stub');
     const pkgdir = path.join(dir, 'pkg');
     const result = spawnSync('bash', ['-c',
-      'source "$1" >/dev/null 2>&1; pkgdir="$2"; startdir="$3"; package',
-      'bash', path.join(dir, 'PKGBUILD'), pkgdir, dir], { encoding: 'utf8' });
+      'source "$1" >/dev/null 2>&1; pkgdir="$2"; startdir="$3"; srcdir="$4"; package',
+      'bash', path.join(dir, 'PKGBUILD'), pkgdir, dir, srcdir], { encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr);
     const packaged = async (...parts) => readFile(path.join(pkgdir, ...parts));
     assert.equal((await packaged('usr/share/icons/hicolor/scalable/apps/factory-droid-desktop.svg')).toString(),

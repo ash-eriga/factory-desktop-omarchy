@@ -42,6 +42,30 @@ What it covers:
   a second sign-in that completes while an earlier registration is still
   running, with the untouched upstream bytes as the negative control,
 - the recipe fingerprint, the executable policy and the package modes,
+- the source archive: that it is byte-identical across paths, timestamps
+  and umasks, that it carries the port's sources and no payload, that an
+  undeclared file, a missing source, a tampered checksum and a forbidden
+  path are all refused, that the default mode runs in a source tree
+  without a git index, that the recipe pins the digest of the archive,
+  and that an AUR checkout with only the recipe, its metadata and the
+  license unpacks the same sources as the clone,
+- the guards of the source archive: that a listed or a tracked log, dump,
+  core file, profiler output or bytecode is refused, that an artifact a
+  tree merely holds is ignored instead, that a source tree that is a
+  link, or a link in the middle of a source path, is refused, that the
+  archive does not change when the environment asks for something else
+  (`TAR_OPTIONS`, `GZIP`, a shell startup file, an exported shell
+  function), and that a maintainer's update that fails leaves the
+  inventory, the recipe and the metadata exactly as they were and
+  publishes no archive,
+- the source archive without git: it is built from the inventory with
+  every tool of the system except git, and the maintainer's mode refuses
+  the update when there is no checkout to read, in the suite and in the
+  command alike,
+- the rollback of a failed update: a read-only recipe or metadata file
+  keeps its bytes and its mode, the published archive survives, no
+  pending archive is left behind, and a rollback that cannot finish is
+  reported next to the failure that caused it,
 - the nominal identity of the port: the package name, the desktop entry,
   the installed paths, the launcher data directory, the collector and
   callback paths, the window title and the window class, and the visible
@@ -75,14 +99,28 @@ release. After a real build, the suite exercises them without skips.
 Not covered by the automated suite, and not covered by the CI:
 
 ```bash
-makepkg -f
+npm run package:sources
+SRCDEST="$PWD/build" makepkg -f
 ```
 
-This downloads the vendor installer and the pinned Electron runtime,
-rebuilds `keytar` against the pinned Linux Electron, runs the suite,
-installs the payload, and produces the package. `makepkg` needs network
-access, the distribution's `nodejs`/`npm`, `base-devel`, `libsecret`
-headers, `librsvg` and working user namespaces.
+`npm run package:sources` builds the port's source archive and checks it
+against the checksum the recipe pins; it stops when the sources and the
+pinned digest disagree. The command reads the checked-in source
+inventory, not a git index, so it works in a clone as well as in a
+source tree that carries none. `makepkg` then builds from that archive
+and never from the checkout: it downloads the vendor installer and the
+pinned Electron runtime, rebuilds `keytar` against the pinned Linux
+Electron, runs the suite, installs the payload, and produces the package.
+`makepkg` needs network access, the distribution's `nodejs`/`npm`,
+`base-devel`, `libsecret` headers, `librsvg` and working user
+namespaces.
+
+The AUR workflow is the same recipe with the same archive, downloaded
+from the release instead of built locally. The release asset does not
+exist yet, so that download cannot be exercised here: only the recipe,
+the `.SRCINFO` and the unpacked archive are validated. The archive is
+unpacked and prepared locally, and the source tree it produces runs the
+same suite the clone runs.
 
 The package is then checked with `tests/package-content-proof.mjs`,
 which compares the archive against the bundle manifest and against the
@@ -124,6 +162,11 @@ local step (Layer 3).
 
 ## Known limits
 
+- The AUR path is prepared but not reachable: the repository is private,
+  the release `v0.206.0-14` and its source asset do not exist, and the
+  AUR's own rules and license review are still open. The recipe, its
+  `.SRCINFO` and the unpacked archive are validated locally; the
+  download from the release was not exercised.
 - The rename was validated against the sources and the fixtures only. A
   real package build, a real installation over the previous
   `factory-desktop-arch` package and a real first sign-in on a fresh
