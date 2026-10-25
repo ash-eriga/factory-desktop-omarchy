@@ -31,7 +31,7 @@ options=('!strip' '!debug')
 # a clone generates the very same archive locally with
 # `npm run package:sources` before makepkg runs.
 source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-17/factory-droid-desktop-port-0.206.0-17.tar.gz')
-sha256sums=('58c8a573f45ac7e0701f5171390f50e6b28904c5e199ecc9084a3184160ce0a5')
+sha256sums=('d87b85bf51a2851165a6dd83cc6b554d623d65ec47843d21233787142a95ee29')
 
 # The root directory of the archive. It is derived from the source name,
 # so the recipe and the archive cannot disagree about it.

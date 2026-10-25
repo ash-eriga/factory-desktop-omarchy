@@ -19,9 +19,9 @@ function mountSidebarFade(){
  host.id="factory-sidebar-fade-fixture";parent.append(host);
  function SidebarFixture(){
   const viewport=L.useRef(null);
-  return c.jsxs(df,{style:{display:"flex",flexDirection:"column",height:"100%",background:"transparent"},children:[
+  return c.jsxs(df,{style:{display:"flex",flexDirection:"column",height:"100%",maxHeight:600,background:"transparent"},children:[
    c.jsx("div",{style:{height:32,flexShrink:0,padding:"6px 12px",boxSizing:"border-box"},children:"Projects"}),
-   c.jsx("div",{style:{flex:1,minHeight:0,position:"relative"},children:c.jsx(k8c,{viewportRef:viewport,children:c.jsx("div",{children:Array.from({length:48},(_,index)=>c.jsx("button",{"data-fade-row":index,style:{height:32},onClick:event=>{event.currentTarget.dataset.clicked="true"},children:"Session "+String(index+1).padStart(2,"0")},index))})})}),
+   c.jsx("div",{style:{flex:1,minHeight:0,position:"relative"},children:c.jsx(k8c,{viewportRef:viewport,children:c.jsx("div",{children:Array.from({length:48},(_,index)=>c.jsx("button",{"data-fade-row":index,style:{height:32,display:"block",width:"100%",background:"transparent",border:0,padding:0,textAlign:"left"},onClick:event=>{event.currentTarget.dataset.clicked="true"},children:"Session "+String(index+1).padStart(2,"0")},index))})})}),
    c.jsx("div",{style:{height:48,flexShrink:0,padding:12,boxSizing:"border-box"},children:"Test account"})
   ]});
  }
@@ -87,7 +87,8 @@ export async function runSidebarFadeSmoke({ app, page, output, mode }) {
     const lines = await captureLines();
     const pixels = Object.fromEntries(Object.entries(lines).map(([edge, values]) => [edge, values.map(rgba => rgba[3])]));
     if (masked) for (const values of Object.values(pixels)) {
-      assert.ok(values.every(value => Math.abs(value - 89) <= 2), 'an empty scroll edge must not repaint the glass background');
+      assert.ok(values.every(value => Math.abs(value - 89) <= 2),
+        `an empty scroll edge must not repaint the glass background: alpha ${Math.min(...values)}..${Math.max(...values)}`);
     }
     result.states[name] = { styles, mask, pixels };
     await saveDisposableScreenshot(app, page, path.join(output, `sidebar-fade-${mode}-${name}.png`));
@@ -144,6 +145,17 @@ export async function runSidebarFadeSmoke({ app, page, output, mode }) {
   }
   try {
     await viewport.waitFor({ state: 'visible' });
+    const geometry = await viewport.evaluate(element => ({
+      height: element.clientHeight, contentHeight: element.scrollHeight,
+      rows: [...element.querySelectorAll('[data-fade-row]')].slice(0, 2).map(row => {
+        const rect = row.getBoundingClientRect();
+        return { top: rect.top, height: rect.height };
+      }),
+    }));
+    assert.ok(geometry.contentHeight > geometry.height,
+      `sidebar fixture must overflow before testing scroll fades: ${JSON.stringify(geometry)}`);
+    assert.equal(geometry.rows[1].top - geometry.rows[0].top, 32,
+      'sidebar fixture rows must form one column with a 32px scroll stride');
     await state('start', 0, 1);
     await viewport.evaluate(element => { element.scrollTop = 1; });
     await state('near-start', 0, 1);
