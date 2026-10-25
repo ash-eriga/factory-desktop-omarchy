@@ -122,9 +122,7 @@ test('the launcher keeps its state under the new data directory', async () => {
 });
 
 test('the collector and the callback follow the new profile', async () => {
-  for (const file of ['runtime/collector.py', 'runtime/local_usage.py',
-    'omarchy/factory-usage-service/runtime/collector.py',
-    'omarchy/factory-usage-service/runtime/local_usage.py']) {
+  for (const file of ['runtime/collector.py', 'runtime/local_usage.py']) {
     const source = await read(file);
     assert.ok(source.includes('"factory-droid-desktop"'), `${file} must use the new data directory`);
     assert.ok(!source.includes('"factory-desktop-arch"'), `${file} must not use the old data directory`);
@@ -225,12 +223,14 @@ test('the package metadata check uses the keys makepkg really writes', async () 
   }
 });
 
-test('the README rolls the old callback back before the package is replaced', async () => {
+test('the linked upgrade guide rolls the old callback back before the package is replaced', async () => {
   const readme = await read('README.md');
-  const handoverAt = readme.indexOf('#### The handover, in order');
-  assert.ok(handoverAt > 0, 'the README must document the handover order');
-  const end = readme.indexOf('\n### ', handoverAt);
-  const handover = readme.slice(handoverAt, end > 0 ? end : readme.length);
+  assert.match(readme, /\]\(docs\/history\.md\)/, 'the README must link the upgrade guide');
+  const guide = await read('docs', 'history.md');
+  const handoverAt = guide.indexOf('### The handover, in order');
+  assert.ok(handoverAt > 0, 'the upgrade guide must document the handover order');
+  const end = guide.indexOf('\n## ', handoverAt);
+  const handover = guide.slice(handoverAt, end > 0 ? end : guide.length);
   // The new helper reads only its own journal directory, so it cannot undo
   // a registration made by the old helper.
   assert.match(handover, /cannot undo a registration made by the old helper/);

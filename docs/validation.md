@@ -125,7 +125,7 @@ same suite the clone runs.
 The package is then checked with `tests/package-content-proof.mjs`,
 which compares the archive against the bundle manifest and against the
 recipe: every archived file's hash and mode, the license files, the
-generated icons, the plugin tree, and the recipe identity.
+generated icons, the absence of the removed service plugin, and the recipe identity.
 
 `makepkg -si` additionally installs the package and the missing
 dependencies with `pacman`. `makepkg` itself must not run as root.
@@ -176,7 +176,7 @@ local step (Layer 3).
   really writes (`conflict`, `replaces`, `provides`), but the transition
   itself was not run here. The opt-in `factory-desktop://` registration
   cannot be migrated either: it must be rolled back with the old helper
-  before the old package is replaced, which the README documents and the
+  before the old package is replaced, which the upgrade guide documents and the
   offline suite asserts, but which was not performed here. The desktop
   computer registration is covered by automated regression tests that
   execute the patched bytes; a fresh real sign-in and any cross-device
@@ -186,9 +186,6 @@ local step (Layer 3).
   `"publisherSignature": "not verified"`.
 - The CI runs on a synthetic Linux distribution, not on Arch. The recipe
   checks the distribution itself, and only an Arch host can run it.
-- The optional plugin tree under `omarchy/` is shipped as documentation
-  and is not part of the recipe fingerprint; a change to it does not
-  invalidate an existing bundle.
 - The upstream relay budget, the vendor's rounding formula and the
   vendor's own session inventory are re-implemented from the observed
   behaviour of the pinned release. A newer vendor release can change

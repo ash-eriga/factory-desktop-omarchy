@@ -53,7 +53,7 @@ import { ROOT, hash } from './common.mjs';
 // package the port, or is the port's own documentation.
 const SOURCE_FILES = ['package.json', 'package-lock.json', 'versions.json', 'LICENSE',
   'README.md', 'CONTRIBUTING.md'];
-const SOURCE_DIRS = ['tools', 'runtime', 'packaging', 'tests', 'docs', 'omarchy'];
+const SOURCE_DIRS = ['tools', 'runtime', 'packaging', 'tests', 'docs'];
 
 // The checked-in inventory of the archive's contents. It is the authority
 // for what the archive holds, in a checkout as much as in a download.

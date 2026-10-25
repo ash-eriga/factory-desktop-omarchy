@@ -386,8 +386,8 @@ def cache_key(profile_path):
 
 def run_helper(bundle, profile_path, timeout):
     """Run the helper that ships NEXT TO THIS COLLECTOR, against the vendor
-    bundle passed explicitly. A collector deployed outside the bundle (the
-    plugin payload) must never fall back to the vendor bundle's own helper,
+    bundle passed explicitly. A collector deployed outside the bundle
+    must never fall back to the vendor bundle's own helper,
     which may predate the current metrics contract."""
     electron = bundle / "factory-desktop"
     helper = Path(__file__).resolve().parent / "auth-helper.mjs"

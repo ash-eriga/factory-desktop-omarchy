@@ -17,7 +17,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { ROOT, versions, hashText } from '../tools/common.mjs';
-import { buildTileSvg, buildMarkSvg } from '../tools/brand-assets.mjs';
+import { buildTileSvg } from '../tools/brand-assets.mjs';
 
 // A synthetic path with the same shape as a real one: absolute move,
 // relative curves, closing command.
@@ -29,7 +29,7 @@ const SYNTHETIC_DIGEST = hashText(SYNTHETIC_PATH);
 // The expected generated outputs. This oracle belongs to the test: the
 // production module keeps no second list of names, the command derives
 // the names it announces from the structure that writes the files.
-const EXPECTED_OUTPUTS = ['factory-mark-light.svg', 'factory-mark.svg', 'factory.png', 'factory.svg'];
+const EXPECTED_OUTPUTS = ['factory.png', 'factory.svg'];
 
 const rsvg = spawnSync('rsvg-convert', ['--version'], { encoding: 'utf8' }).status === 0;
 
@@ -123,10 +123,6 @@ test('the generated documents carry the geometry once, inside the port wrapper',
   assert.equal(tile.split(`d="${SYNTHETIC_PATH}"`).length - 1, 1);
   assert.match(tile, /<rect width="512" height="512" rx="112" fill="#171717"\/>/);
   assert.match(tile, /<path d="[^"]+" fill="#ffffff"\/>/);
-  const mark = buildMarkSvg(SYNTHETIC_PATH, '#111111');
-  assert.match(mark, /viewBox="100 90 700 700"/);
-  assert.equal(mark.split(`d="${SYNTHETIC_PATH}"`).length - 1, 1);
-  assert.match(mark, /fill="#111111"/);
 });
 
 test('the generated assets are written to the module\'s own destination', {
@@ -201,7 +197,7 @@ test('the brand command runs from a checkout path with spaces, accents and #', {
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stdout, /factory\.svg/);
     assert.deepEqual((await readdir(brandDir)).sort(),
-      ['factory-mark-light.svg', 'factory-mark.svg', 'factory.png', 'factory.svg']);
+      EXPECTED_OUTPUTS);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -224,7 +220,7 @@ test('the command announces exactly the files it wrote', {
     const announced = line.replace(/^Generated /, '').replace(/ in build\/brand$/, '').split(', ');
     const produced = (await readdir(brandDir)).sort();
     assert.deepEqual(announced.sort(), produced, 'the announced names are the produced names');
-    assert.deepEqual(produced, EXPECTED_OUTPUTS, 'the four expected outputs are produced');
+    assert.deepEqual(produced, EXPECTED_OUTPUTS, 'the two desktop icons are produced');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
@@ -253,7 +249,6 @@ test('the recipe installs the regenerated icons', {
     const tree = path.join(srcdir, sourceRoot);
     await mkdir(tree, { recursive: true });
     await cp(path.join(ROOT, 'packaging'), path.join(tree, 'packaging'), { recursive: true });
-    await cp(path.join(ROOT, 'omarchy'), path.join(tree, 'omarchy'), { recursive: true });
     await cp(path.join(ROOT, 'LICENSE'), path.join(tree, 'LICENSE'));
     // The generated icons live in the source tree's build directory.
     await cp(brandDir, path.join(tree, 'build', 'brand'), { recursive: true });
@@ -271,10 +266,8 @@ test('the recipe installs the regenerated icons', {
       (await readFile(path.join(brandDir, 'factory.svg'))).toString());
     const raster = await packaged('usr/share/icons/hicolor/256x256/apps/factory-droid-desktop.png');
     assert.equal(raster.subarray(0, 8).toString('hex'), '89504e470d0a1a0a');
-    assert.equal((await packaged('usr/share/doc/factory-droid-desktop/omarchy/factory-usage-service/assets/factory.svg')).toString(),
-      (await readFile(path.join(brandDir, 'factory-mark.svg'))).toString());
-    assert.equal((await packaged('usr/share/doc/factory-droid-desktop/omarchy/factory-usage-service/assets/factory-light.svg')).toString(),
-      (await readFile(path.join(brandDir, 'factory-mark-light.svg'))).toString());
+    await assert.rejects(access(path.join(pkgdir, 'usr/share/doc/factory-droid-desktop/omarchy')),
+      { code: 'ENOENT' }, 'the package must not ship the removed service plugin');
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

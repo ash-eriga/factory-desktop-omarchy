@@ -26,34 +26,6 @@
       "mode": "0644"
     },
     {
-      "path": "omarchy/factory-usage-service/README.md",
-      "mode": "0644"
-    },
-    {
-      "path": "omarchy/factory-usage-service/Service.qml",
-      "mode": "0644"
-    },
-    {
-      "path": "omarchy/factory-usage-service/bin/factory-usage",
-      "mode": "0755"
-    },
-    {
-      "path": "omarchy/factory-usage-service/manifest.json",
-      "mode": "0644"
-    },
-    {
-      "path": "omarchy/factory-usage-service/runtime/auth-helper.mjs",
-      "mode": "0644"
-    },
-    {
-      "path": "omarchy/factory-usage-service/runtime/collector.py",
-      "mode": "0644"
-    },
-    {
-      "path": "omarchy/factory-usage-service/runtime/local_usage.py",
-      "mode": "0644"
-    },
-    {
       "path": "package-lock.json",
       "mode": "0644"
     },
@@ -258,10 +230,6 @@
       "mode": "0644"
     },
     {
-      "path": "tests/package-modes.test.mjs",
-      "mode": "0644"
-    },
-    {
       "path": "tests/package-sources.test.mjs",
       "mode": "0644"
     },
@@ -278,10 +246,6 @@
       "mode": "0644"
     },
     {
-      "path": "tests/plugin-readme.test.mjs",
-      "mode": "0644"
-    },
-    {
       "path": "tests/python.test.mjs",
       "mode": "0644"
     },
@@ -295,10 +259,6 @@
     },
     {
       "path": "tests/renderer-patches.test.mjs",
-      "mode": "0644"
-    },
-    {
-      "path": "tests/service-payload.test.mjs",
       "mode": "0644"
     },
     {

@@ -33,12 +33,8 @@ METADATA_JSONL = (
 UUID_RE = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
 
 
-# The accounting module ships twice: in the repository runtime and inside
-# the Omarchy service plugin. The two files are copies of each other and
-# must not drift, so every corrected scenario below runs against BOTH.
 RUNTIME_COPIES = (
     ("repo", ROOT / "runtime" / "local_usage.py"),
-    ("service", ROOT / "omarchy" / "factory-usage-service" / "runtime" / "local_usage.py"),
 )
 
 
@@ -434,9 +430,7 @@ class LedgerStorageTest(unittest.TestCase):
 class CorrectedAccountingTest(unittest.TestCase):
     """Regressions for the confirmed accounting findings.
 
-    Every scenario runs against both copies of the module (repository
-    runtime and service plugin runtime) with its own ledger, so a fix that
-    lands in only one of them fails here.
+    Every scenario runs against the shipped runtime with its own ledger.
     """
 
     def setUp(self):
@@ -717,15 +711,6 @@ class CorrectedAccountingTest(unittest.TestCase):
             with self.subTest(copy=name):
                 self.check_statistics_date_is_the_local_day(module, cache, profiles)
 
-    # -- the two shipped copies must stay identical ----------------------
-
-    def test_shipped_copies_are_identical(self):
-        repo = (ROOT / "runtime" / "local_usage.py").read_bytes()
-        service = (ROOT / "omarchy" / "factory-usage-service" / "runtime"
-                   / "local_usage.py").read_bytes()
-        self.assertEqual(repo, service,
-                         "the service copy of the accounting module must not drift")
-
 
 class CivilCalendarDayTest(unittest.TestCase):
     """The day chart rows are CALENDAR days, not blocks of 86400 seconds.
@@ -733,8 +718,8 @@ class CivilCalendarDayTest(unittest.TestCase):
     A civil day lasts 23 or 25 hours on the days the clock changes, so
     subtracting 86400 seconds from the timestamp repeated the same local
     date (or skipped one) around the change. Every scenario runs against
-    both shipped copies of the module, in a timezone set by the test
-    itself and restored afterwards: the machine's own timezone and
+    the shipped module, in a timezone set by the test itself and restored
+    afterwards: the machine's own timezone and
     configuration are never touched.
     """
 

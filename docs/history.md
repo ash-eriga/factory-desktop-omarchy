@@ -5,6 +5,29 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## Scope cleanup
+
+- Removed the optional Omarchy service plugin and its duplicated runtime,
+  packaging and tests. The standalone usage collector and Desktop theme
+  integration remain.
+
+## Upgrading from factory-desktop-arch
+
+The new package replaces the old package but does not migrate its profile.
+
+### The handover, in order
+
+The new callback helper cannot undo a registration made by the old helper:
+
+1. Before removing or replacing the old package, run `factory-callback rollback`.
+2. Install the new package: `sudo pacman -U <package-file>`.
+3. Browser callbacks are available automatically on a clean install. Use
+   `factory-callback register` only to override an existing default.
+
+If you explicitly registered a callback with either package, run
+`factory-callback rollback` with that package still installed before
+uninstalling it.
+
 ## First-install browser sign-in
 
 - The packaged desktop entry now advertises `factory-desktop://` support.
@@ -205,9 +228,6 @@ of the public tree; the methodology behind each change is described in
 
 ## Packaging
 
-- The packaged plugin runner keeps its execute permission, and every
-  other plugin file stays 0644; the recipe expresses that as a single
-  function, so the packaging test runs the recipe's own logic.
 - The recipe installs the port's own `LICENSE` next to the `NOTICE`, and
   declares `MIT` plus `LicenseRef-Proprietary` for the mixed payload.
 
@@ -229,7 +249,7 @@ of the public tree; the methodology behind each change is described in
   `factory-desktop://` registration is user-local and is not migrated
   either: the new helper reads only its own journal directory, so the old
   registration has to be rolled back with the old helper *before* the old
-  package is replaced. The README documents that order.
+  package is replaced. The upgrade guide documents that order.
 - The shipped application now carries the port's own visible name. The
   official manifest's `productName` is rewritten (that field only, and
   after the pristine snapshot was taken), and the main process sets the
@@ -237,8 +257,8 @@ of the public tree; the methodology behind each change is described in
   `factory-desktop://` scheme, the vendor's mark and the internal Electron
   binary keep their own names: they are contracts of the payload, not of
   the port.
-- The independent commands `factory-usage` and `factory-callback`, the
-  Omarchy plugin's own id and the vendor's CLI storage were left alone.
+- The independent commands `factory-usage` and `factory-callback` and the
+  vendor's CLI storage were left alone.
 - The nominal identity of the port has its own regression test: the
   package name, the desktop entry, the installed paths, the launcher data
   directory, the collector and callback paths, and the visible application

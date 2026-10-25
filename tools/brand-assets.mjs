@@ -11,8 +11,6 @@
 // The generated files live in the ignored build output directory:
 //   factory.svg             512x512 desktop tile (rounded dark plate)
 //   factory.png             256x256 raster of the same tile
-//   factory-mark.svg        the rotor alone, white (for dark surfaces)
-//   factory-mark-light.svg  the rotor alone, near-black (for light surfaces)
 import { realpathSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -20,9 +18,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROOT, SNAPSHOT_DIR, versions, run, hashText } from './common.mjs';
 
-// The rotor box of the official mark, as declared by the vendor's own
-// inline SVG.
-const MARK_VIEW_BOX = '100 90 700 700';
 // The port's desktop tile: a 512px plate with the rotor scaled into it.
 const TILE_SIZE = 512;
 const TILE_RADIUS = 112;
@@ -85,14 +80,7 @@ export function buildTileSvg(data) {
     + `<path d="${data}" fill="${TILE_FOREGROUND}"/></g></svg>\n`;
 }
 
-// The bare rotor, for surfaces that provide their own background.
-export function buildMarkSvg(data, fill) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${MARK_VIEW_BOX}">`
-    + `<title>Factory</title><path d="${data}" fill="${fill}"/></svg>\n`;
-}
-
-// The generated outputs of the port: the three vectors and the raster of
-// the desktop tile.
+// The generated outputs of the port: the vector and raster desktop tile.
 //
 // This structure is the only inventory of the output names. The writer
 // writes it, the recovery compares it against the files on disk and the
@@ -102,8 +90,6 @@ function brandOutputs(data) {
   const tile = { name: 'factory.svg', content: buildTileSvg(data) };
   return [
     tile,
-    { name: 'factory-mark.svg', content: buildMarkSvg(data, TILE_FOREGROUND) },
-    { name: 'factory-mark-light.svg', content: buildMarkSvg(data, '#111111') },
     { name: tile.name.replace(/\.svg$/, '.png'), rasterOf: tile.name },
   ];
 }
@@ -159,7 +145,7 @@ export async function writeBrandAssets(source) {
 // altered.
 //
 // A reused bundle can outlive a cleaned build directory, and a generated
-// file can be removed or changed. Every one of the four outputs is
+// file can be removed or changed. Both outputs are
 // compared with the pinned geometry: an icon that was not verified is
 // never kept. The names of the restored files are returned.
 export async function ensureBrandAssets(source) {

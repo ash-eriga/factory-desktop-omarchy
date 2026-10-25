@@ -31,7 +31,7 @@ options=('!strip' '!debug')
 # a clone generates the very same archive locally with
 # `npm run package:sources` before makepkg runs.
 source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-15/factory-droid-desktop-port-0.206.0-15.tar.gz')
-sha256sums=('8cabaaa7cf66686e38ab401499125763f58436a1b5aa066f1a2eed901299e426')
+sha256sums=('c339338d2e30cd3b2f0ffc0b36c4202da7b2037c931e47d13240bcc980b392b7')
 
 # The root directory of the archive. It is derived from the source name,
 # so the recipe and the archive cannot disagree about it.
@@ -61,20 +61,6 @@ check() {
   npm test
 }
 
-# Modes of the optional Omarchy plugin tree shipped as documentation:
-# directories 0755, data files 0644, and the runner 0755 because the
-# service executes bin/factory-usage directly (Service.qml) and the plugin
-# README copies this tree with `cp -r`, which keeps the mode. Normalizing
-# every file to 0644 shipped a runner the service could not execute.
-# Kept as a function so the packaging test runs this exact recipe logic on
-# a temporary copy instead of re-implementing it.
-normalize_plugin_modes() {
-  local root="$1"
-  find "$root" -type d -exec chmod 755 {} +
-  find "$root" -type f -exec chmod 644 {} +
-  chmod 755 "$root/factory-usage-service/bin/factory-usage"
-}
-
 package() {
   cd "$srcdir/$_source_root"
   install -d "$pkgdir/opt"
@@ -90,15 +76,5 @@ package() {
   # official payload: this repository ships no copy of the mark.
   install -Dm644 build/brand/factory.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/factory-droid-desktop.svg"
   install -Dm644 build/brand/factory.png "$pkgdir/usr/share/icons/hicolor/256x256/apps/factory-droid-desktop.png"
-  # Optional Omarchy service plugin: shipped as a copyable extra. It is not
-  # enabled, registered, or scanned from here; see its README.
-  install -d "$pkgdir/usr/share/doc/$pkgname/omarchy"
-  cp -a omarchy/factory-usage-service "$pkgdir/usr/share/doc/$pkgname/omarchy/"
-  # The plugin's own marks are generated too, for the same reason.
-  install -Dm644 build/brand/factory-mark.svg \
-    "$pkgdir/usr/share/doc/$pkgname/omarchy/factory-usage-service/assets/factory.svg"
-  install -Dm644 build/brand/factory-mark-light.svg \
-    "$pkgdir/usr/share/doc/$pkgname/omarchy/factory-usage-service/assets/factory-light.svg"
-  normalize_plugin_modes "$pkgdir/usr/share/doc/$pkgname/omarchy"
   desktop-file-validate "$pkgdir/usr/share/applications/factory-droid-desktop.desktop"
 }

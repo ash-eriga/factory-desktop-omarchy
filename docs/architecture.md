@@ -247,7 +247,7 @@ path, the occurrence count and the SHA-256 digest must match
 `versions.json`, and the characters must be the plain path alphabet. A
 changed payload fails instead of producing a wrong icon. `rsvg-convert`
 renders the raster from the vector, so the vector stays the single source
-of truth. When a bundle is reused, the build verifies all four outputs
+of truth. When a bundle is reused, the build verifies both desktop icons
 against that pinned geometry and regenerates the ones that are missing or
 altered; the recipe does not repeat that decision.
 
@@ -268,26 +268,16 @@ without a launch-time command or a user `mimeapps.list` override. An existing
 default handler is preserved; the callback helper remains an explicit
 repair/override tool, not a prerequisite for first login.
 
-The account inventory is explicitly incomplete: account-global day and
-model history is not available for personal plans, and the collector
-never fabricates it.
+The `accountRecentSessions` inventory carries `sessionCount`,
+`creditsSampleTotal`, `unknownOwnerRows`, `hasMore` and `complete`.
+It is explicitly incomplete: account-global day and model history is not
+available for personal plans, and the collector never fabricates it.
 
-## 9. The Omarchy service plugin
-
-`omarchy/factory-usage-service/` is a self-contained Quickshell service
-plugin. It carries its own copy of the collector, the auth helper and the
-local accounting, so the usage record can be updated without reinstalling
-the package. The package ships it as documentation under
-`/usr/share/doc/`; it is not enabled, registered or scanned by the
-recipe. The user copies the tree into `~/.config/omarchy/plugins/` and
-enables it explicitly.
-
-## 10. Packaging and licensing
+## 9. Packaging and licensing
 
 `PKGBUILD` builds the bundle, runs the test suite, and installs the
 program files, the desktop entry, the generated icons, `LICENSE` and
-`packaging/NOTICE`. The optional plugin tree is copied as a copyable
-extra, with its runner kept executable and its data files kept 0644.
+`packaging/NOTICE`.
 
 The package is named `factory-droid-desktop` and installs under
 `/opt/factory-droid-desktop`, with the command `/usr/bin/factory-droid-desktop`
@@ -304,7 +294,7 @@ sources are MIT licensed, and the assembled payload contains proprietary
 vendor components that keep their own rights. `packaging/NOTICE` states
 the split inside the package itself.
 
-## 11. One recipe, two workflows
+## 10. One recipe, two workflows
 
 The recipe does not build from a checkout. It declares one source, the
 port's own source archive, and one pinned SHA-256 for it:
@@ -333,7 +323,7 @@ release asset and the AUR's own rules and license review.
 - the sources are the files of an explicit scope (`package.json`,
   `package-lock.json`, `versions.json`, `LICENSE`, `README.md`,
   `CONTRIBUTING.md` and the `tools/`, `runtime/`, `packaging/`, `tests/`,
-  `docs/` and `omarchy/` trees) as the **checked-in source inventory**
+  `docs/` trees) as the **checked-in source inventory**
   (`packaging/source-inventory.json`) names them, with the mode each one
   ships with. The recipe files are not part of them: a checksum inside the
   recipe cannot cover the recipe;

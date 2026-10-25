@@ -20,7 +20,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const HELPER = path.join(ROOT, 'runtime', 'auth-helper.mjs');
-const SERVICE_README = path.join(ROOT, 'omarchy', 'factory-usage-service', 'README.md');
+const ARCHITECTURE = path.join(ROOT, 'docs', 'architecture.md');
 
 // The inventory fields the record consumer reads. The names are the
 // contract: they travel from the helper through the collector into the
@@ -169,8 +169,8 @@ test('a missing sample value stays missing through the contract', async () => {
   assert.equal(record.accountRecentSessions.creditsSampleTotal || 0, 0); // the consumer's `|| 0` fallback
 });
 
-test('the published service documentation describes the inventory contract', async () => {
-  const readme = await readFile(SERVICE_README, 'utf8');
+test('the architecture documents the inventory contract', async () => {
+  const readme = await readFile(ARCHITECTURE, 'utf8');
   assert.match(readme, /accountRecentSessions|Account inventory/);
   assert.match(readme, /creditsSampleTotal|session credits/);
   // The record is explicitly marked incomplete: no account-global history

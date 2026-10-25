@@ -294,7 +294,7 @@ test('the archive carries the port\'s sources and nothing else', async () => {
     'package.json', 'package-lock.json', 'versions.json', 'LICENSE', 'README.md',
     'CONTRIBUTING.md', 'tools/build.mjs', 'tools/common.mjs', 'tools/package-sources.mjs',
     'runtime/launch.sh', 'runtime/collector.py', 'packaging/factory-droid-desktop',
-    'packaging/NOTICE', 'packaging/source-inventory.json', 'omarchy/factory-usage-service/Service.qml',
+    'packaging/NOTICE', 'packaging/source-inventory.json',
     'tests/package-content-proof.mjs', 'docs/architecture.md',
   ]) {
     assert.ok(files.includes(required), `the archive must carry ${required}`);
@@ -310,7 +310,7 @@ test('the archive carries the port\'s sources and nothing else', async () => {
   // Every file of every source tree is named, so no source can be
   // shipped that the inventory does not declare.
   const trees = new Set(files.filter(file => file.includes('/')).map(file => file.split('/')[0]));
-  assert.deepEqual([...trees].sort(), ['docs', 'omarchy', 'packaging', 'runtime', 'tests', 'tools']);
+  assert.deepEqual([...trees].sort(), ['docs', 'packaging', 'runtime', 'tests', 'tools']);
 
   // Every input of the recipe fingerprint is a source of the archive,
   // except the recipe itself: the packaging workflow provides it and

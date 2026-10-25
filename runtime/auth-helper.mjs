@@ -286,7 +286,7 @@ function isMain() {
 // CLI: [--bundle <path>]. The bundle is the VENDOR bundle (its Electron
 // binary runs this helper and its app archive carries the auth chunk).
 // Packaged use derives the bundle from this file's own location
-// (<bundle>/port/auth-helper.mjs); plugin-local deployments pass --bundle
+// (<bundle>/port/auth-helper.mjs); standalone deployments pass --bundle
 // explicitly so the vendor bundle never needs a local helper copy.
 function bundleFromArgv(argv) {
   const flagIndex = argv.indexOf('--bundle');
