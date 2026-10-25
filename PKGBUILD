@@ -27,11 +27,10 @@ options=('!strip' '!debug')
 
 # The recipe builds from the port's own source archive, not from a
 # checkout: the same archive serves the GitHub clone and the AUR, so both
-# workflows ship the same bytes. The release asset does not exist yet, so
-# a clone generates the very same archive locally with
+# workflows ship the same bytes. A clone can generate the archive locally with
 # `npm run package:sources` before makepkg runs.
 source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-17/factory-droid-desktop-port-0.206.0-17.tar.gz')
-sha256sums=('5a1da395bbc5048180a80da6f4b819a8c430c37ebf46d2c6ce0b05b463a98473')
+sha256sums=('4f5c92c71371c5c928b9f55c4a199e64e101a29920b0f86b21f46f6e6ef78c11')
 
 # The root directory of the archive. It is derived from the source name,
 # so the recipe and the archive cannot disagree about it.

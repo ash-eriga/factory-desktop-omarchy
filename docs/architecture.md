@@ -345,9 +345,9 @@ Both packaging workflows consume that one artifact:
   checkout holds the recipe, its `.SRCINFO` and the license, and nothing
   else.
 
-The release asset does not exist yet and the repository is private, so
-the AUR path is prepared but not reachable. Publishing it needs a public
-release asset and the AUR's own rules and license review.
+The AUR path is prepared but not published. It requires a public source
+release and the AUR's own rules and license review. A release in a private
+repository is available only to authenticated users with access.
 
 `tools/package-sources.mjs` builds the archive:
 

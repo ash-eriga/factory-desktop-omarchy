@@ -119,9 +119,9 @@ Electron, runs the suite, installs the payload, and produces the package.
 namespaces.
 
 The AUR workflow is the same recipe with the same archive, downloaded
-from the release instead of built locally. The release asset does not
-exist yet, so that download cannot be exercised here: only the recipe,
-the `.SRCINFO` and the unpacked archive are validated. The archive is
+from the release instead of built locally. Downloading the release asset
+is a separate network check, not part of the offline suite. Private
+release assets require authenticated access. The archive is
 unpacked and prepared locally, and the source tree it produces runs the
 same suite the clone runs.
 
@@ -190,11 +190,11 @@ local step (Layer 3).
 
 ## Known limits
 
-- The AUR path is prepared but not reachable: the repository is private,
-  the release `v0.206.0-17` and its source asset do not exist, and the
-  AUR's own rules and license review are still open. The recipe, its
-  `.SRCINFO` and the unpacked archive are validated locally; the
-  download from the release was not exercised.
+- The AUR path is prepared but not published. It needs a public source
+  release and the AUR's own rules and license review. The recipe,
+  `.SRCINFO` and unpacked archive can be validated locally without a
+  public release. An authenticated download of a private release does
+  not prove that the unauthenticated AUR download works.
 - A package build and a disposable signed-out window do not prove a
   successful upgrade of an existing profile. A real installation over
   the previous `factory-desktop-arch` package and a real first sign-in
