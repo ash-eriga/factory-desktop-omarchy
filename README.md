@@ -86,6 +86,11 @@ Your Desktop data and standalone Droid CLI are preserved.
 
 [Architecture](docs/architecture.md) · [Validation](docs/validation.md) · [History and upgrades](docs/history.md) · [Contributing](CONTRIBUTING.md)
 
+## Contributors
+
+[Factory Droid](https://github.com/apps/factory-droid) contributed to implementation,
+testing, and review. Droid-assisted commits credit `factory-droid[bot]` as a co-author.
+
 ## License
 
 The port's own code is [MIT](LICENSE). Factory Desktop, Droid and Factory marks retain their respective licenses and ownership. See [NOTICE](packaging/NOTICE).
