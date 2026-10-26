@@ -626,7 +626,7 @@ test('the recipe builds from the source tree and never from the checkout', async
   assert.match(recipe, /install -Dm644 "\$startdir\/\.SRCINFO" "\$srcdir\/\$_source_root\/\.SRCINFO"/);
   // The archive is a real source with a real digest.
   assert.match(recipe,
-    /^source=\('https:\/\/github\.com\/ash-eriga\/factory-droid-desktop\/releases\/download\/v[0-9.]+-[0-9]+\/factory-droid-desktop-port-[0-9.]+-[0-9]+\.tar\.gz'\)$/m);
+    /^source=\('https:\/\/github\.com\/ash-eriga\/factory-desktop-omarchy\/releases\/download\/v[0-9.]+-[0-9]+\/factory-droid-desktop-port-[0-9.]+-[0-9]+\.tar\.gz'\)$/m);
   assert.match(recipe, /^sha256sums=\('[a-f0-9]{64}'\)$/m);
   // The rename and the packaging change keep their shape.
   assert.match(recipe, /^pkgrel=18$/m);

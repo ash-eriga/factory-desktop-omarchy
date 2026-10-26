@@ -80,12 +80,13 @@ test('the query uses a fixed public endpoint, omits credentials and ignores exte
     request = args; return response(release());
   });
   assert.equal(request[0], RELEASE_API);
+  assert.equal(RELEASE_API, 'https://api.github.com/repos/ash-eriga/factory-desktop-omarchy/releases/latest');
   assert.equal(request[1].credentials, 'omit');
   assert.equal(request[1].redirect, 'error');
   assert.ok(request[1].signal instanceof AbortSignal);
   assert.deepEqual(Object.keys(request[1].headers).sort(), ['Accept', 'User-Agent']);
   assert.equal(value.status, 'available');
-  assert.equal(value.releaseUrl, 'https://github.com/ash-eriga/factory-droid-desktop/releases/tag/v0.206.0-17');
+  assert.equal(value.releaseUrl, 'https://github.com/ash-eriga/factory-desktop-omarchy/releases/tag/v0.206.0-17');
   assert.equal(value.installedVersion, '0.206.0-16');
 });
 
@@ -156,7 +157,7 @@ test('manual check bypasses the daily throttle and opens only the guide or canon
     h.env.answer = 0; await h.notifier.menuItems()[0].click();
     assert.equal(h.opened[0], GUIDE_URL);
     h.env.answer = 1; await h.notifier.check();
-    assert.equal(h.opened[1], 'https://github.com/ash-eriga/factory-droid-desktop/releases/tag/v0.206.0-17');
+    assert.equal(h.opened[1], 'https://github.com/ash-eriga/factory-desktop-omarchy/releases/tag/v0.206.0-17');
     assert.equal(h.requests.length, 2);
   } finally { await h.close(); }
 });

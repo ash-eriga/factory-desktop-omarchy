@@ -1,8 +1,8 @@
-# Factory Droid Desktop
+# Factory Desktop Omarchy
 
 Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_64.
 
-![Factory Droid Desktop following Omarchy themes, animated demo](https://raw.githubusercontent.com/ash-eriga/factory-droid-desktop/main/media/demo.gif)
+![Factory Desktop Omarchy following Omarchy themes, animated demo](https://raw.githubusercontent.com/ash-eriga/factory-desktop-omarchy/main/media/demo.gif)
 
 ## Features
 
@@ -16,8 +16,8 @@ Requires an Arch-based x86_64 system with user namespaces enabled. Build as your
 
 ```bash
 sudo pacman -S --needed git base-devel nodejs npm libsecret python librsvg desktop-file-utils
-git clone https://github.com/ash-eriga/factory-droid-desktop.git
-cd factory-droid-desktop
+git clone https://github.com/ash-eriga/factory-desktop-omarchy.git
+cd factory-desktop-omarchy
 npm run package:sources
 SRCDEST="$PWD/build" makepkg -si
 ```

@@ -3,8 +3,8 @@ const { readFileSync, lstatSync, mkdirSync, writeFileSync, renameSync, unlinkSyn
 const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 
-const REPOSITORY = 'https://github.com/ash-eriga/factory-droid-desktop';
-const RELEASE_API = 'https://api.github.com/repos/ash-eriga/factory-droid-desktop/releases/latest';
+const REPOSITORY = 'https://github.com/ash-eriga/factory-desktop-omarchy';
+const RELEASE_API = 'https://api.github.com/repos/ash-eriga/factory-desktop-omarchy/releases/latest';
 const GUIDE_URL = `${REPOSITORY}#update`;
 const DAY = 24 * 60 * 60 * 1000;
 
