@@ -4,8 +4,6 @@ Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_
 
 ![Factory Droid Desktop following Omarchy themes, animated demo](https://raw.githubusercontent.com/ash-eriga/factory-droid-desktop/main/media/demo.gif)
 
-[Download the original 20-second MP4](https://raw.githubusercontent.com/ash-eriga/factory-droid-desktop/main/media/demo.mp4).
-
 ## Features
 
 - Separate Desktop profile. Your standalone Droid CLI stays unchanged.
