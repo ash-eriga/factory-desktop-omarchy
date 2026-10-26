@@ -2,9 +2,9 @@
 
 Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_64.
 
-[![Watch Factory Droid Desktop follow Omarchy themes](https://raw.githubusercontent.com/ash-eriga/factory-droid-desktop/main/media/demo-preview.jpg)](https://github.com/ash-eriga/factory-droid-desktop/blob/main/media/demo.mp4)
+![Factory Droid Desktop following Omarchy themes, animated demo](https://raw.githubusercontent.com/ash-eriga/factory-droid-desktop/main/media/demo.gif)
 
-[Watch the 20-second demo](https://github.com/ash-eriga/factory-droid-desktop/blob/main/media/demo.mp4).
+[Download the original 20-second MP4](https://raw.githubusercontent.com/ash-eriga/factory-droid-desktop/main/media/demo.mp4).
 
 ## Features
 
