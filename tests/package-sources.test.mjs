@@ -629,7 +629,7 @@ test('the recipe builds from the source tree and never from the checkout', async
     /^source=\('https:\/\/github\.com\/ash-eriga\/factory-droid-desktop\/releases\/download\/v[0-9.]+-[0-9]+\/factory-droid-desktop-port-[0-9.]+-[0-9]+\.tar\.gz'\)$/m);
   assert.match(recipe, /^sha256sums=\('[a-f0-9]{64}'\)$/m);
   // The rename and the packaging change keep their shape.
-  assert.match(recipe, /^pkgrel=17$/m);
+  assert.match(recipe, /^pkgrel=18$/m);
   for (const field of ['conflicts', 'replaces', 'provides'])
     assert.match(recipe, new RegExp(`^${field}=\\('factory-desktop-arch'\\)$`, 'm'));
 });

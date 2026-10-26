@@ -21,6 +21,8 @@ not a Factory trademark; the upstream product name, the
   no profile dumps. The test suite must run on a clean machine.
 - The personal usage panel is not part of this repository. Changes that
   depend on it do not belong here.
+- Approved demo media belongs in `media/`, outside the source archive.
+  Review it for credentials and private data before publishing.
 
 ## Running the tests
 

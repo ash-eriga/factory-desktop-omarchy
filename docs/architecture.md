@@ -331,7 +331,7 @@ The recipe does not build from a checkout. It declares one source, the
 port's own source archive, and one pinned SHA-256 for it:
 
 ```
-source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-17/factory-droid-desktop-port-0.206.0-17.tar.gz')
+source=('https://github.com/ash-eriga/factory-droid-desktop/releases/download/v0.206.0-18/factory-droid-desktop-port-0.206.0-18.tar.gz')
 sha256sums=('<digest>')
 ```
 

@@ -1,19 +1,20 @@
 # Factory Droid Desktop
 
-Unofficial Factory Desktop port for Arch Linux / Omarchy, x86_64.
+Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_64.
 
-<!-- Replace this placeholder with the demonstration video. -->
-> Demo video coming soon.
+[![Watch Factory Droid Desktop follow Omarchy themes](https://raw.githubusercontent.com/ash-eriga/factory-droid-desktop/main/media/demo-preview.jpg)](https://github.com/ash-eriga/factory-droid-desktop/blob/main/media/demo.mp4)
+
+[Watch the 20-second demo](https://github.com/ash-eriga/factory-droid-desktop/blob/main/media/demo.mp4).
 
 ## Features
 
-- Desktop profile separate from the standalone Droid CLI.
-- Omarchy theme integration.
-- Remote Control, enabled when you choose.
+- Separate Desktop profile. Your standalone Droid CLI stays unchanged.
+- Optional Omarchy theme colors and transparency.
+- Remote Control, enabled only when you choose.
 
 ## Install
 
-Requires Arch Linux or an Arch-based distribution on x86_64, with user namespaces enabled. Run the build as a regular user, not root.
+Requires an Arch-based x86_64 system with user namespaces enabled. Build as your regular user, not root.
 
 ```bash
 sudo pacman -S --needed git base-devel nodejs npm libsecret python librsvg desktop-file-utils
@@ -23,52 +24,31 @@ npm run package:sources
 SRCDEST="$PWD/build" makepkg -si
 ```
 
-The build downloads and patches the official Desktop locally. Vendor binaries are not stored in this repository.
+The build downloads the official app and applies the Linux port locally. No vendor binaries are committed. An AUR package is not available yet.
 
-**AUR support is planned for the future.** For now, build from this repository.
-
-## Usage
+## Use
 
 Open **Factory Droid Desktop** from your app launcher or run `factory-droid-desktop`.
 
-Sign in through your browser and accept the prompt to return to the app. Enable **Remote Control** in Settings when you want remote access. To follow your Omarchy theme, enable **Follow Omarchy theme** in Settings → Appearance.
-
-The Desktop keeps its own profile and does not modify your standalone Droid CLI.
+- Sign in through your browser and allow it to return to the app.
+- For theme integration, enable **Settings → Appearance → Follow Omarchy theme**.
+- For remote access, enable **Remote Control** in Settings.
 
 ## Update
 
-The app checks this port's public GitHub releases, not untested Factory releases. It checks on startup or focus, at most once a day, and notifies you once per new release. It **never installs updates automatically**.
+Quit the app and [back up your profile](docs/update.md) first. Then run in your existing clone:
 
-Use **File → Check for port updates…** to check manually. You can turn off automatic checks in the same menu. While the repository is private or has no published releases, checking is unavailable; that does not mean your version is current.
+```bash
+git pull --ff-only
+npm run package:sources
+SRCDEST="$PWD/build" makepkg -Csi
+```
 
-1. Finish your sessions and quit the Desktop before updating.
-2. Back up the Desktop profile:
-
-   ```bash
-   backup="$HOME/factory-droid-desktop-backup-$(date +%Y%m%d-%H%M%S)"
-   (umask 077; mkdir "$backup" && cp -a "${XDG_DATA_HOME:-$HOME/.local/share}/factory-droid-desktop" "$backup/profile")
-   ```
-
-   Keep this backup private: it can contain credentials and session data. Do not delete the original profile or clear your system keyring.
-
-3. In your existing clone, run:
-
-   ```bash
-   git pull --ff-only
-   npm run package:sources
-   SRCDEST="$PWD/build" makepkg -Csi
-   ```
-
-   `--cleanbuild` (`-C`) clears the generated build workspace, not your Desktop profile. Do not run it as root. If Git reports local changes or the build fails, stop rather than resetting the checkout or uninstalling the working app.
-
-4. Reopen the Desktop and check your sessions, settings and Remote Control.
-
-Normal upgrades preserve your Desktop profile and standalone CLI. Keep the previous `.pkg.tar.zst` and its matching profile backup for rollback: downgrading the package alone may not undo a profile migration. Use release notes to check for any special migration steps.
+The app can notify you about stable releases of this port. It never installs updates automatically and does not announce pre-releases. Check manually from **File → Check for port updates…**.
 
 ## Uninstall
 
-If you ran `factory-callback register`, restore the previous browser callback
-handler before removing the package:
+If you ran `factory-callback register`, restore the previous browser handler first:
 
 ```bash
 factory-callback rollback
@@ -84,13 +64,12 @@ Your Desktop data and standalone Droid CLI are preserved.
 
 ## Documentation
 
-[Architecture](docs/architecture.md) · [Validation](docs/validation.md) · [History and upgrades](docs/history.md) · [Contributing](CONTRIBUTING.md)
+[Update and rollback](docs/update.md) · [Architecture](docs/architecture.md) · [Validation](docs/validation.md) · [History](docs/history.md) · [Contributing](CONTRIBUTING.md)
 
 ## Contributors
 
-[Factory Droid](https://github.com/apps/factory-droid) contributed to implementation,
-testing, and review. Droid-assisted commits credit `factory-droid[bot]` as a co-author.
+[Factory Droid](https://github.com/apps/factory-droid) contributed to implementation, testing, and review, credited as `factory-droid[bot]` in commits.
 
 ## License
 
-The port's own code is [MIT](LICENSE). Factory Desktop, Droid and Factory marks retain their respective licenses and ownership. See [NOTICE](packaging/NOTICE).
+The port's code is [MIT](LICENSE). Factory Desktop, Droid, and Factory marks retain their own rights. This port is not supported or endorsed by Factory. See [NOTICE](packaging/NOTICE).
