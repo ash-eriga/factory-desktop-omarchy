@@ -21,7 +21,7 @@ import { chmod, copyFile, lstat, mkdir, mkdtemp, readFile, readdir, rm, symlink,
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { ROOT, hash, recipeFingerprint, recipeInputList } from '../tools/common.mjs';
+import { ROOT, hash, recipeFingerprint, recipeInputList, versions } from '../tools/common.mjs';
 
 const RECIPE = path.join(ROOT, 'PKGBUILD');
 const SRCINFO = path.join(ROOT, '.SRCINFO');
@@ -37,12 +37,14 @@ function haveGit() {
   return spawnSync('git', ['--version'], { encoding: 'utf8' }).status === 0;
 }
 
-// The recipe's own source and digest, read by sourcing the recipe with
-// bash the way makepkg does.
 function recipeValues(root) {
   const script = `
 set -u
 source "$1"
+printf 'pkgname=%s\\n' "\${pkgname-}"
+printf 'pkgver=%s\\n' "\${pkgver-}"
+printf 'pkgrel=%s\\n' "\${pkgrel-}"
+printf 'url=%s\\n' "\${url-}"
 for value in \${source[@]+"\${source[@]}"}; do
   printf 'source=%s\\n' "$value"
 done
@@ -71,6 +73,9 @@ async function inventory() {
 // A source tree of the port: the files the archive is built from, plus
 // the recipe and its metadata, which travel with the packaging workflow
 // and not with the archive. Nothing else: no git index, no build output.
+// The recipe files are normalized like the archive's own files: a
+// checkout created under a restrictive umask holds 0600 files, and the
+// normalized archive ships 0644.
 async function sourceTree(dir) {
   const files = (await inventory()).files;
   for (const entry of files) {
@@ -81,7 +86,29 @@ async function sourceTree(dir) {
   }
   await copyFile(RECIPE, path.join(dir, 'PKGBUILD'));
   await copyFile(SRCINFO, path.join(dir, '.SRCINFO'));
+  await chmod(path.join(dir, 'PKGBUILD'), 0o644);
+  await chmod(path.join(dir, '.SRCINFO'), 0o644);
   return files;
+}
+
+function releaseOf(root) {
+  const values = recipeValues(root);
+  const pkgname = (values.get('pkgname') || [])[0];
+  const pkgver = (values.get('pkgver') || [])[0];
+  const pkgrel = (values.get('pkgrel') || [])[0];
+  assert.ok(pkgname && pkgver && pkgrel, 'the recipe must declare a release');
+  const version = `${pkgver}-${pkgrel}`;
+  return {
+    pkgname,
+    pkgver,
+    pkgrel,
+    version,
+    source: (values.get('source') || [])[0],
+    sha256: (values.get('sha256sums') || [])[0],
+    directory: path.join(root, 'build', 'aur', `${pkgname}-${version}`),
+    archive: path.join(root, 'build', `${pkgname}-aur-${version}.tar.gz`),
+    sourceArchive: path.join(root, 'build', `${pkgname}-port-${version}.tar.gz`),
+  };
 }
 
 // The production command, in the tree it belongs to.
@@ -106,6 +133,7 @@ async function toolPath(tools, makepkg = null) {
   }
   if (makepkg === 'fixture') await writeMakepkg(dir, MAKEPKG_ANSWER);
   if (makepkg === 'failing') await writeMakepkg(dir, MAKEPKG_FAILURE);
+  if (makepkg === 'metadata') await writeMakepkg(dir, MAKEPKG_CANONICAL_METADATA);
   return dir;
 }
 
@@ -145,6 +173,16 @@ const MAKEPKG_ANSWER = [
   '    echo "pkgbase = factory-droid-desktop"',
   '    printf \'\\tsha256sums = %s\\n\' "$digest"',
   '    exit 0 ;;',
+  'esac',
+  'exit 1',
+  '',
+].join('\n');
+
+const MAKEPKG_CANONICAL_METADATA = [
+  '#!/bin/bash',
+  'case "$1" in',
+  '  --version) echo "makepkg (fixture) 0"; exit 0 ;;',
+  `  --printsrcinfo) cat '${SRCINFO}'; exit 0 ;;`,
   'esac',
   'exit 1',
   '',
@@ -624,12 +662,30 @@ test('the recipe builds from the source tree and never from the checkout', async
   // The canonical recipe travels with the sources.
   assert.match(recipe, /install -Dm644 "\$startdir\/PKGBUILD" "\$srcdir\/\$_source_root\/PKGBUILD"/);
   assert.match(recipe, /install -Dm644 "\$startdir\/\.SRCINFO" "\$srcdir\/\$_source_root\/\.SRCINFO"/);
-  // The archive is a real source with a real digest.
+  const values = recipeValues(ROOT);
+  const pkgver = (values.get('pkgver') || [])[0];
+  const pkgrel = (values.get('pkgrel') || [])[0];
+  const url = (values.get('url') || [])[0];
+  assert.equal(pkgver, versions.desktop);
+  assert.match(pkgrel, /^[1-9][0-9]*$/);
+  assert.equal(url, 'https://github.com/ash-eriga/factory-desktop-omarchy');
+  assert.match(recipe, /^url='https:\/\/github\.com\/ash-eriga\/factory-desktop-omarchy'$/m);
   assert.match(recipe,
-    /^source=\('https:\/\/github\.com\/ash-eriga\/factory-desktop-omarchy\/releases\/download\/v[0-9.]+-[0-9]+\/factory-droid-desktop-port-[0-9.]+-[0-9]+\.tar\.gz'\)$/m);
+    /^source=\("\$url\/releases\/download\/v\$pkgver-\$pkgrel\/\$pkgname-port-\$pkgver-\$pkgrel\.tar\.gz"\)$/m);
+  const source = `${url}/releases/download/v${pkgver}-${pkgrel}`
+    + `/factory-droid-desktop-port-${pkgver}-${pkgrel}.tar.gz`;
+  assert.deepEqual(values.get('source'), [source]);
   assert.match(recipe, /^sha256sums=\('[a-f0-9]{64}'\)$/m);
+  assert.match(recipe,
+    /^# Maintainer: ash_eriga <347392360\+ash-eriga@users\.noreply\.github\.com>$/m);
+  // base-devel is part of the build group a makepkg host already has.
+  assert.doesNotMatch(recipe, /makedepends=\([^)]*base-devel/);
+  const srcinfo = await readFile(SRCINFO, 'utf8');
+  assert.ok(srcinfo.includes(`\tpkgver = ${pkgver}\n`));
+  assert.ok(srcinfo.includes(`\tpkgrel = ${pkgrel}\n`));
+  assert.ok(srcinfo.includes(`\tsource = ${source}\n`));
+  assert.ok(srcinfo.includes(`\tsha256sums = ${values.get('sha256sums')[0]}\n`));
   // The rename and the packaging change keep their shape.
-  assert.match(recipe, /^pkgrel=18$/m);
   for (const field of ['conflicts', 'replaces', 'provides'])
     assert.match(recipe, new RegExp(`^${field}=\\('factory-desktop-arch'\\)$`, 'm'));
 });
@@ -666,12 +722,348 @@ for (const umask of ['0022', '0077']) {
       assert.equal(await readFile(path.join(sourceRoot, '.SRCINFO'), 'utf8'),
         await readFile(SRCINFO, 'utf8'), 'the sources carry the canonical metadata');
 
-      assert.deepEqual(await recipeFingerprint(sourceRoot), await recipeFingerprint(ROOT));
+      // The extraction is compared with the normalized clone fixture,
+      // not with the repository: a checkout created under umask 0077
+      // holds 0600 sources, while the archive ships 0644 and 0755.
+      assert.deepEqual(await recipeFingerprint(sourceRoot), await recipeFingerprint(tree));
     } finally {
       await rm(work, { recursive: true, force: true });
     }
   });
 }
+
+async function aurToolPath() {
+  return toolPath(['bash', 'cat', 'tar', 'gzip'], 'metadata');
+}
+
+for (const umask of ['0022', '0077']) {
+  test(`the AUR export publishes only the submission files with umask ${umask}`, async () => {
+    const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-export-'));
+    let sandbox = null;
+    try {
+      const tree = path.join(work, 'tree');
+      await mkdir(tree, { recursive: true });
+      await sourceTree(tree);
+      await mkdir(path.join(tree, 'vendor'));
+      await writeFile(path.join(tree, 'vendor', 'payload.bin'), 'synthetic\n');
+      await mkdir(path.join(tree, 'Demo'));
+      await writeFile(path.join(tree, 'Demo', 'demo.json'), '{}\n');
+      const release = releaseOf(tree);
+      const before = await metadataState(tree);
+      sandbox = await aurToolPath();
+      const environment = { ...process.env, PATH: sandbox };
+      const previous = process.umask(Number(`0o${umask}`));
+      let exported;
+      try {
+        exported = runTool(tree, ['--aur'], { env: environment });
+      } finally {
+        process.umask(previous);
+      }
+      assert.equal(exported.status, 0, `${exported.stdout}${exported.stderr}`);
+
+      assert.equal(await hash(release.sourceArchive), release.sha256);
+      const shipped = listing(release.sourceArchive);
+      assert.ok(!shipped.some(name => /(?:^|\/)(?:vendor|Demo)\//.test(name)),
+        'the source archive must carry no vendor payload and no demo media');
+
+      assert.equal((await lstat(release.directory)).mode & 0o777, 0o755);
+      assert.deepEqual((await readdir(release.directory)).sort(),
+        ['.SRCINFO', 'LICENSE', 'PKGBUILD']);
+      for (const name of ['.SRCINFO', 'LICENSE', 'PKGBUILD']) {
+        const file = path.join(release.directory, name);
+        assert.equal((await lstat(file)).mode & 0o777, 0o644, `${name} must be 0644`);
+        assert.equal(await readFile(file, 'utf8'), await readFile(path.join(ROOT, name), 'utf8'),
+          `${name} must be the canonical file`);
+      }
+
+      const unpacked = path.join(work, 'unpacked');
+      await mkdir(unpacked);
+      const extract = spawnSync('sh', ['-c',
+        'umask "$1"; exec tar -xzpf "$2" -C "$3"',
+        'sh', umask, release.archive, unpacked], { encoding: 'utf8' });
+      assert.equal(extract.status, 0, extract.stderr);
+      assert.deepEqual(await readdir(unpacked), [release.pkgname]);
+      const root = path.join(unpacked, release.pkgname);
+      assert.equal((await lstat(root)).mode & 0o777, 0o755);
+      assert.deepEqual((await readdir(root)).sort(), ['.SRCINFO', 'LICENSE', 'PKGBUILD']);
+      for (const name of ['.SRCINFO', 'LICENSE', 'PKGBUILD']) {
+        const file = path.join(root, name);
+        assert.equal((await lstat(file)).mode & 0o777, 0o644, `${name} must be 0644`);
+        assert.equal(await readFile(file, 'utf8'),
+          await readFile(path.join(ROOT, name), 'utf8'));
+      }
+
+      const firstArchive = await hash(release.archive);
+      const repeated = runTool(tree, ['--aur'], { env: environment });
+      assert.equal(repeated.status, 0, `${repeated.stdout}${repeated.stderr}`);
+      assert.equal(await hash(release.archive), firstArchive);
+      assert.deepEqual(await readdir(path.join(tree, 'build', 'aur')),
+        [path.basename(release.directory)]);
+      assert.deepEqual(await metadataState(tree), before,
+        'the export never rewrites the recipe, the metadata or the inventory');
+
+      await writeFile(path.join(release.directory, 'notes.txt'), 'synthetic\n');
+      const contaminated = runTool(tree, ['--aur'], { env: environment });
+      assert.notEqual(contaminated.status, 0, 'a contaminated export must be refused');
+      assert.match(contaminated.stderr, /contaminated AUR export/);
+      assert.ok(await exists(path.join(release.directory, 'notes.txt')),
+        'a refused export must not delete what the directory holds');
+      await rm(path.join(release.directory, 'notes.txt'));
+      await writeFile(path.join(release.directory, 'PKGBUILD'), '# changed\n');
+      const different = runTool(tree, ['--aur'], { env: environment });
+      assert.notEqual(different.status, 0, 'a different export must be refused');
+      assert.match(different.stderr, /different AUR export/);
+      assert.equal(await readFile(path.join(release.directory, 'PKGBUILD'), 'utf8'),
+        '# changed\n');
+    } finally {
+      if (sandbox) await rm(sandbox, { recursive: true, force: true });
+      await rm(work, { recursive: true, force: true });
+    }
+  });
+}
+
+test('the AUR export reproduces the same bytes under umask 0022 and 0077', async () => {
+  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-bytes-'));
+  const sandbox = await aurToolPath();
+  try {
+    const exported = [];
+    for (const umask of ['0022', '0077']) {
+      const tree = path.join(work, umask);
+      await mkdir(tree, { recursive: true });
+      await sourceTree(tree);
+      const release = releaseOf(tree);
+      const previous = process.umask(Number(`0o${umask}`));
+      let result;
+      try {
+        result = runTool(tree, ['--aur'], { env: { ...process.env, PATH: sandbox } });
+      } finally {
+        process.umask(previous);
+      }
+      assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);
+      const files = {};
+      for (const name of ['.SRCINFO', 'LICENSE', 'PKGBUILD'])
+        files[name] = await hash(path.join(release.directory, name));
+      exported.push({ files, archive: await hash(release.archive) });
+    }
+    assert.deepEqual(exported[1], exported[0],
+      'the umask must not change the submission or the recipe archive');
+  } finally {
+    await rm(sandbox, { recursive: true, force: true });
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test('a stale .SRCINFO is refused and nothing is exported', async () => {
+  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-stale-'));
+  const sandbox = await aurToolPath();
+  try {
+    const tree = path.join(work, 'tree');
+    await mkdir(tree, { recursive: true });
+    await sourceTree(tree);
+    const release = releaseOf(tree);
+    const metadata = await readFile(path.join(tree, '.SRCINFO'), 'utf8');
+    const stale = metadata.replace(/^\tpkgrel = [0-9]+$/m, '\tpkgrel = 999');
+    assert.notEqual(stale, metadata, 'the fixture must change the metadata');
+    await writeFile(path.join(tree, '.SRCINFO'), stale);
+    const result = runTool(tree, ['--aur'], { env: { ...process.env, PATH: sandbox } });
+    assert.notEqual(result.status, 0, 'stale metadata must be refused');
+    assert.match(result.stderr, /metadata is stale/);
+    assert.equal(await readFile(path.join(tree, '.SRCINFO'), 'utf8'), stale,
+      'the export must not repair the metadata');
+    assert.ok(!await exists(release.directory));
+    assert.ok(!await exists(release.archive));
+    assert.ok(!await exists(release.sourceArchive),
+      'the metadata is checked before the source archive is built');
+  } finally {
+    await rm(sandbox, { recursive: true, force: true });
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test('a tampered source is refused and nothing is exported', async () => {
+  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-tampered-'));
+  const sandbox = await aurToolPath();
+  try {
+    const tree = path.join(work, 'tree');
+    await mkdir(tree, { recursive: true });
+    await sourceTree(tree);
+    const release = releaseOf(tree);
+    const source = path.join(tree, 'docs', 'architecture.md');
+    await writeFile(source, `${await readFile(source, 'utf8')}\n<!-- synthetic -->\n`);
+    const result = runTool(tree, ['--aur'], { env: { ...process.env, PATH: sandbox } });
+    assert.notEqual(result.status, 0, 'a tampered source must be refused');
+    assert.match(result.stderr, /does not match the checksum/);
+    assert.ok(!await exists(release.directory));
+    assert.ok(!await exists(release.archive));
+    assert.ok(!await exists(`${release.sourceArchive}.pending`),
+      'a refused export must leave no pending archive');
+  } finally {
+    await rm(sandbox, { recursive: true, force: true });
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test('unknown and mixed options are refused before anything is read', async () => {
+  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-flags-'));
+  try {
+    const tree = path.join(work, 'tree');
+    await mkdir(tree, { recursive: true });
+    await sourceTree(tree);
+    const before = await metadataState(tree);
+    const unknown = runTool(tree, ['--force']);
+    assert.notEqual(unknown.status, 0, 'an unknown option must be refused');
+    assert.match(unknown.stderr, /Unknown option: --force/);
+    const mixed = runTool(tree, ['--update', '--aur']);
+    assert.notEqual(mixed.status, 0, 'the two modes must not run together');
+    assert.match(mixed.stderr, /exclusive/);
+    assert.deepEqual(await metadataState(tree), before,
+      'a refused run must not write anything');
+    assert.ok(!await exists(path.join(tree, 'build')));
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test('a linked submission file is refused', async () => {
+  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-link-'));
+  const sandbox = await aurToolPath();
+  try {
+    const tree = path.join(work, 'tree');
+    await mkdir(tree, { recursive: true });
+    await sourceTree(tree);
+    const release = releaseOf(tree);
+    await rm(path.join(tree, 'LICENSE'));
+    await symlink(path.join(ROOT, 'LICENSE'), path.join(tree, 'LICENSE'));
+    const result = runTool(tree, ['--aur'], { env: { ...process.env, PATH: sandbox } });
+    assert.notEqual(result.status, 0, 'a linked submission file must be refused');
+    assert.match(result.stderr, /Refusing to archive a symbolic link: LICENSE/);
+    assert.ok(!await exists(release.directory));
+    assert.ok(!await exists(release.archive));
+  } finally {
+    await rm(sandbox, { recursive: true, force: true });
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test('a linked build directory is refused before writing outside the checkout', async () => {
+  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-output-link-'));
+  const sandbox = await aurToolPath();
+  try {
+    const tree = path.join(work, 'tree');
+    const outside = path.join(work, 'outside');
+    await mkdir(tree);
+    await mkdir(outside);
+    await sourceTree(tree);
+    await symlink(outside, path.join(tree, 'build'));
+    const result = runTool(tree, ['--aur'], { env: { ...process.env, PATH: sandbox } });
+    assert.notEqual(result.status, 0, 'a linked output must be refused');
+    assert.match(result.stderr, /Refusing to write through a symbolic link: build/);
+    assert.deepEqual(await readdir(outside), [], 'the linked target must stay untouched');
+  } finally {
+    await rm(sandbox, { recursive: true, force: true });
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test('a linked recipe pending path never changes its target', async () => {
+  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-pending-link-'));
+  const sandbox = await aurToolPath();
+  try {
+    const tree = path.join(work, 'tree');
+    await mkdir(tree);
+    await sourceTree(tree);
+    const release = releaseOf(tree);
+    const sentinel = path.join(work, 'sentinel');
+    await writeFile(sentinel, 'keep these bytes\n');
+    await mkdir(path.join(tree, 'build'));
+    await symlink(sentinel, `${release.archive}.pending`);
+    const result = runTool(tree, ['--aur'], { env: { ...process.env, PATH: sandbox } });
+    assert.ok((await readFile(sentinel)).equals(Buffer.from('keep these bytes\n')),
+      'the pending path must not overwrite its target');
+    if (result.status === 0) {
+      assert.ok((await lstat(release.archive)).isFile(), 'the archive must be a regular file');
+      assert.ok((await lstat(`${release.archive}.pending`)).isSymbolicLink(),
+        'an unrelated pending path must stay untouched');
+    }
+  } finally {
+    await rm(sandbox, { recursive: true, force: true });
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test('the recipe archive and submission use the same snapshot', async () => {
+  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-snapshot-'));
+  const sandbox = await aurToolPath();
+  try {
+    const tree = path.join(work, 'tree');
+    await mkdir(tree);
+    await sourceTree(tree);
+    const release = releaseOf(tree);
+    const tar = spawnSync('sh', ['-c', 'command -v tar'], { encoding: 'utf8' });
+    assert.equal(tar.status, 0, tar.stderr);
+    await rm(path.join(sandbox, 'tar'));
+    await writeFile(path.join(sandbox, 'tar'), [
+      '#!/bin/bash',
+      'case "$OUT" in',
+      `  *-port-*) printf '\\n# edited during archive creation\\n' >> '${tree}/PKGBUILD' ;;`,
+      'esac',
+      `exec '${tar.stdout.trim()}' "$@"`,
+      '',
+    ].join('\n'));
+    await chmod(path.join(sandbox, 'tar'), 0o755);
+    const result = runTool(tree, ['--aur'], { env: { ...process.env, PATH: sandbox } });
+    assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);
+    const extracted = path.join(work, 'extracted');
+    await mkdir(extracted);
+    const unpacked = spawnSync(tar.stdout.trim(), ['-xzf', release.archive, '-C', extracted],
+      { encoding: 'utf8' });
+    assert.equal(unpacked.status, 0, unpacked.stderr);
+    const archived = await readFile(path.join(extracted, release.pkgname, 'PKGBUILD'));
+    const submitted = await readFile(path.join(release.directory, 'PKGBUILD'));
+    assert.ok(archived.equals(submitted), 'both artifacts must hold the same reviewed bytes');
+    assert.ok(!(await readFile(path.join(tree, 'PKGBUILD'))).equals(submitted),
+      'the fixture must change the live recipe after the snapshot');
+  } finally {
+    await rm(sandbox, { recursive: true, force: true });
+    await rm(work, { recursive: true, force: true });
+  }
+});
+
+test('a changed valid release identity renames every export', {
+  skip: haveMakepkg() && haveGit() ? false
+    : 'the real makepkg and git write the changed metadata',
+}, async () => {
+  const work = await mkdtemp(path.join(tmpdir(), 'factory-aur-release-'));
+  try {
+    const tree = path.join(work, 'tree');
+    await mkdir(tree, { recursive: true });
+    await sourceTree(tree);
+    const recipe = await readFile(path.join(tree, 'PKGBUILD'), 'utf8');
+    const current = Number(recipe.match(/^pkgrel=([0-9]+)$/m)[1]);
+    const next = current + 1;
+    await writeFile(path.join(tree, 'PKGBUILD'),
+      recipe.replace(/^pkgrel=[0-9]+$/m, `pkgrel=${next}`));
+    await maintainerCheckout(tree, async environment => {
+      const updated = runTool(tree, ['--update'], { env: environment });
+      assert.equal(updated.status, 0, `${updated.stdout}${updated.stderr}`);
+
+      const release = releaseOf(tree);
+      assert.equal(release.pkgrel, String(next));
+      assert.equal(release.version, `${release.pkgver}-${next}`);
+      assert.match(release.source, new RegExp(`/v${release.version}/`));
+      assert.match(release.source, new RegExp(`-${release.version}\\.tar\\.gz$`));
+
+      const result = runTool(tree, ['--aur'], { env: environment });
+      assert.equal(result.status, 0, `${result.stdout}${result.stderr}`);
+      assert.ok(await exists(release.directory));
+      assert.ok(await exists(release.archive));
+      assert.ok((await readFile(path.join(release.directory, '.SRCINFO'), 'utf8'))
+        .includes(`\tpkgrel = ${next}\n`));
+    });
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
+});
 
 function parseSrcinfo(text) {
   const sections = [];
