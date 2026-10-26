@@ -1,13 +1,13 @@
 pkgbase = factory-droid-desktop
 	pkgdesc = Unofficial Factory Droid Desktop port for Arch and Omarchy
 	pkgver = 0.206.0
-	pkgrel = 18
+	pkgrel = 19
+	url = https://github.com/ash-eriga/factory-desktop-omarchy
 	arch = x86_64
 	license = MIT
 	license = LicenseRef-Proprietary
 	makedepends = nodejs
 	makedepends = npm
-	makedepends = base-devel
 	makedepends = desktop-file-utils
 	makedepends = librsvg
 	makedepends = python
@@ -40,7 +40,7 @@ pkgbase = factory-droid-desktop
 	replaces = factory-desktop-arch
 	options = !strip
 	options = !debug
-	source = https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v0.206.0-18/factory-droid-desktop-port-0.206.0-18.tar.gz
-	sha256sums = e5449abb1538c53670c920cd51516b9e347617f25c28518b2d030fa04aaecef2
+	source = https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v0.206.0-19/factory-droid-desktop-port-0.206.0-19.tar.gz
+	sha256sums = 2c094f1c616b447c2154d66db2157d4385dc5466defc27b14c04351d4168a5e6
 
 pkgname = factory-droid-desktop

@@ -1,9 +1,11 @@
+# Maintainer: ash_eriga <347392360+ash-eriga@users.noreply.github.com>
 # Builds the inspected proprietary app locally. Do not publish the payload.
 pkgname=factory-droid-desktop
 pkgver=0.206.0
-pkgrel=18
+pkgrel=19
 pkgdesc='Unofficial Factory Droid Desktop port for Arch and Omarchy'
 arch=('x86_64')
+url='https://github.com/ash-eriga/factory-desktop-omarchy'
 # The port was renamed from factory-desktop-arch. Both packages ship
 # /usr/bin/factory-usage and /usr/bin/factory-callback under the same
 # names, so they must never be installed at the same time: conflicts keeps
@@ -22,15 +24,15 @@ depends=('alsa-lib' 'at-spi2-core' 'cairo' 'cups' 'dbus' 'expat' 'glib2'
          'gtk3' 'libdrm' 'libsecret' 'libx11' 'libxcb' 'libxcomposite'
          'libxdamage' 'libxext' 'libxfixes' 'libxkbcommon' 'libxrandr'
          'mesa' 'nspr' 'nss' 'pango' 'python' 'xdg-utils')
-makedepends=('nodejs' 'npm' 'base-devel' 'desktop-file-utils' 'librsvg' 'python')
+makedepends=('nodejs' 'npm' 'desktop-file-utils' 'librsvg' 'python')
 options=('!strip' '!debug')
 
 # The recipe builds from the port's own source archive, not from a
 # checkout: the same archive serves the GitHub clone and the AUR, so both
 # workflows ship the same bytes. A clone can generate the archive locally with
 # `npm run package:sources` before makepkg runs.
-source=('https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v0.206.0-18/factory-droid-desktop-port-0.206.0-18.tar.gz')
-sha256sums=('e5449abb1538c53670c920cd51516b9e347617f25c28518b2d030fa04aaecef2')
+source=("$url/releases/download/v$pkgver-$pkgrel/$pkgname-port-$pkgver-$pkgrel.tar.gz")
+sha256sums=('2c094f1c616b447c2154d66db2157d4385dc5466defc27b14c04351d4168a5e6')
 
 # The root directory of the archive. It is derived from the source name,
 # so the recipe and the archive cannot disagree about it.

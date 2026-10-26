@@ -10,7 +10,8 @@
     "verify": "node tools/verify.mjs",
     "upstream:check": "node tools/upstream-check.mjs",
     "package:sources": "node tools/package-sources.mjs",
-    "package:sources:update": "node tools/package-sources.mjs --update"
+    "package:sources:update": "node tools/package-sources.mjs --update",
+    "package:aur": "node tools/package-sources.mjs --aur"
   },
   "devDependencies": {
     "@electron/asar": "4.2.0",

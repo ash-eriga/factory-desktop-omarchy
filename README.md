@@ -22,7 +22,9 @@ npm run package:sources
 SRCDEST="$PWD/build" makepkg -si
 ```
 
-The build downloads the official app and applies the Linux port locally. No vendor binaries are committed. An AUR package is not available yet.
+The build downloads the official app and applies the Linux port locally. No vendor binaries are committed.
+
+The package is not in the AUR yet. The [AUR publishing guide](docs/aur.md) covers how the maintainer prepares the release, exports the submission and pushes it by hand. After that first push, `yay -S factory-droid-desktop` installs it and `yay -Syu` updates it. `pacman -Syu` does not update AUR packages.
 
 ## Use
 
@@ -62,7 +64,7 @@ Your Desktop data and standalone Droid CLI are preserved.
 
 ## Documentation
 
-[Update and rollback](docs/update.md) · [Architecture](docs/architecture.md) · [Validation](docs/validation.md) · [History](docs/history.md) · [Contributing](CONTRIBUTING.md)
+[Update and rollback](docs/update.md) · [AUR publishing](docs/aur.md) · [Architecture](docs/architecture.md) · [Validation](docs/validation.md) · [History](docs/history.md) · [Contributing](CONTRIBUTING.md)
 
 ## Contributors
 
