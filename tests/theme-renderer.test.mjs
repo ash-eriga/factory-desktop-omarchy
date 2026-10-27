@@ -309,6 +309,13 @@ test('glass tint is gated on follow, availability, the glassy windowMode and mai
   assert.equal(values.get('factory-port-theme-source'), 'factory');
 });
 
+test('glass keeps inverted text readable by seeding an opaque page color', () => {
+  const { glassCss } = evaluateHelpers();
+  const css = glassCss(glassyPalette);
+  assert.ok(css.includes('--factory-port-page-color:#101019'),
+    'the glass scope must carry the opaque followed background so inverted text stays readable');
+});
+
 test('glass clears the native content wrapper without fading controls or all sidebar tokens', () => {
   const { glassCss } = evaluateHelpers();
   const css = glassCss(glassyPalette);
