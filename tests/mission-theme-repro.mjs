@@ -244,11 +244,42 @@ try {
     const chip = root.querySelector('[data-mission-control-v2] button[aria-pressed]');
     const chipStyle = chip ? getComputedStyle(chip) : null;
     const label = chip ? chip.textContent : null;
+    const textElement = chip ? (() => {
+      const walker = document.createTreeWalker(chip, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (node.textContent.trim()) return node.parentElement;
+      }
+      return null;
+    })() : null;
+    const textProbe = textElement ? (() => {
+      const style = getComputedStyle(textElement);
+      const read = name => style.getPropertyValue(name).trim();
+      return {
+        tag: textElement.tagName, color: style.color,
+        textInverted: read('--text-inverted'),
+        coreTextInverse: read('--core-v2-text-inverse'),
+        textLabel: read('--text-label'),
+        pageColor: read('--factory-port-page-color'),
+        coreBgPage: read('--core-v2-bg-page'),
+        coreTextPrimary: read('--core-v2-text-primary'),
+      };
+    })() : null;
+    let glassRulePresent = false;
+    for (const sheet of document.styleSheets) {
+      try {
+        for (const rule of sheet.cssRules) {
+          if (rule.cssText && rule.cssText.includes('--factory-port-page-color')) { glassRulePresent = true; break; }
+        }
+      } catch {}
+      if (glassRulePresent) break;
+    }
     return {
       htmlTheme: document.documentElement.getAttribute('data-theme'),
+      glassRulePresent,
       coreBgPage: getComputedStyle(document.documentElement).getPropertyValue('--core-v2-bg-page').trim(),
       textInvertedAtChip: chip ? getComputedStyle(chip).getPropertyValue('--text-inverted').trim() : null,
       surfaceInvertedAtChip: chip ? getComputedStyle(chip).getPropertyValue('--surface-inverted').trim() : null,
+      textProbe,
       chip: chipStyle ? { bg: chipStyle.backgroundColor, color: chipStyle.color, text: label, pressed: chip.getAttribute('aria-pressed') } : null,
       findings,
     };
@@ -258,8 +289,11 @@ try {
   console.log('screenshot:', shot, buffer.length, 'bytes');
   assert.ok(analysis.chip, 'the active mission-mode chip rendered');
   assert.equal(analysis.chip.pressed, 'true', 'the mission-mode chip is the active one');
-  assert.notEqual(analysis.chip.color, analysis.chip.bg,
-    `the active mission-mode chip must keep readable text over glass: text ${analysis.chip.color} on ${analysis.chip.bg}`);
+  assert.ok(analysis.textProbe, 'the chip label text element was found');
+  assert.notEqual(analysis.textProbe.color, analysis.chip.bg,
+    `the active mission-mode chip label must stay readable over glass: text ${analysis.textProbe.color} on ${analysis.chip.bg}`);
+  assert.notEqual(analysis.textProbe.color, 'rgba(0, 0, 0, 0)',
+    'the chip label must not fall back to a fully transparent color');
 } catch (error) {
   console.error('REPRO FAILURE:', error?.message || error);
   try {
