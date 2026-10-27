@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import vm from 'node:vm';
 import {
+  cssChanges,
   diagnose,
   diagnoseThemeHtmlCollisions,
   diagnoseThemeHelperCollisions,
@@ -307,6 +308,21 @@ test('glass tint is gated on follow, availability, the glassy windowMode and mai
   store.set(follow, false);
   assert.equal(store.get(glassActive), false, 'turning following off immediately stops glass');
   assert.equal(values.get('factory-port-theme-source'), 'factory');
+});
+
+test('glass keeps inverted text readable by seeding an opaque page color', () => {
+  const { glassCss } = evaluateHelpers();
+  const css = glassCss(glassyPalette);
+  assert.ok(css.includes('--factory-port-page-color:#101019'),
+    'the glass scope must carry the opaque followed background so inverted text stays readable');
+});
+
+test('inverted-text color seed anchors exactly once in the pristine vendor stylesheet', { skip: upstreamMissing }, () => {
+  const css = readFileSync(path.join(upstreamAppRoot, versions.rendererCss), 'utf8');
+  assert.equal(css.split(cssChanges[0][1]).length - 1, 1,
+    'the vendor seeds --text-inverted from the page token exactly once');
+  assert.ok(!css.includes(cssChanges[0][2]),
+    'the opaque fallback seed must not already exist upstream');
 });
 
 test('glass clears the native content wrapper without fading controls or all sidebar tokens', () => {

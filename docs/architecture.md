@@ -51,7 +51,7 @@ shipping a half-patched application.
 | `tools/patches.mjs` | Linux main-process and renderer compatibility: native platform branches, the non-darwin title bar, the inline menu API, menu-bar hiding, zoom alignment, the billing polling gate, the injected keyboard handler, and the visible application name |
 | `tools/app-identity.mjs` | the port's own identity: the visible product name and the technical slug, and the single rewrite of the official manifest's display name |
 | `tools/theme-main-patches.mjs` | main-process theme bridge: the palette reader, the follow opt-in, the native transparency decision |
-| `tools/theme-renderer-patches.mjs` | preload and renderer side of the theme bridge: validated DTOs, the follow channel, the appearance overrides, the Glassy tint scope, the navigation transparency, the follow control placement |
+| `tools/theme-renderer-patches.mjs` | preload and renderer side of the theme bridge: validated DTOs, the follow channel, the appearance overrides, the Glassy tint scope, the navigation transparency, the follow control placement, and the stylesheet's inverted-text color seed |
 | `tools/menu-renderer-patches.mjs` | the generated application menu in the renderer |
 | `tools/remote-control-patches.mjs` | recovery of the upstream local relay registration, with the upstream connect budget and a back-off |
 | `tools/computer-registration-patches.mjs` | recovery of the upstream desktop computer registration, so the local PC is registered after the first sign-in |
