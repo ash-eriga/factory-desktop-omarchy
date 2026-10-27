@@ -2,6 +2,10 @@
 // Omarchy theme bridge, targeting upstream Factory Desktop 0.206.0
 // (renderer index-DTd1u_pI.js). The upstream appearance store remains
 // authoritative; following Omarchy is a separate, opt-in derived override.
+// The derived overlay pins its contrast at factoryPortFollowContrast because
+// Omarchy palettes such as vantablack sit on pure black, where the Factory
+// default contrast of 50 mixes surfaces and borders at a few percent of the
+// foreground and renders them near-invisible.
 // This file owns the complete follow-row placement inside the theme editor
 // (iCu), immediately before the preset row, including the React memo-cache
 // slot accounting for pCu and iCu. It also owns the glassy-window renderer
@@ -106,8 +110,9 @@ export const htmlChanges = [
 
 const baseRendererHelpers = `
 const factoryPortThemeKey="factory-port-theme-source",factoryPortThemeCacheKey="factory-port-theme-cache",factoryPortThemeEmpty={available:!1,mode:null,background:null,foreground:null,accent:null,revision:null,windowMode:null};
+const factoryPortFollowContrast=85;
 function factoryPortNormalizeTheme(t){if(!t||typeof t!=="object"||t.available!==!0||t.mode!=="light"&&t.mode!=="dark")return factoryPortThemeEmpty;const e=n=>typeof n==="string"&&/^#[0-9a-f]{6}$/i.test(n)?n.toLowerCase():null,n=e(t.background),i=e(t.foreground),o=e(t.accent),r=t.windowMode==="opaque"||t.windowMode==="transparent"||t.windowMode==="glassy"?t.windowMode:null;return n&&i&&o?{available:!0,mode:t.mode,background:n,foreground:i,accent:o,revision:typeof t.revision==="string"?t.revision:null,windowMode:r}:factoryPortThemeEmpty}
-function factoryPortOverlayAppearance(t,e,n){if(!e.available)return t;const i=e.mode,o=n[i];return{...t,[i]:{...(t[i]??o),preset:o.preset,accent:o.accent,accentColor:e.accent,background:e.background,foreground:e.foreground}}}
+function factoryPortOverlayAppearance(t,e,n){if(!e.available)return t;const i=e.mode,o=n[i];return{...t,[i]:{...(t[i]??o),preset:o.preset,accent:o.accent,accentColor:e.accent,background:e.background,foreground:e.foreground,contrast:factoryPortFollowContrast}}}
 function factoryPortReadFollow(){try{return localStorage.getItem(factoryPortThemeKey)==="omarchy"}catch{return!1}}
 function factoryPortReadCachedTheme(){try{if(!factoryPortReadFollow()||typeof window==="undefined"||!window.electronAPI?.theme?.getOmarchy)return factoryPortThemeEmpty;return factoryPortNormalizeTheme(JSON.parse(localStorage.getItem(factoryPortThemeCacheKey)||"null"))}catch{return factoryPortThemeEmpty}}
 function factoryPortPersistTheme(t){try{t.available?localStorage.setItem(factoryPortThemeCacheKey,JSON.stringify(t)):localStorage.removeItem(factoryPortThemeCacheKey)}catch{}}
@@ -170,6 +175,7 @@ export const rendererChanges = [
 
 export const rendererHelperNames = [
   'factoryPortNormalizeTheme',
+  'factoryPortFollowContrast',
   'factoryPortThemeFollow',
   'factoryPortThemeSnapshot',
   'factoryPortBuildThemeRow',
