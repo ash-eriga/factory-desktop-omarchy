@@ -514,11 +514,14 @@ test('renderer DTO validation is strict and palette overlay preserves saved Fact
     accentColor: '#ff6600',
     background: '#101010',
     foreground: '#eeeeee',
+    contrast: 85,
   });
   assert.equal(followed.light, manual.light, 'inactive mode remains the same saved object');
   assert.equal(followed.uiFontSize, 13);
   assert.equal(overlay(manual, normalize(null), defaults), manual, 'fallback returns original settings');
   assert.equal(manual.dark.background, '#202030', 'the persisted settings object was not mutated');
+  assert.equal(manual.dark.contrast, undefined,
+    'the saved contrast stays untouched; 85 lives only in the derived overlay');
 });
 
 test('the theme copy helper takes the theme alone and keeps both languages', () => {
