@@ -18,7 +18,7 @@ import {
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const versions = JSON.parse(readFileSync(path.join(projectRoot, 'versions.json'), 'utf8'));
-const upstreamAppRoot = path.join(projectRoot, 'build/upstream-pristine-0.206.0/app');
+const upstreamAppRoot = path.join(projectRoot, `build/upstream-pristine-${versions.desktop}/app`);
 const rendererPath = path.join(upstreamAppRoot, versions.renderer);
 const preloadPath = path.join(upstreamAppRoot, '.vite/build/preload.js');
 const htmlPath = path.join(upstreamAppRoot, versions.rendererHtml);
@@ -35,8 +35,8 @@ function evaluateHelpers({ locale = 'en-US' } = {}) {
     },
     navigator: { language: locale },
     c: { jsx: (type, props) => ({ type, props }) },
-    ia: 'Checkbox',
-    Kc: 'SettingRow',
+    Pye: 'Checkbox',
+    ad: 'SettingRow',
   });
   const result = vm.runInContext(
     `${rendererHelpers}\n({normalize:factoryPortNormalizeTheme,overlay:factoryPortOverlayAppearance,buildRow:factoryPortBuildThemeRow,glassCss:factoryPortGlassCss,sync:factoryPortSyncNativeFollow})`,
@@ -72,7 +72,7 @@ function executeCachedBootstrap({ values, hasApi = true, systemDark = true }) {
 const upstreamMissing = !existsSync(rendererPath) || !existsSync(preloadPath) || !existsSync(htmlPath)
   ? 'the pristine vendor snapshot is absent; run the build to produce it' : false;
 
-test('all renderer, preload and HTML anchors match the pinned 0.206.0 upstream exactly once', { skip: upstreamMissing }, () => {
+test('all renderer, preload and HTML anchors match the pinned 1.0.0 upstream exactly once', { skip: upstreamMissing }, () => {
   const renderer = readFileSync(rendererPath, 'utf8');
   const preload = readFileSync(preloadPath, 'utf8');
   const html = readFileSync(htmlPath, 'utf8');
@@ -106,28 +106,28 @@ test('follow row is placed inside the theme editor before the preset row with ex
   const renderer = readFileSync(rendererPath, 'utf8');
   const patched = patch(renderer, rendererChanges);
 
-  // pCu (Appearance screen) grows its cache only for the follow state hooks
+  // H$u (Appearance screen) grows its cache only for the follow state hooks
   // and the three new prop dependencies of the editor call site.
   assert.ok(patched.includes(
-    'function pCu(){const t=z.c(235),{t:e}=ce("settings"),[n,i]=cs(Ske),'
-    + '[factoryPortFollow,setFactoryPortFollow]=cs(factoryPortThemeFollow),'
-    + '[factoryPortState]=cs(factoryPortThemeSnapshot),'
-    + '{theme:o,themePreference:s,setThemePreference:r}=bD(),',
-  ), 'pCu reads the follow atoms and grew its memo cache from 232 to 235');
+    'function H$u(){const t=H.c(235),{t:e}=de("settings"),[n,i]=Cs(_Me),'
+    + '[factoryPortFollow,setFactoryPortFollow]=Cs(factoryPortThemeFollow),'
+    + '[factoryPortState]=Cs(factoryPortThemeSnapshot),'
+    + '{theme:o,themePreference:s,setThemePreference:r}=lN(),',
+  ), 'H$u reads the follow atoms and grew its memo cache from 232 to 235');
   assert.ok(patched.includes(
     't[29]!==a||t[30]!==l||t[31]!==m||t[32]!==k||t[232]!==factoryPortFollow'
     + '||t[233]!==factoryPortState||t[234]!==setFactoryPortFollow'
-    + '?(R=c.jsx(iCu,{mode:a,onChange:k,onChoose:m,theme:l,factoryPortFollow,'
+    + '?(R=c.jsx(D$u,{mode:a,onChange:k,onChoose:m,theme:l,factoryPortFollow,'
     + 'factoryPortState,setFactoryPortFollow},a)',
   ), 'the editor call site declares all follow prop dependencies');
-  assert.ok(!patched.includes('function pCu(){const t=z.c(232),'), 'stale pCu cache size removed');
+  assert.ok(!patched.includes('function H$u(){const t=H.c(232),'), 'stale H$u cache size removed');
 
-  // iCu (theme editor) receives the props, grows its cache, memoizes the row
+  // D$u (theme editor) receives the props, grows its cache, memoizes the row
   // and places it as the first child, immediately before the preset row.
   assert.ok(patched.includes(
-    'function iCu(t){const e=z.c(211),{mode:n,onChange:i,onChoose:o,theme:s,'
-    + 'factoryPortFollow,factoryPortState,setFactoryPortFollow}=t,{t:r}=ce("settings"),',
-  ), 'iCu receives the follow props and grew its memo cache from 206 to 211');
+    'function D$u(t){const e=H.c(211),{mode:n,onChange:i,onChoose:o,theme:s,'
+    + 'factoryPortFollow,factoryPortState,setFactoryPortFollow}=t,{t:r}=de("settings"),',
+  ), 'D$u receives the follow props and grew its memo cache from 206 to 211');
   assert.ok(patched.includes(
     'const{palette:b}=v;let factoryPortThemeRow;e[206]!==factoryPortFollow'
     + '||e[207]!==factoryPortState||e[208]!==setFactoryPortFollow'
@@ -137,21 +137,21 @@ test('follow row is placed inside the theme editor before the preset row with ex
     + 'let C;if(e[11]!==n||e[12]!==s.preset){',
   ), 'the row is memoized from its three controlled props before the preset options memo');
   assert.ok(patched.includes(
-    'e[188]!==Xe||e[210]!==factoryPortThemeRow'
-    + '?(ct=c.jsxs($g,{children:[factoryPortThemeRow,ee,te,Se,ve,be,we,_e,Ee,Fe,He,Xe]})',
+    'e[188]!==qe||e[210]!==factoryPortThemeRow'
+    + '?(tt=c.jsxs(P1,{children:[factoryPortThemeRow,Z,ne,Ce,pe,me,xe,Re,Ie,We,je,qe]})',
   ), 'the follow row renders immediately before the preset row inside the editor');
-  assert.ok(!patched.includes('function iCu(t){const e=z.c(206),'), 'stale iCu cache size removed');
+  assert.ok(!patched.includes('function D$u(t){const e=H.c(206),'), 'stale D$u cache size removed');
 
   // The screen-level fragment stays untouched: the row lives only in the editor.
   assert.ok(patched.includes(
-    'Et=c.jsxs(c.Fragment,{children:[T,R,We,Rt,Pt]}),t[226]=T,t[227]=R,t[228]=We,t[229]=Rt,t[230]=Pt,t[231]=Et',
+    'Ft=c.jsxs(c.Fragment,{children:[T,R,Qe,At,Yt]}),t[226]=T,t[227]=R,t[228]=Qe,t[229]=At,t[230]=Yt,t[231]=Ft',
   ), 'the Appearance screen fragment keeps its original children and return cache');
   assert.equal(patched.split('factoryPortBuildThemeRow(factoryPortFollow').length - 1, 1,
     'the row is built from exactly one call site');
 });
 
 test('renderer snapshot store lets a newer live event win over initial IPC and cleans up', async () => {
-  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('XWe.onMount='));
+  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('Stt.onMount='));
   const values = new Map([
     ['factory-port-theme-source', 'omarchy'],
     ['factory-port-theme-cache', JSON.stringify({
@@ -167,12 +167,12 @@ test('renderer snapshot store lets a newer live event win over initial IPC and c
     onOmarchyChanged: callback => { eventListener = callback; return () => { unsubscribeCount++; }; },
   };
   const atoms = [];
-  const fs = initial => {
+  const cs = initial => {
     const atom = { value: initial, onMount: null };
     atoms.push(atom);
     return atom;
   };
-  const jne = (key, initial, storage) => ({ key, initial, storage });
+  const Yle = (key, initial, storage) => ({ key, initial, storage });
   const context = vm.createContext({
     localStorage: {
       getItem: key => values.get(key) ?? null,
@@ -181,7 +181,7 @@ test('renderer snapshot store lets a newer live event win over initial IPC and c
     },
     navigator: { language: 'en-US' },
     window: { electronAPI: { theme: api } },
-    fs, jne, wMc: () => ({}),
+    cs, Yle, Nnd: () => 'system',
   });
   vm.runInContext(`${storeSetup}\nglobalThis.__snapshot = factoryPortThemeSnapshot;`, context);
   const snapshot = context.__snapshot;
@@ -217,13 +217,13 @@ function miniAtomStore() {
   const getters = new Map();
   const subs = new Map();
   const storages = new Map();
-  const fs = initial => {
+  const cs = initial => {
     const atom = Symbol('atom');
     if (typeof initial === 'function') getters.set(atom, initial); else values.set(atom, initial);
     subs.set(atom, []);
     return atom;
   };
-  const jne = (key, initial, storage) => {
+  const Yle = (key, initial, storage) => {
     const atom = Symbol('stored-atom');
     values.set(atom, initial);
     storages.set(atom, { key, storage });
@@ -251,11 +251,11 @@ function miniAtomStore() {
       };
     },
   };
-  return { fs, jne, store };
+  return { cs, Yle, store };
 }
 
 function evaluateStoreSetup(context = {}) {
-  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('XWe.onMount='));
+  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('Stt.onMount='));
   const values = new Map();
   const vmContext = vm.createContext({
     localStorage: {
@@ -278,9 +278,9 @@ const glassyPalette = {
 };
 
 test('glass tint is gated on follow, availability, the glassy windowMode and main acceptance', () => {
-  const { fs, jne, store } = miniAtomStore();
+  const { cs, Yle, store } = miniAtomStore();
   const { context, values } = evaluateStoreSetup({
-    fs, jne, wMc: () => ({}),
+    cs, Yle, Nnd: () => 'system',
     window: { electronAPI: { theme: { getOmarchy() {} } } },
   });
   const { follow, snapshot, accepted, glassActive } = context.__port;
@@ -347,9 +347,9 @@ test('Glassy Bar chrome is scoped, keeps solid control tokens and supports both 
 });
 
 test('ThemeSync lifecycle syncs one live native follow per change and never leaks subscriptions', async () => {
-  const { fs, jne, store } = miniAtomStore();
+  const { cs, Yle, store } = miniAtomStore();
   const { context } = evaluateStoreSetup({
-    fs, jne, wMc: () => ({}),
+    cs, Yle, Nnd: () => 'system',
     window: { electronAPI: { theme: { getOmarchy() {}, setOmarchyFollow: () => {} } } },
   });
   const { follow, accepted } = context.__port;
@@ -380,12 +380,12 @@ test('ThemeSync lifecycle syncs one live native follow per change and never leak
     return new Promise(resolve => { resolvers.push(resolve); });
   };
 
-  const iufChange = rendererChanges.find(change => change[1].startsWith('const r=i.sub($H,s)'));
+  const iufChange = rendererChanges.find(change => change[1].startsWith('const r=i.sub(SK,s)'));
   assert.ok(iufChange, 'the ThemeSync subscription change exists');
-  const effectSource = 'const s=()=>{hAf({appearanceBackground:i.get(Zsi),theme:i.get($H),'
+  const effectSource = 'const s=()=>{YNf({appearanceBackground:i.get(w0i),theme:i.get(SK),'
     + 'themePreference:i.get(factoryPortThemeSource)})};s();' + iufChange[2];
   const makeEffect = vm.runInContext(
-    '(hAf,$H,factoryPortThemeSource,Zsi,factoryPortThemeFollow,factoryPortSyncNativeFollow)'
+    '(YNf,SK,factoryPortThemeSource,w0i,factoryPortThemeFollow,factoryPortSyncNativeFollow)'
     + '=>(i,Xt)=>{' + effectSource + '}', context);
   const $H = Symbol('$H'), source = Symbol('source'), background = Symbol('background');
   const cleanup = makeEffect(
@@ -633,7 +633,7 @@ test('preload bridge exposes validated DTOs, a boolean-gated follow opt-in and r
       if (listeners.get(channel) === listener) listeners.delete(channel);
     },
   };
-  const api = vm.runInNewContext(`({${property}})`, { M: { ipcRenderer } });
+  const api = vm.runInNewContext(`({${property}})`, { v: { ipcRenderer } });
   const current = await api.theme.getOmarchy();
   assert.deepEqual({ ...current }, {
     available: true, mode: 'dark', background: '#101010', foreground: '#eeeeee', accent: '#ff6600',
@@ -676,7 +676,7 @@ test('preload bridge exposes validated DTOs, a boolean-gated follow opt-in and r
     'only the two valid booleans reached the follow channel');
 
   const rejecting = vm.runInNewContext(`({${property}})`, {
-    M: { ipcRenderer: { invoke: async () => { throw new Error('No handler registered'); } } },
+    v: { ipcRenderer: { invoke: async () => { throw new Error('No handler registered'); } } },
   });
   assert.equal(await rejecting.theme.setOmarchyFollow(true), false, 'a rejected invoke fails closed');
 });

@@ -87,7 +87,7 @@ apply the recipe, and then execute the patched billing hook and theme
 bridge extracted from the patched bytes.
 
 They read the pristine vendor snapshot that the build produces in
-`build/upstream-pristine-0.206.0/` (see
+`build/upstream-pristine-<version>/` (see
 [architecture](architecture.md#7-generated-outputs)). The snapshot is
 copied out of the freshly extracted application before any patch is
 applied, and it stays in the ignored build directory: it is proprietary
@@ -157,9 +157,9 @@ Use a disposable profile for runtime checks. These commands do not require
 sign-in or change the installed Desktop profile:
 
 ```bash
-node tests/gui-smoke.mjs "$PWD/dist/factory-droid-desktop-0.206.0" "$PWD/build/gui-smoke"
-node tests/theme-ipc-smoke.mjs "$PWD/dist/factory-droid-desktop-0.206.0" "$PWD/build/theme-ipc-smoke"
-node tests/ipc-smoke.mjs "$PWD/dist/factory-droid-desktop-0.206.0"
+node tests/gui-smoke.mjs "$PWD/dist/factory-droid-desktop-1.0.0" "$PWD/build/gui-smoke"
+node tests/theme-ipc-smoke.mjs "$PWD/dist/factory-droid-desktop-1.0.0" "$PWD/build/theme-ipc-smoke"
+node tests/ipc-smoke.mjs "$PWD/dist/factory-droid-desktop-1.0.0"
 ```
 
 Set `FACTORY_PLAYWRIGHT_MODULE` to an existing Playwright module when it is

@@ -1,5 +1,5 @@
 // Appearance layout smoke in a disposable, instrumented copy of a built
-// bundle. It mounts the real pCu and iCu renderer components; no login,
+// bundle. It mounts the real zMu and iCu renderer components; no login,
 // credential, production profile, or external request is used.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -60,9 +60,9 @@ async function instrumentClone(tempRoot) {
   await asar.extractAll(sourceAsar, extracted);
   const rendererPath = path.join(extracted, rendererRelative);
   const renderer = await readFile(rendererPath, 'utf8');
-  for (const symbol of ['function pCu(){', 'function iCu(t){', 'function qOc(t){',
-    'function _Mc(t){', 'function KOc(t){', 'function _jc(t){const e=z.c(21),{authContext:n,router:i}=t,',
-    'function pAf(t){', 'function Ncf()', 'const JPt=MAf(pHo())', 'c.jsx(kbo,{target:',
+  for (const symbol of ['function zMu(){', 'function iCu(t){', 'function cJc(t){',
+    'function Mqc(t){', 'function dJc(t){', 'function _jc(t){const e=z.c(21),{authContext:n,router:i}=t,',
+    'function vBf(t){', 'function jIf()', 'const oUt=MAf(pHo())', 'c.jsx(JEo,{target:',
     'factoryPortBuildThemeRow', 'factoryPortGlassCss', 'factoryPortGlassActive',
     'appearance-font-smoothing']) {
     assert.ok(renderer.includes(symbol), `candidate renderer contains ${symbol}`);
@@ -83,7 +83,7 @@ async function instrumentClone(tempRoot) {
     `const store=Lhe();\n` +
     glassyShellFixtureSource('factory-menu-smoke') +
     `const factoryPortMenuSmokeTarget={type:T1.Global};\n` +
-    `return{mount(container){const root=IKo.createRoot(container);root.render(c.jsx(_Mc,{env:JPt,children:c.jsx(KOc,{value:window.__factoryMenuSmokeAuth,children:c.jsx(kbo,{target:factoryPortMenuSmokeTarget,children:c.jsx(qOc,{children:c.jsx(pAf,{children:c.jsxs(L.Fragment,{children:[c.jsx(Ncf,{}),c.jsx(NativeContent,{children:c.jsx(df,{id:"factory-menu-smoke-theme",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",minHeight:"100%",padding:"16px",boxSizing:"border-box"},children:c.jsx(pCu,{})})})]})})})})})}));return root},` +
+    `return{mount(container){const root=Cis.createRoot(container);root.render(c.jsx(Mqc,{env:oUt,children:c.jsx(dJc,{value:window.__factoryMenuSmokeAuth,children:c.jsx(JEo,{target:factoryPortMenuSmokeTarget,children:c.jsx(cJc,{children:c.jsx(vBf,{children:c.jsxs(L.Fragment,{children:[c.jsx(jIf,{}),c.jsx(NativeContent,{children:c.jsx(Vu,{id:"factory-menu-smoke-theme",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",minHeight:"100%",padding:"16px",boxSizing:"border-box"},children:c.jsx(zMu,{})})})]})})})})})}));return root},` +
     `seed(){store.set(JWe,"dark");const saved=store.get(Ske);store.set(Ske,{...saved,dark:{...saved.dark,background:"#20242a"}})},` +
     `glass(){const snapshot=store.get(factoryPortThemeSnapshot);return{active:store.get(factoryPortGlassActive),accepted:store.get(factoryPortNativeFollowAccepted),windowMode:snapshot.windowMode,available:snapshot.available}},` +
     `unmount(root){root.unmount()}}})();\n`;
@@ -380,7 +380,7 @@ try {
 
   report.nativeContentGlass = {
     contentAlpha, controlAlpha, restoredAlpha, manualSettingsIdentical: true,
-    scope: 'real pCu/Ue/Om, unscoped opaque-token backdrop and upstream frame gradient; test-mounted, not an authenticated route',
+    scope: 'real zMu/Ue/Om, unscoped opaque-token backdrop and upstream frame gradient; test-mounted, not an authenticated route',
   };
   report.runtime = runtime;
   report.appearance = appearance;

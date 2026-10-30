@@ -2,14 +2,14 @@
 // Main-process only: no new renderer IPC, downloads or installation rights.
 export const updateNotificationMainChanges = [
   ['declare port update notifier',
-    'function G1(){var c;',
-    'var factoryPortUpdates;function G1(){var c;'],
+    'function id(){var u;',
+    'var factoryPortUpdates;function id(){var u;'],
   ['initialize port update notifier before building the application menu',
-    'i.startupTracker.beginPhase("application_menu_create"),G1()',
-    'i.startupTracker.beginPhase("application_menu_create"),process.platform==="linux"&&(factoryPortUpdates=require(Q.resolve(process.resourcesPath,"..","port","update-notifier.cjs")).createUpdateNotifier({electron:x,version:require(Q.resolve(process.resourcesPath,"..","port","release.json")).version,allowed:()=>i.getHostedServicesEnabled()&&i.getRuntimeAuthConfig().airgapEnabled!==!0&&!i.areDesktopUpdatesDisabledByCachedOrgSettings(),canAutoCheck:ul,rebuildMenu:G1})),G1()'],
+    's.startupTracker.beginPhase("application_menu_create"),id(),s.onDesktopUpdatePolicyChange(id)',
+    's.startupTracker.beginPhase("application_menu_create"),process.platform==="linux"&&(factoryPortUpdates=require(J.resolve(process.resourcesPath,"..","port","update-notifier.cjs")).createUpdateNotifier({electron:E,version:require(J.resolve(process.resourcesPath,"..","port","release.json")).version,allowed:()=>s.getHostedServicesEnabled()&&s.getRuntimeAuthConfig().airgapEnabled!==!0&&!s.areDesktopUpdatesDisabledByCachedOrgSettings(),canAutoCheck:jd,rebuildMenu:id})),id(),s.onDesktopUpdatePolicyChange(id)'],
   ['offer port release notifications instead of the vendor updater',
-    'r=process.platform==="linux"||!t||i.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:',
-    'r=process.platform==="linux"?(factoryPortUpdates?.menuItems()??[]):!t||i.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:'],
+    'r=process.platform==="linux"||!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:',
+    'r=process.platform==="linux"?(factoryPortUpdates?.menuItems()??[]):!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:'],
 ];
 
 export function diagnoseUpdateNotificationHelpers(source) {

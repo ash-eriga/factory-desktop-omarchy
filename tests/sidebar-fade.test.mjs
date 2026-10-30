@@ -6,7 +6,8 @@ import { patch } from '../tools/theme-renderer-patches.mjs';
 import { factoryPortUpdateSidebarMask, sidebarFadeChanges, sidebarMaskCss } from '../tools/sidebar-fade-patches.mjs';
 import { sidebarFadeFixtureSource } from './sidebar-fade-smoke.mjs';
 
-const upstreamFile = new URL('../build/upstream-pristine-0.206.0/app/.vite/renderer/main_window/assets/index-DTd1u_pI.js', import.meta.url);
+const versions = JSON.parse(readFileSync(new URL('../versions.json', import.meta.url), 'utf8'));
+const upstreamFile = new URL(`../build/upstream-pristine-${versions.desktop}/app/${versions.renderer}`, import.meta.url);
 const vendorOptions = { skip: existsSync(upstreamFile) ? false : 'the pristine vendor snapshot is absent; run the build to produce it' };
 
 function viewport(scoped = true, height = 600) {
@@ -59,7 +60,7 @@ test('unrelated scroll areas receive no mask styles; CSS masks content and suppr
 
 test('actual upstream observer updates mask depths on scroll/resize/mutation and cleans up', vendorOptions, () => {
   const source = patch(readFileSync(upstreamFile, 'utf8'), sidebarFadeChanges);
-  const component = source.slice(source.indexOf('function yQe('), source.indexOf('function XGr('));
+  const component = source.slice(source.indexOf('function kYe('), source.indexOf('function _ca('));
   const element = viewport(), listeners = new Map(), callbacks = {};
   let cleanup, disconnected = 0;
   element.firstElementChild = { children: [] };
@@ -75,15 +76,15 @@ test('actual upstream observer updates mask depths on scroll/resize/mutation and
     observe() {}
     disconnect() { disconnected++; }
   }
-  vm.runInNewContext(`${factoryPortUpdateSidebarMask.toString()};${component};yQe(props)`, {
+  vm.runInNewContext(`${factoryPortUpdateSidebarMask.toString()};${component};kYe(props)`, {
     props: { orientation: 'vertical', viewportRef: { current: element } },
-    z: { c: () => [] },
+    H: { c: () => [] },
     L: { useState: () => [{ start: false, end: false }, () => {}], Fragment: 'fragment' },
     c: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }), Fragment: 'fragment' },
-    VGr: [], YGr: 'edge', JGr: 'edge-color', WGr: [],
-    qGr: { vertical: { start: 'top', end: 'bottom' } },
-    QTn: 1,
-    Xt: effect => { cleanup = effect(); }, ResizeObserver, MutationObserver,
+    Sca: ['start', 'end'], Cca: [], xca: 'edge', Eca: 'edge-color',
+    wca: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
+    GLn: 1,
+    rn: effect => { cleanup = effect(); }, ResizeObserver, MutationObserver,
   });
   assert.deepEqual(depths(element), ['0px', '40px']);
   element.scrollTop = 2;
@@ -104,9 +105,9 @@ test('actual upstream observer updates mask depths on scroll/resize/mutation and
 test('only two exact source anchors change; shared colors, sizes and other call sites stay original', vendorOptions, () => {
   const source = readFileSync(upstreamFile, 'utf8');
   let updated = patch(source, sidebarFadeChanges);
-  assert.ok(updated.includes('k7t=[{offset:0,opacity:1},{offset:1,opacity:0}]'));
-  assert.ok(updated.includes('colorStops:k7t,orientation:"vertical",scrollbarInset:"0px",size:Z3e,surface:w.bg.page,testIdPrefix:"payment-panel"'));
-  assert.ok(updated.includes('colorStops:k7t,orientation:"vertical",scrollbarInset:$uo,size:Z3e,surface:w.bg.surface,testIdPrefix:"session-list"'));
+  assert.ok(updated.includes('mUt=[{offset:0,opacity:1},{offset:1,opacity:0}]'));
+  assert.ok(updated.includes('colorStops:mUt,orientation:"vertical",scrollbarInset:"0px",size:Hke,surface:w.bg.surface,testIdPrefix:"payment-panel"'));
+  assert.ok(updated.includes('colorStops:mUt,orientation:"vertical",scrollbarInset:ESo,size:Hke,surface:w.bg.surface,testIdPrefix:"session-list"'));
   for (const [, before, after] of [...sidebarFadeChanges].reverse()) updated = updated.replace(after, before);
   assert.equal(updated, source);
 });
@@ -138,7 +139,7 @@ function functionBody(source, start) {
 }
 
 function styledBase(source, alias) {
-  return new RegExp(`${alias}=J\\(([A-Za-z0-9_$]+)\\)`).exec(source)?.[1];
+  return new RegExp(`${alias}=X\\(([A-Za-z0-9_$]+)\\)`).exec(source)?.[1];
 }
 
 function traceSessionList(source) {
@@ -168,11 +169,11 @@ function traceSessionList(source) {
 // and the traced viewport come from the shipped bundle and not from a mock.
 function renderSessionList(trace) {
   const context = {
-    z: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
+    H: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
     L: { useState: initial => [initial, () => {}], Fragment: 'fragment' },
     c: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }), Fragment: 'fragment' },
-    k7t: [{ offset: 0, opacity: 1 }, { offset: 1, opacity: 0 }],
-    $uo: '0px', Z3e: '40px',
+    mUt: [{ offset: 0, opacity: 1 }, { offset: 1, opacity: 0 }],
+    ESo: '10px', Hke: '28px',
     w: { bg: { surface: '#000000' } },
   };
   for (const alias of trace.aliases) context[alias] = { [alias]: function () {} }[alias];
@@ -211,7 +212,7 @@ function findElement(element, type) {
 }
 
 function markedAliases(patched) {
-  return [...patched.matchAll(/([A-Za-z0-9_$]+)=J\([A-Za-z0-9_$]+\)\.attrs\(\{"data-factory-port-sidebar-scroll":!0\}\)/g)]
+  return [...patched.matchAll(/([A-Za-z0-9_$]+)=X\([A-Za-z0-9_$]+\)\.attrs\(\{"data-factory-port-sidebar-scroll":!0\}\)/g)]
     .map(match => match[1]);
 }
 
@@ -220,8 +221,8 @@ function assertSessionListRootMarked(patched, trace) {
   assert.deepEqual(marked, [trace.root], `only the session-list root ${trace.root} may carry the marker`);
   const base = styledBase(patched, trace.root);
   assert.ok(base, 'the session-list root is a styled component');
-  assert.ok(patched.includes(`${trace.root}=J(${base}).attrs({"data-factory-port-sidebar-scroll":!0})\``));
-  const marker = patched.indexOf(`${trace.root}=J(${base}).attrs(`);
+  assert.ok(patched.includes(`${trace.root}=X(${base}).attrs({"data-factory-port-sidebar-scroll":!0})\``));
+  const marker = patched.indexOf(`${trace.root}=X(${base}).attrs(`);
   const css = patched.indexOf(sidebarMaskCss);
   assert.ok(css > marker && css - marker < 400, 'the mask CSS belongs to the marked root');
 }
@@ -275,7 +276,7 @@ test('negative controls: a shared scroll root and an overlay-only fixture are re
   const source = readFileSync(upstreamFile, 'utf8');
   const trace = traceSessionList(source);
   const base = styledBase(source, trace.root);
-  const shared = [...source.matchAll(new RegExp(`([A-Za-z0-9_$]+)=J\\(${base}\\)`, 'g'))]
+  const shared = [...source.matchAll(new RegExp(`([A-Za-z0-9_$]+)=X\\(${base}\\)`, 'g'))]
     .map(match => match[1])
     .filter(alias => alias !== trace.root);
   assert.ok(shared.length, 'the bundle has another scroll-area root with the same base');
@@ -285,8 +286,8 @@ test('negative controls: a shared scroll root and an overlay-only fixture are re
   // the mask stays inactive.
   for (const wrongRoot of shared) {
     const wrongChanges = sidebarFadeChanges.map(([name, before, after]) => (
-      before.startsWith(`${trace.root}=J(`)
-        ? [name, `${wrongRoot}=J(${base})`, after.replace(`${trace.root}=J(${base})`, `${wrongRoot}=J(${base})`)]
+      before.startsWith(`${trace.root}=X(`)
+        ? [name, `${wrongRoot}=X(${base})`, after.replace(`${trace.root}=X(${base})`, `${wrongRoot}=X(${base})`)]
         : [name, before, after]
     ));
     const wrongPatched = patch(source, wrongChanges);
@@ -312,13 +313,13 @@ test('negative controls: a shared scroll root and an overlay-only fixture are re
 
   const overlayBody = functionBody(source, source.indexOf(`function ${trace.overlay}(`));
   const overlayContext = {
-    z: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
+    H: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
     L: { useState: initial => [initial, () => {}], Fragment: 'fragment' },
     c: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }), Fragment: 'fragment' },
-    VGr: ['start', 'end'], WGr: [],
-    YGr: 'edge', JGr: 'edge-color',
-    qGr: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
-    Xt: () => {},
+    Sca: ['start', 'end'], Cca: [],
+    xca: 'edge', Eca: 'edge-color',
+    wca: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
+    rn: () => {}, GLn: 1,
   };
   assert.throws(
     () => vm.runInNewContext(`${overlayBody};${trace.overlay}({viewportRef:{current:null},children:"rows"})`, overlayContext),

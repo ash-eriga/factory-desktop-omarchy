@@ -139,10 +139,10 @@ test('the collector and the callback follow the new profile', async () => {
 test('the shipped application carries the port name and sets it at runtime', async () => {
   // The official manifest names the application "Factory"; only that field
   // is rewritten, and only when it is there exactly once.
-  const rewritten = applyAppIdentity('{\n  "name": "desktop",\n  "productName": "Factory",\n  "version": "0.206.0"\n}\n');
+  const rewritten = applyAppIdentity('{\n  "name": "desktop",\n  "productName": "Factory",\n  "version": "1.0.0"\n}\n');
   assert.match(rewritten, /"productName": "Factory Droid Desktop"/);
   assert.match(rewritten, /"name": "desktop"/);
-  assert.match(rewritten, /"version": "0.206.0"/);
+  assert.match(rewritten, /"version": "1.0.0"/);
   assert.throws(() => applyAppIdentity('{\n  "name": "desktop"\n}\n'));
   assert.throws(() => applyAppIdentity('{"productName": "Factory", "other": {"productName": "Factory"}}'));
 
@@ -150,10 +150,12 @@ test('the shipped application carries the port name and sets it at runtime', asy
   const names = new Map(changes.map(([name]) => [name, name]));
   assert.ok(names.has('application name'), 'the main process must set the application name');
   const source = changes.map(([, before]) => before).join('\n');
-  assert.ok(patch(source).includes(`x.app.setName("${PRODUCT_NAME}")`));
+  // The minified Electron alias changes with every upstream build, so the
+  // assertion names only the call the patch has to produce.
+  assert.ok(patch(source).includes(`.app.setName("${PRODUCT_NAME}")`));
   // The desktop entry name follows the package name, so the window and the
   // launcher entry describe the same application.
-  assert.ok(patch(source).includes(`x.app.setDesktopName("${DESKTOP_ENTRY}")`));
+  assert.ok(patch(source).includes(`.app.setDesktopName("${DESKTOP_ENTRY}")`));
 });
 
 test('the build keeps the vendor snapshot pristine and rewrites the name after it', async () => {
@@ -254,26 +256,25 @@ test('the window title carries the port name and keeps the session title',
 
     // The renderer owns the window title: Electron propagates a page title
     // to the native window.
-    const start = patched.indexOf('function Xbo(');
-    const end = patched.indexOf('function wOc(', start);
+    const start = patched.indexOf('function q8o(');
+    const end = patched.indexOf('function Jod(', start);
     assert.ok(start > 0 && end > start, 'the title hook was not found');
     const hook = patched.slice(start, end);
-    const fallback = patched.match(/Yqn="([^"]+)"/)?.[1];
+    const fallback = patched.match(/\$ri="([^"]+)"/)?.[1];
     assert.equal(fallback, PRODUCT_NAME, 'the default title must be the port name');
 
     const run = props => {
       let cleanup;
       const context = {
         document: { title: '' },
-        Yqn: fallback,
-        Jbo: {},
-        Ms: () => () => {},
-        z: { c: n => Array(n) },
-        Cs: () => () => {},
-        Xt: effect => { cleanup = effect(); },
+        $ri: fallback,
+        V8o: {},
+        ws: () => () => {},
+        H: { c: n => Array(n) },
+        rn: effect => { cleanup = effect(); },
         props,
       };
-      vm.runInNewContext(`${hook};Xbo(props);`, context, { timeout: 1000 });
+      vm.runInNewContext(`${hook};q8o(props);`, context, { timeout: 1000 });
       return { context, cleanup: () => cleanup() };
     };
 

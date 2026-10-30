@@ -218,7 +218,7 @@
       "mode": "0644"
     },
     {
-      "path": "tests/main-upstream-0.206.0.test.mjs",
+      "path": "tests/main-upstream-1.0.0.test.mjs",
       "mode": "0644"
     },
     {
@@ -230,7 +230,7 @@
       "mode": "0644"
     },
     {
-      "path": "tests/menu-upstream-0.206.0.test.mjs",
+      "path": "tests/menu-upstream-1.0.0.test.mjs",
       "mode": "0644"
     },
     {

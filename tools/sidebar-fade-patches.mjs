@@ -41,12 +41,13 @@ export const sidebarMaskCss = `
 
 export const sidebarFadeChanges = [
   // The marker belongs to the session-list scroll root, the styled root the
-  // session wrapper renders. The other scroll-area roots are shared with
-  // unrelated panels, so marking one of them would mask the wrong content.
+  // session wrapper renders. 1.0.0 has a second root with the same styled
+  // base (`s8i`) shared with unrelated panels, so the marker must sit on
+  // `EZc`, the root `RZc` renders for the session list.
   ['mask only the session-list viewport instead of painting rectangular edge overlays',
-    'E8c=J(HJe)`',
-    `E8c=J(HJe).attrs({"data-factory-port-sidebar-scroll":!0})\`${sidebarMaskCss}`],
+    'EZc=X(krt)`',
+    `EZc=X(krt).attrs({"data-factory-port-sidebar-scroll":!0})\`${sidebarMaskCss}`],
   ['reuse upstream edge observers for continuous sidebar mask depths',
-    'k={end:_<T-QTn,start:_>QTn};p(R=>',
-    'k={end:_<T-QTn,start:_>QTn};if(!v)factoryPortUpdateSidebarMask(y,_,T);p(R=>'],
+    'k={end:_<T-GLn,start:_>GLn};p(R=>',
+    'k={end:_<T-GLn,start:_>GLn};if(!v)factoryPortUpdateSidebarMask(y,_,T);p(R=>'],
 ];

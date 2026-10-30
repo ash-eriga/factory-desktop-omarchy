@@ -195,7 +195,7 @@ namespaces, and the build probes that with `unshare -Ur true`.
 
 ## 5. Assembly
 
-The bundle is assembled under `dist/factory-droid-desktop-0.206.0`:
+The bundle is assembled under `dist/factory-droid-desktop-1.0.0`:
 
 - the Electron runtime, with the application archive and the rebuilt
   native module,
@@ -231,7 +231,7 @@ not an older copy that travelled with the archive.
 Two directories under `build/` are produced by the build and ignored by
 Git. Neither is ever packaged as a source, uploaded, or committed.
 
-### `build/upstream-pristine-0.206.0/`
+### `build/upstream-pristine-<version>/`
 
 The untouched official files the test suite validates the anchors
 against. `tools/vendor-snapshot.mjs` copies them out of the freshly
@@ -331,7 +331,7 @@ The recipe does not build from a checkout. It declares one source, the
 port's own source archive, and one pinned SHA-256 for it:
 
 ```
-source=('https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v0.206.0-18/factory-droid-desktop-port-0.206.0-18.tar.gz')
+source=('https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v1.0.0-1/factory-droid-desktop-port-1.0.0-1.tar.gz')
 sha256sums=('<digest>')
 ```
 

@@ -277,9 +277,9 @@ export function factoryPortMountApplicationMenu(api) {
 
 export const applicationMenuMainChanges = [
   ['share the presentation bridge with the menu and window factories',
-    'function Qne(){x.ipcMain.handle("window:showApplicationMenu"',
-    'var factoryLinuxApplicationMenu;function Qne(){x.ipcMain.handle("window:showApplicationMenu"'],
+    'function kde(){E.ipcMain.handle("window:showApplicationMenu"',
+    'var factoryLinuxApplicationMenu;function kde(){E.ipcMain.handle("window:showApplicationMenu"'],
   ['route a followed Glassy menu through the existing application commands',
-    'if(!n||n.isDestroyed())return;const r=n.webContents.getZoomFactor();if(t!==void 0){const l=Zne.safeParse(t);',
-    'if(!n||n.isDestroyed())return;if(process.platform==="linux"&&factoryLinuxApplicationMenu?.show(e,t))return;const r=n.webContents.getZoomFactor();if(t!==void 0){const l=Zne.safeParse(t);'],
+    'if(!n||n.isDestroyed())return;const o=n.webContents.getZoomFactor();if(t!==void 0){const l=Tde.safeParse(t);',
+    'if(!n||n.isDestroyed())return;if(process.platform==="linux"&&factoryLinuxApplicationMenu?.show(e,t))return;const o=n.webContents.getZoomFactor();if(t!==void 0){const l=Tde.safeParse(t);'],
 ];

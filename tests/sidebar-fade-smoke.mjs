@@ -1,4 +1,4 @@
-// Test-mount the real session-list wrapper (0.206 alias k8c), which renders
+// Test-mount the real session-list wrapper (1.0.0 alias RZc), which renders
 // the Radix viewport and the session-list edge overlays, in the existing
 // isolated theme smoke. Only the rows/header/footer are synthetic, with no
 // user data.
@@ -21,7 +21,7 @@ function mountSidebarFade(){
   const viewport=L.useRef(null);
   return c.jsxs(df,{style:{display:"flex",flexDirection:"column",height:"100%",maxHeight:600,background:"transparent"},children:[
    c.jsx("div",{style:{height:32,flexShrink:0,padding:"6px 12px",boxSizing:"border-box"},children:"Projects"}),
-   c.jsx("div",{style:{flex:1,minHeight:0,position:"relative"},children:c.jsx(k8c,{viewportRef:viewport,children:c.jsx("div",{children:Array.from({length:48},(_,index)=>c.jsx("button",{"data-fade-row":index,style:{height:32,display:"block",width:"100%",background:"transparent",border:0,padding:0,textAlign:"left"},onClick:event=>{event.currentTarget.dataset.clicked="true"},children:"Session "+String(index+1).padStart(2,"0")},index))})})}),
+   c.jsx("div",{style:{flex:1,minHeight:0,position:"relative"},children:c.jsx(RZc,{viewportRef:viewport,children:c.jsx("div",{children:Array.from({length:48},(_,index)=>c.jsx("button",{"data-fade-row":index,style:{height:32,display:"block",width:"100%",background:"transparent",border:0,padding:0,textAlign:"left"},onClick:event=>{event.currentTarget.dataset.clicked="true"},children:"Session "+String(index+1).padStart(2,"0")},index))})})}),
    c.jsx("div",{style:{height:48,flexShrink:0,padding:12,boxSizing:"border-box"},children:"Test account"})
   ]});
  }

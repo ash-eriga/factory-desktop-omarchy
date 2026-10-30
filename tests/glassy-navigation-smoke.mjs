@@ -1,4 +1,4 @@
-// Real wgf settings layout and real navigation components/styles. Only its
+// Real BTf settings layout and real navigation components/styles. Only its
 // router/catalog/feature/telemetry adapters are synthetic, in the test clone.
 // The other variants reconstruct their pinned outer JSX with real primitives
 // and the original CSS asset. No account or authenticated routing is exercised.
@@ -7,7 +7,7 @@ import path from 'node:path';
 import { saveDisposableScreenshot } from './application-menu-smoke.mjs';
 
 export function navigationFixtureSource(renderer) {
-  const start = renderer.indexOf('function wgf('), end = renderer.indexOf('function Igf(', start);
+  const start = renderer.indexOf('function BTf('), end = renderer.indexOf('function DTf(', start);
   assert.ok(start > 0 && end > start, 'pinned settings layout is available');
   const settings = renderer.slice(start, end);
   return `
@@ -42,15 +42,15 @@ function mountNavigation(){
   if(variant==="settings")content=c.jsx(FactorySettingsLayout,{autoFocusSearch:false,sessionsReturnPath:"/__navigation-smoke/return"});
   else{
    const nav=c.jsx(EUl,{items:factoryNavigationItems,currentPath:path,linkComponent:FactoryNavigationLink});
-   if(variant==="softwareFactory")content=c.jsx(G,{...Om(),bg:w.bg.surface,"data-software-factory-nav-v2":true,direction:"column",height:"100%",style:{padding:16,boxSizing:"border-box"},children:nav});
-   else if(variant==="evaluations")content=c.jsx(G,{...Om(),direction:"column",height:"100%",padding:16,children:nav});
+   if(variant==="softwareFactory")content=c.jsx(G,{...Pm(),bg:w.bg.surface,"data-software-factory-nav-v2":true,direction:"column",height:"100%",style:{padding:16,boxSizing:"border-box"},children:nav});
+   else if(variant==="evaluations")content=c.jsx(G,{...Pm(),direction:"column",height:"100%",padding:16,children:nav});
    else{
     const attrs=variant==="wiki"?{"data-wiki-nav-root-v2":""}:variant==="academy"?{"data-academy-nav-root-v2":""}:{"data-analytics-nav-root-v2":""};
     const inner=variant==="wiki"?c.jsx(Me,{"data-wiki-nav-pane-v2":"",style:{padding:16},children:nav}):nav;
     content=c.jsx(Me,{...attrs,style:{height:"100%",padding:variant==="wiki"?0:16,boxSizing:"border-box"},children:inner});
    }
   }
-  return c.jsx(FactoryNavigationRoute.Provider,{value:{pathname:path,navigate},children:c.jsx(df,{style:{height:"100%",display:"flex",flexDirection:"column"},children:c.jsx(tt,{...Om(),"data-sidebar-overlay":true,"data-navigation-route":path,backgroundColor:"sidebar-bg",direction:"column",height:"100%",children:content})})});
+  return c.jsx(FactoryNavigationRoute.Provider,{value:{pathname:path,navigate},children:c.jsx(Vu,{style:{height:"100%",display:"flex",flexDirection:"column"},children:c.jsx(st,{...Pm(),"data-sidebar-overlay":true,"data-navigation-route":path,backgroundColor:"sidebar-bg",direction:"column",height:"100%",children:content})})});
  }
  return{
   render(variant){root.render(c.jsx(Fixture,{variant},variant))},

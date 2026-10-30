@@ -5,6 +5,27 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## Factory Desktop 1.0.0
+
+- The pinned upstream moves from 0.208.0 to 1.0.0. The installer digest,
+  the bundle chunk names (lifecycle, auth module, renderer and stylesheet)
+  and the vendor Electron pin in `versions.json` are those of the inspected
+  1.0.0 payload.
+- Every patch anchor is re-derived against the new bundle: the visible
+  identity, the pacman updater guards, the keyboard application menu, the
+  billing focus gate, the Omarchy theme bridge, the settings sidebar mask,
+  the application menu, remote-control recovery and desktop computer
+  registration all still match their target source exactly once.
+- Two anchors needed real fixes rather than renames. The sidebar mask now
+  marks the session-list scroll root the wrapper actually renders
+  (`EZc`); the sibling root with the same styled base belongs to unrelated
+  panels and would have masked them instead. The 1.0.0 renderer also hides
+  the separate menu bar through `Bo()` and decides the external-install
+  updater policy through `Pa()`, so the guards assert those spellings.
+- 1.0.0 already listens to `before-input-event`, but only to forward guest
+  webview input. It still has no hidden-menu keyboard affordance, so the
+  port keeps its own Alt/F10 handler.
+
 ## Security and file permissions
 
 - Port revision `0.206.0-17` updates the shipped Electron runtime to
