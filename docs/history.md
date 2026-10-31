@@ -26,6 +26,21 @@ of the public tree; the methodology behind each change is described in
   webview input. It still has no hidden-menu keyboard affordance, so the
   port keeps its own Alt/F10 handler.
 
+## Factory Desktop 1.0.0, port revision 2
+
+- Revision 1 of the 1.0.0 port could not start its renderer. The preload
+  members for the integrated menu named a stale Electron binding (`M`),
+  while the 1.0.0 preload declares that module as `v`. Loading the page
+  threw `ReferenceError: M is not defined` and the window showed only the
+  application's error screen, although the main process, the daemon and
+  the computer registration were healthy.
+- The cause was a test gap, not a missing anchor: the preload snippet was
+  text-asserted but never executed, so a mock supplying the old name made
+  it look correct. The suite now loads the real preload's Electron binding
+  name from the bundle and runs the menu members against it, which fails
+  on any stale alias. The theme bridge members are covered the same way.
+- Port revision 2 rebuilds the bundle with the fix. Nothing else changes.
+
 ## Security and file permissions
 
 - Port revision `0.206.0-17` updates the shipped Electron runtime to

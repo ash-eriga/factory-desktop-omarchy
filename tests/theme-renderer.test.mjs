@@ -16,6 +16,8 @@ import {
   rendererHelpers,
 } from '../tools/theme-renderer-patches.mjs';
 
+import { applicationMenuPreload } from '../tools/application-menu-patches.mjs';
+
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const versions = JSON.parse(readFileSync(path.join(projectRoot, 'versions.json'), 'utf8'));
 const upstreamAppRoot = path.join(projectRoot, `build/upstream-pristine-${versions.desktop}/app`);
@@ -610,11 +612,22 @@ test('first-paint cache falls back to saved Factory appearance when malformed, o
   assert.equal(executeCachedBootstrap({ values: noBridge, hasApi: false }).theme, 'dark');
 });
 
-test('preload bridge exposes validated DTOs, a boolean-gated follow opt-in and removes only its own event listener', async () => {
+test('preload bridge exposes validated DTOs, a boolean-gated follow opt-in and removes only its own event listener', {
+  skip: upstreamMissing,
+}, async () => {
+  // The injected members run inside the real preload, so they must name the
+  // Electron binding the vendor preload actually declares. That alias is
+  // minified and moves between upstream builds; it is read from the bundle
+  // instead of being repeated here, which is what let a stale alias ship.
+  const preload = readFileSync(preloadPath, 'utf8');
+  const alias = /([A-Za-z0-9_$]+)=require\("electron"\)/.exec(preload)?.[1];
+  assert.ok(alias, 'the vendor preload must import electron');
   const insertion = preloadChanges[0][2];
   const start = insertion.indexOf('theme:');
   const end = insertion.lastIndexOf(',getBugReportLogs:');
   const property = insertion.slice(start, end);
+  assert.ok(!/\bM\.ipcRenderer/.test(insertion),
+    'the inserted preload members must not keep a stale Electron alias');
   const listeners = new Map();
   const invoked = [];
   const ipcRenderer = {
@@ -633,7 +646,7 @@ test('preload bridge exposes validated DTOs, a boolean-gated follow opt-in and r
       if (listeners.get(channel) === listener) listeners.delete(channel);
     },
   };
-  const api = vm.runInNewContext(`({${property}})`, { v: { ipcRenderer } });
+  const api = vm.runInNewContext(`({${property}})`, { [alias]: { ipcRenderer } });
   const current = await api.theme.getOmarchy();
   assert.deepEqual({ ...current }, {
     available: true, mode: 'dark', background: '#101010', foreground: '#eeeeee', accent: '#ff6600',
@@ -676,7 +689,60 @@ test('preload bridge exposes validated DTOs, a boolean-gated follow opt-in and r
     'only the two valid booleans reached the follow channel');
 
   const rejecting = vm.runInNewContext(`({${property}})`, {
-    v: { ipcRenderer: { invoke: async () => { throw new Error('No handler registered'); } } },
+    [alias]: { ipcRenderer: { invoke: async () => { throw new Error('No handler registered'); } } },
   });
   assert.equal(await rejecting.theme.setOmarchyFollow(true), false, 'a rejected invoke fails closed');
+});
+
+test('the menu preload members run against the vendor Electron binding', {
+  skip: upstreamMissing,
+}, async () => {
+  // This snippet lives in the same preload literal as the theme bridge and
+  // names the vendor's Electron binding directly. Nothing exercised it
+  // before a release shipped with a stale alias, so it is mounted and used
+  // here with only that binding in scope: any other name throws.
+  const preload = readFileSync(preloadPath, 'utf8');
+  const alias = /([A-Za-z0-9_$]+)=require\("electron"\)/.exec(preload)?.[1];
+  assert.ok(alias, 'the vendor preload must import electron');
+  const handlers = new Map();
+  const calls = [];
+  const ipcRenderer = {
+    on: (channel, listener) => handlers.set(channel, listener),
+    removeListener: (channel, listener) => {
+      if (handlers.get(channel) === listener) handlers.delete(channel);
+    },
+    invoke: async (channel, payload) => {
+      calls.push([channel, payload]);
+      return channel === 'factory-linux-menu:activate' ? true : undefined;
+    },
+  };
+  const api = vm.runInNewContext(`({${applicationMenuPreload}})`,
+    { [alias]: { ipcRenderer } }).applicationMenu;
+
+  const seen = [];
+  const unsubscribe = api.onOpen(value => seen.push(value));
+  assert.deepEqual([...handlers.keys()].sort(),
+    ['factory-linux-menu:close', 'factory-linux-menu:open']);
+  assert.deepEqual(calls[0], ['factory-linux-menu:ready', true],
+    'mounting the menu tells main the renderer is ready');
+  handlers.get('factory-linux-menu:open')({}, { token: 't-1', items: [] });
+  assert.deepEqual(seen, [{ token: 't-1', items: [] }]);
+  handlers.get('factory-linux-menu:close')();
+  assert.deepEqual(seen, [{ token: 't-1', items: [] }, null], 'closing reports null');
+  unsubscribe();
+  assert.equal(handlers.size, 0, 'the renderer releases both listeners');
+  assert.deepEqual(calls.at(-1), ['factory-linux-menu:ready', false]);
+
+  assert.equal(api.onOpen('not a function')(), undefined, 'a non-function listener is inert');
+  calls.length = 0;
+  assert.equal(await api.activate('t-1', 2), true);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0][0], 'factory-linux-menu:activate');
+  // The payload is built inside the sandbox, so compare its fields.
+  assert.deepEqual({ ...calls[0][1] }, { token: 't-1', command: 2 });
+  assert.equal(await api.activate('t-1', 2.5), false, 'only integer command indexes are forwarded');
+  assert.equal(await api.activate(7, 2), false, 'only a string token is forwarded');
+  assert.equal(calls.length, 1, 'rejected requests never reach IPC');
+  await api.dismiss('t-1');
+  assert.deepEqual(calls.at(-1), ['factory-linux-menu:dismiss', 't-1']);
 });

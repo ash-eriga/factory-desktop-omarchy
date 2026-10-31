@@ -94,13 +94,13 @@ export const applicationMenuPreload = `applicationMenu:{
 onOpen:listener=>{
  if(typeof listener!=="function")return()=>{};
  const open=(_event,value)=>listener(value),close=()=>listener(null);
- M.ipcRenderer.on("factory-linux-menu:open",open);
- M.ipcRenderer.on("factory-linux-menu:close",close);
- void M.ipcRenderer.invoke("factory-linux-menu:ready",true).catch(()=>{});
- return()=>{M.ipcRenderer.removeListener("factory-linux-menu:open",open);M.ipcRenderer.removeListener("factory-linux-menu:close",close);void M.ipcRenderer.invoke("factory-linux-menu:ready",false).catch(()=>{})};
+ v.ipcRenderer.on("factory-linux-menu:open",open);
+ v.ipcRenderer.on("factory-linux-menu:close",close);
+ void v.ipcRenderer.invoke("factory-linux-menu:ready",true).catch(()=>{});
+ return()=>{v.ipcRenderer.removeListener("factory-linux-menu:open",open);v.ipcRenderer.removeListener("factory-linux-menu:close",close);void v.ipcRenderer.invoke("factory-linux-menu:ready",false).catch(()=>{})};
 },
-activate:(token,command)=>typeof token==="string"&&Number.isInteger(command)?M.ipcRenderer.invoke("factory-linux-menu:activate",{token,command}).catch(()=>false):Promise.resolve(false),
-dismiss:token=>typeof token==="string"?M.ipcRenderer.invoke("factory-linux-menu:dismiss",token).catch(()=>{}):Promise.resolve()
+activate:(token,command)=>typeof token==="string"&&Number.isInteger(command)?v.ipcRenderer.invoke("factory-linux-menu:activate",{token,command}).catch(()=>false):Promise.resolve(false),
+dismiss:token=>typeof token==="string"?v.ipcRenderer.invoke("factory-linux-menu:dismiss",token).catch(()=>{}):Promise.resolve()
 },`;
 
 // Uses textContent, not HTML from the menu DTO. No new window, preload
