@@ -30,7 +30,7 @@ options=('!strip' '!debug')
 # workflows ship the same bytes. A clone can generate the archive locally with
 # `npm run package:sources` before makepkg runs.
 source=('https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v1.0.0-2/factory-droid-desktop-port-1.0.0-2.tar.gz')
-sha256sums=('cdb068586ffd9def352383b7e151fb0379f6fc0f721c4a948d4fb647ee3f6227')
+sha256sums=('d6f5ce3966a65ea01c530c48aa0a572f1369e61a88d671d39e6a6d7e1884c8e4')
 
 # The root directory of the archive. It is derived from the source name,
 # so the recipe and the archive cannot disagree about it.

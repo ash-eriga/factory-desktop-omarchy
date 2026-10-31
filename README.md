@@ -10,6 +10,24 @@ Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_
 - Optional Omarchy theme colors and transparency.
 - Remote Control, enabled only when you choose.
 
+## Droid 1.0
+
+This port tracks Factory Desktop 1.0.0. Factory presents that generation as
+faster, higher scoring and cheaper per completed task than the agents around
+it, and publishes the benchmark behind the claim as the figure below.
+
+![Terminal-Bench 4. Left panel GPT-6.1 Sol: Droid at 57.6% for $0.79 per passed task, Codex 54.0%, OpenCode 51.0%, Devin 45.0%. Right panel Opus 5.5: Droid at 65.2% for $4.73, OpenCode 62.1%, Cursor 62.1%, Devin 59.6%, Claude Code 57.6%.](media/terminal-bench-4.png)
+
+On the GPT-6.1 Sol panel Droid passes 57.6% of tasks at $0.79 each; Codex
+reaches 54.0%, OpenCode 51.0% and Devin 45.0%. On the Opus 5.5 panel it
+passes 65.2% at $4.73; OpenCode and Cursor both reach 62.1%, Devin 59.6% and
+Claude Code 57.6%. In both panels Droid sits at the top of the pass-rate axis
+and at the cheapest end of the cost axis. Cursor is absent from the
+GPT-6.1 Sol panel because it has no access to OpenAI models.
+
+The figure is Factory's, measured on Terminal-Bench 4. This port ships the
+application unchanged and makes no benchmark claim of its own.
+
 ## Install
 
 Requires an Arch-based x86_64 system with user namespaces enabled. Build as your regular user, not root.

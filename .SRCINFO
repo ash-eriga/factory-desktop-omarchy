@@ -41,6 +41,6 @@ pkgbase = factory-droid-desktop
 	options = !strip
 	options = !debug
 	source = https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v1.0.0-2/factory-droid-desktop-port-1.0.0-2.tar.gz
-	sha256sums = cdb068586ffd9def352383b7e151fb0379f6fc0f721c4a948d4fb647ee3f6227
+	sha256sums = d6f5ce3966a65ea01c530c48aa0a572f1369e61a88d671d39e6a6d7e1884c8e4
 
 pkgname = factory-droid-desktop
