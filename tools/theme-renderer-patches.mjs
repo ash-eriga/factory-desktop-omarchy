@@ -1,7 +1,19 @@
 // Small, checksum-pinned renderer/preload/HTML adaptations for the optional
 // Omarchy theme bridge, targeting upstream Factory Desktop 1.0.0
-// (renderer index-D4ThZEEH.js). The upstream appearance store remains
+// (renderer index-BwoRmTdP.js). The upstream appearance store remains
 // authoritative; following Omarchy is a separate, opt-in derived override.
+//
+// The appearance contrast slider stops at 100 upstream, where every fill token
+// has already taken the whole fill curve and the composer box, borders and
+// panels are as separated as a preset allows. On Omarchy palettes that sit on
+// pure black or on a dark blue the composer box still reads as a hairline. The
+// port raises the ceiling to 150 so a user who wants more separation can ask
+// for it, without changing anything at or below 100. Text tokens stop at their
+// contrast-100 value: their curve adds a fixed 20 points per 50 contrast, so
+// running it to 150 would make secondary text identical to primary and the
+// disabled label stop reading as disabled. Fills extend linearly instead
+// (2.5% -> 5.5% for the dark surface token), which is the part the composer box
+// is drawn from.
 // This file owns the complete follow-row placement inside the theme editor
 // (MMu), immediately before the preset row, including the React memo-cache
 // slot accounting for zMu and MMu. It also owns the glassy-window renderer
@@ -134,6 +146,20 @@ export const rendererChanges = [
   ['derive palette tokens without changing stored Factory settings',
     'const _Me=LDe(Sod,wk,{mergeWithDefaults:UGr}),TMe=cs(!1),IMu=cs(t=>{const e=t(SK)==="dark"?$r.Dark:$r.Light;return p0e({mode:e,settings:t(_Me)[e]})}),S0i=cs(t=>t(TMe)?rWr({settings:t(_Me)}):""),',
     'const _Me=LDe(Sod,wk,{mergeWithDefaults:UGr}),TMe=cs(!1),factoryPortEffectiveAppearance=cs(t=>factoryPortOverlayAppearance(t(_Me),t(factoryPortThemeActive)?t(factoryPortThemeSnapshot):factoryPortThemeEmpty,wk)),IMu=cs(t=>{const e=t(SK)==="dark"?$r.Dark:$r.Light;return p0e({mode:e,settings:t(_Me)[e]})}),S0i=cs(t=>{if(!t(TMe))return"";const e=rWr({settings:t(factoryPortEffectiveAppearance)});return t(factoryPortGlassActive)?e+factoryPortGlassCss(t(factoryPortThemeSnapshot))+factoryPortNavigationGlassCss:e}),'],
+  // Upstream validates, clamps and displays the slider value against one
+  // shared bounds object, so raising its max is what lets a stored 150 survive
+  // the appearance store, the slider and a theme JSON import.
+  ['raise the appearance contrast ceiling to 150',
+    'oYe={min:0,max:100}',
+    'oYe={min:0,max:150}'],
+  // The fill curve is linear in contrast and safe to extend. The text curve is
+  // a fixed offset per 50 contrast, so it saturates: past 100 secondary text
+  // reaches primary and the disabled label stops reading as disabled. Clamping
+  // only the contrast fed to the text branch keeps every text token at its
+  // contrast-100 value while fills keep growing.
+  ['stop the text contrast curve at the upstream ceiling',
+    'function qGr({contrast:t,mix:e,mode:n}){const i=e[n],o=t/50;',
+    'function qGr({contrast:t,mix:e,mode:n}){const i=e[n],g=e.kind==="text"&&t>100?100:t,o=g/50;'],
   ['use temporary source background while following',
     'w0i=cs(t=>t(TMe)?wMt(t(IMu)):void 0),',
     'w0i=cs(t=>{if(!t(TMe))return;return t(factoryPortThemeActive)?t(factoryPortThemeSnapshot).background:wMt(t(IMu))}),'],

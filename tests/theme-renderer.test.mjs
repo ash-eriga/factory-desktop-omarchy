@@ -104,6 +104,60 @@ test('all renderer, preload and HTML anchors match the pinned 1.0.0 upstream exa
   assert.throws(() => patch(`${renderer}${rendererChanges[0][1]}`, rendererChanges));
 });
 
+test('contrast runs to 150 for fills while text tokens stop at the upstream ceiling', { skip: upstreamMissing }, () => {
+  const renderer = readFileSync(rendererPath, 'utf8');
+  const patched = patch(renderer, rendererChanges);
+
+  // The slider, the stored-value validation and the displayed number share the
+  // bounds object, so raising its max is the one place the ceiling lives.
+  assert.ok(renderer.includes('oYe={min:0,max:100}'), 'upstream still caps contrast at 100');
+  assert.equal(patched.split('oYe={min:0,max:150}').length, 2, 'the ceiling is replaced exactly once');
+  assert.ok(!patched.includes('oYe={min:0,max:100}'), 'no stale ceiling survives the patch');
+
+  const start = patched.indexOf('function qGr(');
+  const end = patched.indexOf('function lYe(', start);
+  assert.ok(start !== -1 && end > start, 'the token curve is present in the patched renderer');
+  const amount = vm.runInContext(
+    `function Wse(t,e,n){return Math.min(n,Math.max(e,t))}\n${patched.slice(start, end)}\nqGr`,
+    vm.createContext({}),
+  );
+  const fill = mode => ({ kind: 'fill', [mode]: 2.5 });
+  const text = value => ({ kind: 'text', dark: value });
+  const at = (contrast, mix) => amount({ contrast, mix, mode: 'dark' });
+
+  // Fills keep the linear extension: mix * (.4 + .6 * contrast / 50).
+  assert.equal(at(50, fill('dark')), 2.5);
+  assert.equal(at(100, fill('dark')), 4);
+  assert.ok(Math.abs(at(150, fill('dark')) - 5.5) < 1e-9,
+    'the dark surface fill reaches 5.5% at 150');
+  assert.ok(Math.abs(at(150, { kind: 'fill', dark: 15 }) - 33) < 1e-9,
+    'the dark border fill reaches 33% at 150');
+  assert.ok(Math.abs(at(150, { kind: 'fill', dark: 22 }) - 48.4) < 1e-9,
+    'the dark input border reaches 48.4% at 150');
+
+  // Text stays exactly where the upstream ceiling leaves it.
+  for (const value of [100, 70, 45, 28]) {
+    assert.equal(at(150, text(value)), at(100, text(value)),
+      `text token ${value} keeps its contrast-100 value at 150`);
+  }
+  assert.equal(at(150, text(70)), 90, 'secondary text does not become primary');
+  assert.equal(at(150, text(28)), 48, 'disabled text still reads as disabled');
+
+  // At and below the upstream ceiling the curve is byte-for-byte the old one.
+  const upstream = (contrast, mix) => mix.kind === 'fill'
+    ? Math.min(100, Math.max(0, mix.dark * (0.4 + 0.6 * contrast / 50)))
+    : mix.dark <= 0 || mix.dark >= 100
+      ? mix.dark
+      : Math.min(100, Math.max(0, mix.dark + (contrast / 50 - 1) * 20));
+  for (const contrast of [0, 25, 50, 75, 100]) {
+    for (const mix of [fill('dark'), text(70), text(22)]) {
+      const actual = amount({ contrast, mix, mode: 'dark' });
+      assert.ok(Math.abs(actual - upstream(contrast, mix)) < 1e-9,
+        `contrast ${contrast} keeps the upstream curve`);
+    }
+  }
+});
+
 test('follow row is placed inside the theme editor before the preset row with exact memo-cache slots', { skip: upstreamMissing }, () => {
   const renderer = readFileSync(rendererPath, 'utf8');
   const patched = patch(renderer, rendererChanges);

@@ -41,6 +41,25 @@ of the public tree; the methodology behind each change is described in
   on any stale alias. The theme bridge members are covered the same way.
 - Port revision 2 rebuilds the bundle with the fix. Nothing else changes.
 
+## Factory Desktop 1.0.0, port revision 3
+
+- The appearance contrast slider now reaches 150 instead of stopping at
+  100. Upstream computes every surface, border and text token from that
+  one number; on Omarchy palettes that sit on pure black or a dark blue
+  the ceiling of 100 still leaves the composer box, its borders and the
+  surrounding panels as hairlines against the followed background.
+- Fills extend linearly past 100: the dark surface token goes from 2.5%
+  to 5.5%, the dark border token from 15% to 33% and the dark input
+  border from 22% to 48.4%. Text tokens stop at their contrast-100 value
+  instead, because the text curve adds a fixed 20 points per 50 contrast
+  and running it to 150 would make secondary text identical to primary
+  and the disabled label stop reading as disabled.
+- Nothing at or below 100 changes, so every existing appearance settings
+  keeps its exact rendering. The ceiling is opt-in: a saved contrast of
+  150 applies to the followed palette too, and the follow overlay still
+  writes no contrast of its own.
+- Port revision 3 rebuilds the bundle with the raised ceiling.
+
 ## Security and file permissions
 
 - Port revision `0.206.0-17` updates the shipped Electron runtime to
