@@ -2,7 +2,9 @@
 
 Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_64.
 
-![Factory Desktop Omarchy following Omarchy themes, animated demo](media/demo.webp)
+<video src="media/demo-fast.mp4" poster="media/demo-fast-preview.jpg" width="720" controls autoplay loop muted playsinline aria-label="Factory Desktop Omarchy following Omarchy themes, animated demo">
+  <a href="media/demo-fast.mp4">Watch the demo video</a> (720p, 22s, 0.5 MB).
+</video>
 
 ## Features
 
