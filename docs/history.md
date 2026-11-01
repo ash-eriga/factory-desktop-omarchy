@@ -95,6 +95,40 @@ of the public tree; the methodology behind each change is described in
 - Revision 5 ships that correction. The contrast ceiling from revision 3
   and the fill from revision 4 are unchanged.
 
+## Factory Desktop 1.0.0, port revision 6
+
+- Revisions 4 and 5 gave the composer panel a translucent fill. That was
+  the wrong answer: it changed the look of the box rather than the
+  strength of its edge, and the fill read as a solid surface nobody asked
+  for. The fill is gone.
+- The outline is what the contrast control should sharpen. Inside the
+  glass gate the composer panel now draws its edge with the strong border
+  token instead of the inner one. Both scale with the same contrast
+  curve, but the strong token starts at twice the amount, so on a bright
+  wallpaper it reaches 2.85:1 against the pane at a contrast of 150 where
+  the inner token only reaches 1.06:1. At 100 it is 1.70:1, so the slider
+  genuinely controls how hard the edge reads.
+- The panels keep upstream's transparent background in every mode. Only
+  the border colour changes, and only inside the glass gate, because an
+  opaque window already shows the inner token against the page it was
+  mixed from.
+
+## Factory Desktop 1.0.0, port revision 7
+
+- Revision 6 swapped the composer border to the strong token outright,
+  which also changed a contrast of 100. That was a regression: 100 is the
+  upstream ceiling and a value users had already tuned to, so it must keep
+  rendering exactly as it did.
+- The composer outline now blends from the inner token towards the strong
+  one as the contrast passes 100 — 2% of the way at 101, half at 125, the
+  strong token at 150 — and emits no rule at all at or below 100. The
+  composer therefore renders byte-identically to upstream across the whole
+  range the slider always had, and only the range this port added changes
+  how hard the edge reads.
+- The blend weight is clamped, so a value outside the slider cannot
+  overshoot, and it is expressed as `color-mix` between the two tokens, so
+  it follows both palette modes with no extra rule.
+
 ## Security and file permissions
 
 - Port revision `0.206.0-17` updates the shipped Electron runtime to

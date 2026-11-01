@@ -13,9 +13,13 @@
 // The ceiling alone cannot lift a panel that sits on the glass tint, though:
 // every token is mixed from the palette background, while the pixels behind the
 // panel come from the wallpaper. On a bright wallpaper the inner border token
-// reaches 1.06:1 against the pane at 150, lower than the 1.57:1 it has at 50.
-// The composer panel is therefore filled by the glass layer instead of relying
-// on its edge.
+// reaches only 1.06:1 against the pane at 150, so raising the number leaves the
+// composer edge where it was. The strong token starts at twice the amount on
+// the same curve, so it reaches 2.85:1 there. Inside the glass gate the
+// composer panel therefore blends its outline from the inner token towards the
+// strong one as the contrast passes 100. A contrast of 100 or less emits no
+// rule at all, so the composer renders exactly as upstream did; only the range
+// above 100 sharpens the outline, and nothing ever paints a fill.
 //
 // This file owns the complete follow-row placement inside the theme editor
 // (MMu), immediately before the preset row, including the React memo-cache
@@ -33,10 +37,10 @@
 // Structural painters are cleared directly: the outer backdrop can inherit
 // an opaque legacy page token, and the frame's border-box gradient otherwise
 // fills the whole pane when its padding-box layer becomes transparent. One
-// painter is added rather than cleared: the composer panel keeps its upstream
-// transparent background over an opaque window, and receives a translucent
-// fill only inside the glass gate, where the wallpaper would otherwise show
-// through the box the user types into.
+// value is strengthened rather than cleared: above a contrast of 100 the glass
+// gate blends the composer panel's outline towards the strong border token, so
+// its edge stays visible over a wallpaper the palette background knows nothing
+// about. Below that the panel is untouched, and no panel ever receives a fill.
 
 import { applicationMenuPreload, factoryPortMountApplicationMenu } from './application-menu-patches.mjs';
 import { factoryPortUpdateSidebarMask, sidebarFadeChanges } from './sidebar-fade-patches.mjs';
@@ -134,10 +138,12 @@ function factoryPortThemeUiCopy(e){let n="";try{n=localStorage.getItem("factory-
 function factoryPortBuildThemeRow(t,e,n){const i=factoryPortThemeUiCopy(e),o=c.jsx(Pye,{"aria-label":i.title,checked:t,disabled:!t&&!e.available,onCheckedChange:r=>n(r===!0)});return c.jsx(ad,{control:o,description:i.description,searchId:"appearance-follow-omarchy",title:i.title})}
 let factoryPortNativeFollowTicket=0;
 function factoryPortSyncNativeFollow(store,forced){const desired=forced===void 0?store.get(factoryPortThemeFollow)===!0:forced===!0,api=typeof window==="object"&&window!==null&&window.electronAPI?.theme?.setOmarchyFollow;if(typeof api!=="function"){store.set(factoryPortNativeFollowAccepted,!1);return}const requested=desired===!0,ticket=++factoryPortNativeFollowTicket;if(!requested)store.set(factoryPortNativeFollowAccepted,!1);Promise.resolve(api(desired)).then(r=>{ticket===factoryPortNativeFollowTicket&&store.set(factoryPortNativeFollowAccepted,requested&&r===!0)},()=>{ticket===factoryPortNativeFollowTicket&&store.set(factoryPortNativeFollowAccepted,!1)})}
-function factoryPortGlassCss(t){
+function factoryPortComposerContrast(t,e){if(!t||typeof t!=="object")return null;const n=e==null?t[t.mode]:t[e],i=n==null?void 0:n.contrast;return typeof i==="number"&&Number.isFinite(i)?i:null}
+function factoryPortComposerBorderCss(e){const n=typeof e==="number"&&Number.isFinite(e)&&e>100?Math.min(1,(e-100)/50):0;return n<=0?"":"\\n[data-factory-port-composer-surface][data-factory-port-composer-surface]{border-color:color-mix(in oklab, var(--core-v2-border-strong) "+Math.round(n*100)+"%, var(--core-v2-border-inner))!important}"}
+function factoryPortGlassCss(t,r){
 if(!t||typeof t!=="object"||t.available!==!0||t.windowMode!=="glassy"||typeof t.background!=="string"||!/^#[0-9a-f]{6}$/i.test(t.background)||typeof t.foreground!=="string"||!/^#[0-9a-f]{6}$/i.test(t.foreground))return"";
 const e=Number.parseInt(t.background.slice(1,3),16),n=Number.parseInt(t.background.slice(3,5),16),i=Number.parseInt(t.background.slice(5,7),16),o=e+", "+n+", "+i,s=t.mode==="light"?"rgba(255,255,255,.8)":"rgba(0,0,0,.8)";
-return":root:root, [data-core-ui-v2-theme='light'][data-core-ui-v2-theme], :root:not([data-theme='dark']), [data-core-ui-v2-theme='dark'][data-core-ui-v2-theme], [data-core-v2-portals='dark'][data-core-v2-portals], :root[data-theme='dark']{--core-v2-bg-page:transparent;--surface-1:transparent}\\nhtml{background-color:transparent!important}\\nbody, #root{background-color:transparent!important}\\n[data-windows-content-surface], [data-window-backdrop-v2]{background-color:transparent!important}\\n[data-windows-content-frame='true']{background:rgba("+o+", .65)!important;border-color:var(--border-1)!important}\\n[data-sidebar-visible], [data-windows-title-bar-v2]{background-color:rgba("+o+", .35)!important}\\n[data-sidebar-visible] [data-factory-port-sidebar-surface], [data-sidebar-visible] [data-sidebar-overlay], [data-sidebar-visible] [data-factory-port-titlebar-surface], [data-windows-title-bar-v2] [data-factory-port-titlebar-surface]{background-color:transparent!important}\\n[data-factory-port-sidebar-surface][data-factory-port-sidebar-surface], [data-windows-title-bar-v2][data-windows-title-bar-v2]{--core-v2-text-primary:"+t.foreground+"!important;--core-v2-text-secondary:color-mix(in srgb,"+t.foreground+" 85%,"+t.background+")!important;--core-v2-text-tertiary:color-mix(in srgb,"+t.foreground+" 75%,"+t.background+")!important;--sidebar-text:var(--core-v2-text-secondary)!important;--sidebar-text-hover:var(--core-v2-text-primary)!important;color:var(--core-v2-text-primary);text-shadow:0 1px 2px "+s+"}\\n[data-factory-port-composer-surface][data-factory-port-composer-surface]{background-color:color-mix(in oklab, "+t.background+" 72%, transparent)!important}"
+return":root:root, [data-core-ui-v2-theme='light'][data-core-ui-v2-theme], :root:not([data-theme='dark']), [data-core-ui-v2-theme='dark'][data-core-ui-v2-theme], [data-core-v2-portals='dark'][data-core-v2-portals], :root[data-theme='dark']{--core-v2-bg-page:transparent;--surface-1:transparent}\\nhtml{background-color:transparent!important}\\nbody, #root{background-color:transparent!important}\\n[data-windows-content-surface], [data-window-backdrop-v2]{background-color:transparent!important}\\n[data-windows-content-frame='true']{background:rgba("+o+", .65)!important;border-color:var(--border-1)!important}\\n[data-sidebar-visible], [data-windows-title-bar-v2]{background-color:rgba("+o+", .35)!important}\\n[data-sidebar-visible] [data-factory-port-sidebar-surface], [data-sidebar-visible] [data-sidebar-overlay], [data-sidebar-visible] [data-factory-port-titlebar-surface], [data-windows-title-bar-v2] [data-factory-port-titlebar-surface]{background-color:transparent!important}\\n[data-factory-port-sidebar-surface][data-factory-port-sidebar-surface], [data-windows-title-bar-v2][data-windows-title-bar-v2]{--core-v2-text-primary:"+t.foreground+"!important;--core-v2-text-secondary:color-mix(in srgb,"+t.foreground+" 85%,"+t.background+")!important;--core-v2-text-tertiary:color-mix(in srgb,"+t.foreground+" 75%,"+t.background+")!important;--sidebar-text:var(--core-v2-text-secondary)!important;--sidebar-text-hover:var(--core-v2-text-primary)!important;color:var(--core-v2-text-primary);text-shadow:0 1px 2px "+s+"}"+factoryPortComposerBorderCss(r)
 }
 `;
 
@@ -152,7 +158,7 @@ export const rendererChanges = [
     'const SK=cs(t=>{const e=t(factoryPortThemeSource);return e===Lb.System?t(Stt):e===Lb.Light?"light":e===Lb.Dark?"dark":t(Stt)});'],
   ['derive palette tokens without changing stored Factory settings',
     'const _Me=LDe(Sod,wk,{mergeWithDefaults:UGr}),TMe=cs(!1),IMu=cs(t=>{const e=t(SK)==="dark"?$r.Dark:$r.Light;return p0e({mode:e,settings:t(_Me)[e]})}),S0i=cs(t=>t(TMe)?rWr({settings:t(_Me)}):""),',
-    'const _Me=LDe(Sod,wk,{mergeWithDefaults:UGr}),TMe=cs(!1),factoryPortEffectiveAppearance=cs(t=>factoryPortOverlayAppearance(t(_Me),t(factoryPortThemeActive)?t(factoryPortThemeSnapshot):factoryPortThemeEmpty,wk)),IMu=cs(t=>{const e=t(SK)==="dark"?$r.Dark:$r.Light;return p0e({mode:e,settings:t(_Me)[e]})}),S0i=cs(t=>{if(!t(TMe))return"";const e=rWr({settings:t(factoryPortEffectiveAppearance)});return t(factoryPortGlassActive)?e+factoryPortGlassCss(t(factoryPortThemeSnapshot))+factoryPortNavigationGlassCss:e}),'],
+    'const _Me=LDe(Sod,wk,{mergeWithDefaults:UGr}),TMe=cs(!1),factoryPortEffectiveAppearance=cs(t=>factoryPortOverlayAppearance(t(_Me),t(factoryPortThemeActive)?t(factoryPortThemeSnapshot):factoryPortThemeEmpty,wk)),IMu=cs(t=>{const e=t(SK)==="dark"?$r.Dark:$r.Light;return p0e({mode:e,settings:t(_Me)[e]})}),S0i=cs(t=>{if(!t(TMe))return"";const e=rWr({settings:t(factoryPortEffectiveAppearance)});return t(factoryPortGlassActive)?e+factoryPortGlassCss(t(factoryPortThemeSnapshot),factoryPortComposerContrast(t(factoryPortEffectiveAppearance),t(factoryPortThemeSnapshot).mode))+factoryPortNavigationGlassCss:e}),'],
   // Upstream validates, clamps and displays the slider value against one
   // shared bounds object, so raising its max is what lets a stored 150 survive
   // the appearance store, the slider and a theme JSON import.
@@ -198,21 +204,22 @@ export const rendererChanges = [
     'const HQl=X(He)`',
     'const HQl=X(He).attrs({"data-factory-port-titlebar-surface":!0})`'],
   // The composer panel paints no fill of its own and marks its edge with the
-  // border token only. Over a glassy frame the panel therefore shows the .65
-  // tint over the desktop wallpaper, and every border token is mixed from the
-  // palette background, which is not what is actually behind it: on a bright
-  // wallpaper the edge lands within one RGB step of the pane and the box
-  // dissolves. The marker lets the glass layer give the panel its own fill, so
-  // the card separates from the pane whatever the wallpaper is doing.
+  // border token only. Over a glassy frame the panel shows the .65 tint over
+  // the desktop wallpaper, and every border token is mixed from the palette
+  // background, which is not what is actually behind it: on a bright wallpaper
+  // the inner token lands within one RGB step of the pane and the box
+  // dissolves. The marker lets the glass layer blend that one edge towards the
+  // strong token above a contrast of 100, while the panel keeps upstream's
+  // transparent background and its border at or below 100.
   //
   // Two components draw that panel. V4 is the stacked panel the new-session
   // composer and its banners use (border: 1px solid var(--border-1), no fill);
   // nxl is the card the session composer uses. Both carry the same marker, so
-  // the one rule fills whichever of them is on screen.
-  ['fill the stacked composer panels the new-session view draws',
+  // the one rule strengthens whichever of them is on screen.
+  ['mark the stacked composer panels the new-session view draws',
     'const V4=X(He)`\n  align-items: center;\n  border: 1px solid var(--border-1);',
     'const V4=X(He).attrs({"data-factory-port-composer-surface":!0})`\n  align-items: center;\n  border: 1px solid var(--border-1);'],
-  ['fill the composer card the session view draws',
+  ['mark the composer card the session view draws',
     'const nxl=X.div`',
     'const nxl=X.div.attrs({"data-factory-port-composer-surface":!0})`'],
   ...sidebarFadeChanges,
@@ -232,6 +239,8 @@ export const rendererHelperNames = [
   'factoryPortNativeFollowAccepted',
   'factoryPortGlassActive',
   'factoryPortGlassCss',
+  'factoryPortComposerContrast',
+  'factoryPortComposerBorderCss',
   'factoryPortMountApplicationMenu',
   'factoryPortMenuStop',
   'factoryPortUpdateSidebarMask',

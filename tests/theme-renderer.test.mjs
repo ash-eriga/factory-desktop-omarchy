@@ -93,8 +93,9 @@ test('all renderer, preload and HTML anchors match the pinned 1.0.0 upstream exa
   assert.ok(patchedPreload.includes('factory-linux-theme:follow'), 'preload native follow channel was added');
   assert.ok(patchedPreload.includes('setOmarchyFollow:n=>typeof n!=="boolean"?Promise.resolve(!1)'), 'preload follow rejects non-boolean input without invoking');
   assert.ok(patchedHtml.includes('factory-port-theme-cache'), 'first-paint cache was added');
-  assert.ok(patchedRenderer.includes('factoryPortGlassCss(t(factoryPortThemeSnapshot))'),
-    'override CSS appends the glass tint from the followed snapshot');
+  assert.ok(patchedRenderer.includes('factoryPortGlassCss(t(factoryPortThemeSnapshot),'
+    + 'factoryPortComposerContrast(t(factoryPortEffectiveAppearance),t(factoryPortThemeSnapshot).mode))'),
+  'override CSS appends the glass tint from the followed snapshot and the effective contrast');
   assert.ok(patchedRenderer.includes('t(factoryPortNativeFollowAccepted)===!0'),
     'glass tint is gated on the accepted native follow opt-in');
   assert.ok(patchedRenderer.includes('factoryPortSyncNativeFollow(i,!1)'),
@@ -388,22 +389,46 @@ test('glass clears the unscoped backdrop and full-pane border gradient while ret
   assert.equal(glassCss({ ...glassyPalette, windowMode: 'transparent' }), '');
 });
 
-test('the composer panel gets its own fill inside the glass gate', () => {
+test('the composer outline only strengthens above a contrast of 100 and is never filled', () => {
   const { glassCss } = evaluateHelpers();
-  assert.match(glassCss(glassyPalette),
-    /\[data-factory-port-composer-surface\]\[data-factory-port-composer-surface\]\{background-color:color-mix\(in oklab, #101019 72%, transparent\)!important\}/,
-    'the panel that holds the composer keeps the palette background over the pane');
-  assert.equal(glassCss({ ...glassyPalette, windowMode: 'opaque' }), '',
-    'an opaque window keeps the upstream transparent panel');
-  const light = glassCss({ ...glassyPalette, mode: 'light', background: '#fafafa' });
-  assert.ok(light.includes('color-mix(in oklab, #fafafa 72%, transparent)'),
-    'the fill follows the palette background in light mode too');
-  assert.ok(!light.includes('transparent!important}background'), 'the rules stay separated');
-  assert.ok(!light.includes('--core-v2-bg-surface:transparent'),
-    'the fill is scoped to the panel and does not fade the surface token');
+  const rule = css => /\[data-factory-port-composer-surface\]\[data-factory-port-composer-surface\]\{([^}]*)\}/.exec(css)?.[1];
+
+  // At or below the upstream ceiling the composer must stay byte-identical to
+  // upstream, which is exactly what emitting no rule achieves.
+  for (const contrast of [undefined, null, 0, 50, 75, 100]) {
+    const css = glassCss(glassyPalette, contrast);
+    assert.ok(css.length > 0, `the glass tint still applies at contrast ${contrast}`);
+    assert.equal(rule(css), undefined, `contrast ${contrast} leaves the composer edge untouched`);
+    assert.ok(!css.includes('composer-surface'), `contrast ${contrast} adds no composer rule`);
+  }
+
+  // Just above 100 the blend starts, and it reaches the strong token at 150.
+  assert.match(glassCss(glassyPalette, 101), /border-color:color-mix\(in oklab, var\(--core-v2-border-strong\) 2%, var\(--core-v2-border-inner\)\)!important/,
+    'one point above 100 starts a 2% blend towards the strong token');
+  assert.match(glassCss(glassyPalette, 125), /var\(--core-v2-border-strong\) 50%/,
+    'halfway to the ceiling the blend is half');
+  assert.match(glassCss(glassyPalette, 150), /var\(--core-v2-border-strong\) 100%/,
+    'the ceiling reaches the strong token exactly');
+  // Above the ceiling the slider cannot go, but the weight stays clamped.
+  assert.match(glassCss(glassyPalette, 400), /var\(--core-v2-border-strong\) 100%/,
+    'the blend is clamped so an out-of-range value cannot overshoot');
+
+  // No fill, in any mode or gate state.
+  for (const contrast of [101, 125, 150]) {
+    const css = glassCss(glassyPalette, contrast);
+    assert.ok(!rule(css)?.includes('background'), `contrast ${contrast} adds no fill`);
+    assert.ok(!css.includes('--core-v2-bg-surface:transparent'), 'the surface token is not faded');
+  }
+
+  // The blend is token-driven, so it works in light mode with no extra code.
+  assert.match(glassCss({ ...glassyPalette, mode: 'light', background: '#fafafa' }, 150),
+    /var\(--core-v2-border-strong\) 100%/,
+    'the strengthened outline applies in light mode too');
+  assert.equal(glassCss({ ...glassyPalette, windowMode: 'opaque' }, 150), '',
+    'an opaque window keeps the upstream border untouched');
 });
 
-test('the composer panels are marked so the glass layer can fill them', { skip: upstreamMissing }, () => {
+test('the composer panels are marked so the glass layer can strengthen their outline', { skip: upstreamMissing }, () => {
   const renderer = readFileSync(rendererPath, 'utf8');
   assert.ok(renderer.includes('const V4=X(He)`\n  align-items: center;\n  border: 1px solid var(--border-1);'),
     'upstream still declares the stacked panel with a bare div base');
@@ -415,6 +440,8 @@ test('the composer panels are marked so the glass layer can fill them', { skip: 
   assert.ok(patched.includes('const V4=X(He).attrs({"data-factory-port-composer-surface":!0})`\n'
     + '  align-items: center;\n  border: 1px solid var(--border-1);'),
   'the stacked panel keeps its border rule and gains only the attribute');
+  assert.ok(patched.includes('background-color: transparent;\n    border: ${w.borderWidth.default} solid ${w.border.inner};'),
+    'the session card keeps upstream transparent background and inner border');
   assert.equal(patched.split('[data-factory-port-composer-surface][data-factory-port-composer-surface]').length - 1, 1,
     'exactly one glass rule targets the marker');
 });

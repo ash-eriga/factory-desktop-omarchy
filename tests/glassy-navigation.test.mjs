@@ -32,6 +32,8 @@ test('actual appearance atom appends navigation CSS only inside the existing Gla
     factoryPortGlassActive: glass, factoryPortThemeSnapshot: snapshot,
     factoryPortNavigationGlassCss: glassyNavigationCss,
     factoryPortGlassCss: () => 'glass;',
+    factoryPortComposerContrast: () => 100,
+    factoryPortEffectiveAppearance: Symbol('effective'),
   });
   const get = (enabled, active) => atom => atom === TMe ? enabled : atom === glass ? active : {};
   assert.equal(S0i(get(false, true)), '');
