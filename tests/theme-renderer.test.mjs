@@ -403,19 +403,20 @@ test('the composer panel gets its own fill inside the glass gate', () => {
     'the fill is scoped to the panel and does not fade the surface token');
 });
 
-test('the composer panel anchor marks the real panel and leaves its upstream styling alone', { skip: upstreamMissing }, () => {
+test('the composer panels are marked so the glass layer can fill them', { skip: upstreamMissing }, () => {
   const renderer = readFileSync(rendererPath, 'utf8');
-  assert.ok(renderer.includes('const nxl=X.div`'), 'upstream still declares the plain styled div');
+  assert.ok(renderer.includes('const V4=X(He)`\n  align-items: center;\n  border: 1px solid var(--border-1);'),
+    'upstream still declares the stacked panel with a bare div base');
+  assert.ok(renderer.includes('const nxl=X.div`'), 'upstream still declares the session composer card');
   assert.ok(!renderer.includes('data-factory-port-composer-surface'), 'the marker does not exist upstream');
   const patched = patch(renderer, rendererChanges);
-  assert.ok(patched.includes('const nxl=X.div.attrs({"data-factory-port-composer-surface":!0})`'),
-    'the panel that holds the composer carries the marker');
-  assert.equal(patched.split('.attrs({"data-factory-port-composer-surface":!0})').length - 1, 1,
-    'exactly one production site carries the marker');
+  assert.equal(patched.split('.attrs({"data-factory-port-composer-surface":!0})').length - 1, 2,
+    'the stacked panel and the session card both carry the marker');
+  assert.ok(patched.includes('const V4=X(He).attrs({"data-factory-port-composer-surface":!0})`\n'
+    + '  align-items: center;\n  border: 1px solid var(--border-1);'),
+  'the stacked panel keeps its border rule and gains only the attribute');
   assert.equal(patched.split('[data-factory-port-composer-surface][data-factory-port-composer-surface]').length - 1, 1,
-    'exactly one glass rule targets it');
-  assert.ok(patched.includes('background-color: transparent;\n    border: ${w.borderWidth.default} solid ${w.border.inner};'),
-    'the upstream transparent background and border token survive');
+    'exactly one glass rule targets the marker');
 });
 
 test('Glassy Bar chrome is scoped, keeps solid control tokens and supports both palette modes', () => {

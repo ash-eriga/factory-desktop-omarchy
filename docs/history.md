@@ -81,6 +81,20 @@ of the public tree; the methodology behind each change is described in
   every opaque surface; the fill is what makes the composer box legible
   on a followed glassy window.
 
+## Factory Desktop 1.0.0, port revision 5
+
+- Revision 4 filled the wrong element. The marker was placed on `nxl`,
+  the card the composer draws inside a session, but the new-session view
+  stacks its composer out of `V4`, a different styled component with the
+  same `1px solid var(--border-1)` edge. On the screen the reporter was
+  looking at, nothing carried the marker, so the fill never applied.
+- Reading the live DOM through the DevTools protocol is what showed it:
+  the panel under the composer is `sc-blfbQO`, which is `V4`. Both
+  components now carry the marker, so the one rule fills the panel
+  whichever view draws it.
+- Revision 5 ships that correction. The contrast ceiling from revision 3
+  and the fill from revision 4 are unchanged.
+
 ## Security and file permissions
 
 - Port revision `0.206.0-17` updates the shipped Electron runtime to

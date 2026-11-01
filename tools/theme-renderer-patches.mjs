@@ -197,15 +197,22 @@ export const rendererChanges = [
   ['mark the real title-bar painter without changing its native drag regions',
     'const HQl=X(He)`',
     'const HQl=X(He).attrs({"data-factory-port-titlebar-surface":!0})`'],
-  // The composer panel paints no fill of its own (background-color transparent)
-  // and marks its edge with the border token only. Over a glassy frame the
-  // panel therefore shows the .65 tint over the desktop wallpaper, and every
-  // border token is mixed from the palette background, which is not what is
-  // actually behind it: on a bright wallpaper the edge lands within one RGB
-  // step of the pane and the box dissolves. The marker lets the glass layer
-  // give the panel its own fill, so the card separates from the pane whatever
-  // the wallpaper is doing.
-  ['mark the composer panel as a surface the glass layer can fill',
+  // The composer panel paints no fill of its own and marks its edge with the
+  // border token only. Over a glassy frame the panel therefore shows the .65
+  // tint over the desktop wallpaper, and every border token is mixed from the
+  // palette background, which is not what is actually behind it: on a bright
+  // wallpaper the edge lands within one RGB step of the pane and the box
+  // dissolves. The marker lets the glass layer give the panel its own fill, so
+  // the card separates from the pane whatever the wallpaper is doing.
+  //
+  // Two components draw that panel. V4 is the stacked panel the new-session
+  // composer and its banners use (border: 1px solid var(--border-1), no fill);
+  // nxl is the card the session composer uses. Both carry the same marker, so
+  // the one rule fills whichever of them is on screen.
+  ['fill the stacked composer panels the new-session view draws',
+    'const V4=X(He)`\n  align-items: center;\n  border: 1px solid var(--border-1);',
+    'const V4=X(He).attrs({"data-factory-port-composer-surface":!0})`\n  align-items: center;\n  border: 1px solid var(--border-1);'],
+  ['fill the composer card the session view draws',
     'const nxl=X.div`',
     'const nxl=X.div.attrs({"data-factory-port-composer-surface":!0})`'],
   ...sidebarFadeChanges,
