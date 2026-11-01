@@ -628,11 +628,29 @@ test('renderer DTO validation is strict and palette overlay preserves saved Fact
     accentColor: '#ff6600',
     background: '#101010',
     foreground: '#eeeeee',
+    contrast: 85,
   });
   assert.equal(followed.light, manual.light, 'inactive mode remains the same saved object');
   assert.equal(followed.uiFontSize, 13);
   assert.equal(overlay(manual, normalize(null), defaults), manual, 'fallback returns original settings');
   assert.equal(manual.dark.background, '#202030', 'the persisted settings object was not mutated');
+  assert.equal(manual.dark.contrast, undefined,
+    'the saved contrast stays untouched; 85 lives only in the derived overlay');
+
+  const raised = overlay({
+    ...manual,
+    dark: { ...manual.dark, contrast: 150 },
+  }, valid, defaults);
+  assert.equal(raised.dark.contrast, 150,
+    'a contrast the user chose above the floor survives following Omarchy');
+  assert.equal(manual.dark.contrast, undefined, 'the raised overlay did not mutate the input');
+
+  const lowered = overlay({
+    ...manual,
+    dark: { ...manual.dark, contrast: 50 },
+  }, valid, defaults);
+  assert.equal(lowered.dark.contrast, 85,
+    'a contrast below the floor is raised to it, so black palettes stay legible');
 });
 
 test('the theme copy helper takes the theme alone and keeps both languages', () => {

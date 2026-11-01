@@ -21,6 +21,11 @@
 // rule at all, so the composer renders exactly as upstream did; only the range
 // above 100 sharpens the outline, and nothing ever paints a fill.
 //
+// The derived overlay pins its contrast at factoryPortFollowContrast because
+// Omarchy palettes such as vantablack sit on pure black, where the Factory
+// default contrast of 50 mixes surfaces and borders at a few percent of the
+// foreground and renders them near-invisible. Following Omarchy therefore
+// starts above the default rather than at it.
 // This file owns the complete follow-row placement inside the theme editor
 // (MMu), immediately before the preset row, including the React memo-cache
 // slot accounting for zMu and MMu. It also owns the glassy-window renderer
@@ -129,8 +134,14 @@ export const htmlChanges = [
 
 const baseRendererHelpers = `
 const factoryPortThemeKey="factory-port-theme-source",factoryPortThemeCacheKey="factory-port-theme-cache",factoryPortThemeEmpty={available:!1,mode:null,background:null,foreground:null,accent:null,revision:null,windowMode:null};
+const factoryPortFollowContrast=85;
+// Following Omarchy raises the derived contrast to a floor, it does not impose
+// one. A palette on pure black needs at least 85 for its borders to read, but a
+// user who asked for more must keep it: the composer outline only sharpens
+// above 100, so overwriting a chosen 150 with 85 would undo that choice.
+function factoryPortFollowContrastFloor(n){return typeof n==="number"&&n>=factoryPortFollowContrast?n:factoryPortFollowContrast}
 function factoryPortNormalizeTheme(t){if(!t||typeof t!=="object"||t.available!==!0||t.mode!=="light"&&t.mode!=="dark")return factoryPortThemeEmpty;const e=n=>typeof n==="string"&&/^#[0-9a-f]{6}$/i.test(n)?n.toLowerCase():null,n=e(t.background),i=e(t.foreground),o=e(t.accent),r=t.windowMode==="opaque"||t.windowMode==="transparent"||t.windowMode==="glassy"?t.windowMode:null;return n&&i&&o?{available:!0,mode:t.mode,background:n,foreground:i,accent:o,revision:typeof t.revision==="string"?t.revision:null,windowMode:r}:factoryPortThemeEmpty}
-function factoryPortOverlayAppearance(t,e,n){if(!e.available)return t;const i=e.mode,o=n[i];return{...t,[i]:{...(t[i]??o),preset:o.preset,accent:o.accent,accentColor:e.accent,background:e.background,foreground:e.foreground}}}
+function factoryPortOverlayAppearance(t,e,n){if(!e.available)return t;const i=e.mode,o=n[i],s=t[i]??o;return{...t,[i]:{...s,preset:o.preset,accent:o.accent,accentColor:e.accent,background:e.background,foreground:e.foreground,contrast:factoryPortFollowContrastFloor(s.contrast)}}}
 function factoryPortReadFollow(){try{return localStorage.getItem(factoryPortThemeKey)==="omarchy"}catch{return!1}}
 function factoryPortReadCachedTheme(){try{if(!factoryPortReadFollow()||typeof window==="undefined"||!window.electronAPI?.theme?.getOmarchy)return factoryPortThemeEmpty;return factoryPortNormalizeTheme(JSON.parse(localStorage.getItem(factoryPortThemeCacheKey)||"null"))}catch{return factoryPortThemeEmpty}}
 function factoryPortPersistTheme(t){try{t.available?localStorage.setItem(factoryPortThemeCacheKey,JSON.stringify(t)):localStorage.removeItem(factoryPortThemeCacheKey)}catch{}}
@@ -228,6 +239,8 @@ export const rendererChanges = [
 
 export const rendererHelperNames = [
   'factoryPortNormalizeTheme',
+  'factoryPortFollowContrast',
+  'factoryPortFollowContrastFloor',
   'factoryPortThemeFollow',
   'factoryPortThemeSnapshot',
   'factoryPortBuildThemeRow',
