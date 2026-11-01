@@ -5,6 +5,7 @@ import { changes, preloadChanges, rendererChanges, rendererTitleChanges,
          htmlTitleChanges } from './patches.mjs';
 import { themeMainChanges } from './theme-main-patches.mjs';
 import {
+  cssChanges as themeCssChanges,
   htmlChanges as themeHtmlChanges,
   preloadChanges as themePreloadChanges,
   rendererChanges as themeRendererChanges,
@@ -84,6 +85,10 @@ for (const [file, transformations] of [
     if (source.split(after).length !== 2)
       throw new Error(`Shipped theme patch missing or duplicated in ${file}: ${name}`);
   }
+}
+for (const [name, , after] of themeCssChanges) {
+  if (asar.extractFile(archive, versions.rendererCss).toString().split(after).length !== 2)
+    throw new Error(`Shipped theme stylesheet patch missing or duplicated: ${name}`);
 }
 if (versions.themeBridgeSchema !== 1) throw new Error('Unsupported theme bridge schema version');
 // The window title is owned by the renderer and by the page: the shipped

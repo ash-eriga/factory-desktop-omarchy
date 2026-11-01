@@ -14,7 +14,9 @@ import { patch, diagnose, diagnoseRendererHelperCollisions, preloadChanges, rend
          rendererTitleChanges, htmlTitleChanges } from './patches.mjs';
 import { themeMainChanges, diagnoseThemeMainHelpers } from './theme-main-patches.mjs';
 import {
+  cssChanges as themeCssChanges,
   diagnose as diagnoseThemeRenderer,
+  diagnoseThemeCssCollisions,
   diagnoseThemeHelperCollisions,
   diagnoseThemeHtmlCollisions,
   diagnoseThemePreloadCollisions,
@@ -163,6 +165,8 @@ async function main() {
   const rendererSource = await readFile(renderer, 'utf8');
   const rendererHtml = path.join(app, versions.rendererHtml);
   const rendererHtmlSource = await readFile(rendererHtml, 'utf8');
+  const rendererCss = path.join(app, versions.rendererCss);
+  const rendererCssSource = await readFile(rendererCss, 'utf8');
   // Keep the untouched official sources the test suite validates the
   // anchors against, and generate the brand assets from the untouched
   // renderer. Both happen BEFORE the first patch, so the snapshot is
@@ -198,6 +202,7 @@ async function main() {
   failures.push(...diagnose(registeredLifecycle, updateNotificationMainChanges));
   failures.push(...diagnoseThemeRenderer(linuxPreload, themePreloadChanges),
     ...diagnoseThemeRenderer(linuxRenderer, themeRendererChanges),
+    ...diagnoseThemeRenderer(rendererCssSource, themeCssChanges),
     ...diagnoseMenuRenderer(themePatchedRenderer),
     ...diagnose(rendererHtmlSource, htmlTitleChanges),
     ...diagnoseThemeRenderer(rendererHtmlSource, themeHtmlChanges));
@@ -214,14 +219,17 @@ async function main() {
   const updateHelperCollisions = diagnoseUpdateNotificationHelpers(lifecycleSource);
   const themePreloadCollisions = diagnoseThemePreloadCollisions(preloadSource);
   const themeHtmlCollisions = diagnoseThemeHtmlCollisions(rendererHtmlSource);
+  const themeCssCollisions = diagnoseThemeCssCollisions(rendererCssSource);
   if (failures.length || rendererHelperCollisions.length || themeHelperCollisions.length
       || themePreloadCollisions.length || themeHtmlCollisions.length
+      || themeCssCollisions.length
       || registrationHelperCollisions.length || updateHelperCollisions.length) {
     const details = [...failures.map(f => `${f.name} (count=${f.count})`),
       ...rendererHelperCollisions.map(name => `${name} (already declared upstream)`),
       ...themeHelperCollisions.map(name => `${name} (already declared upstream)`),
       ...themePreloadCollisions.map(name => `${name} (already declared upstream)`),
       ...themeHtmlCollisions.map(name => `${name} (already declared upstream)`),
+      ...themeCssCollisions.map(name => `${name} (already declared upstream)`),
       ...registrationHelperCollisions.map(name => `${name} (already declared upstream)`),
       ...updateHelperCollisions.map(name => `${name} (already declared upstream)`)];
     throw new Error(`Patches do not match vendor source ${versions.desktop}: `
@@ -231,6 +239,7 @@ async function main() {
   await writeFile(preload, patchThemeRenderer(linuxPreload, themePreloadChanges));
   await writeFile(renderer, patch(linuxMenuRenderer, computerRegistrationRendererChanges));
   await writeFile(rendererHtml, patchThemeRenderer(identityHtml, themeHtmlChanges));
+  await writeFile(rendererCss, patchThemeRenderer(rendererCssSource, themeCssChanges));
   run(process.execPath, ['--check', lifecycle]);
   run(process.execPath, ['--check', preload]);
   run(process.execPath, ['--check', renderer]);

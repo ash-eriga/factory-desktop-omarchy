@@ -46,6 +46,14 @@
 // gate blends the composer panel's outline towards the strong border token, so
 // its edge stays visible over a wallpaper the palette background knows nothing
 // about. Below that the panel is untouched, and no panel ever receives a fill.
+// The vendor stylesheet seeds --text-inverted from --core-v2-bg-page inside
+// its v2 scopes (mission control, session detail, command palette). Glass
+// legitimately makes that page token transparent, but as a text color the
+// transparent value blanks inverted text over inverted surfaces (the active
+// mission-mode chip, notification badges over accent fills). The glass scope
+// therefore carries an opaque --factory-port-page-color with the followed
+// background, and cssChanges retargets the vendor's seed to fall back to the
+// page token when glass is off.
 
 import { applicationMenuPreload, factoryPortMountApplicationMenu } from './application-menu-patches.mjs';
 import { factoryPortUpdateSidebarMask, sidebarFadeChanges } from './sidebar-fade-patches.mjs';
@@ -154,11 +162,17 @@ function factoryPortComposerBorderCss(e){const n=typeof e==="number"&&Number.isF
 function factoryPortGlassCss(t,r){
 if(!t||typeof t!=="object"||t.available!==!0||t.windowMode!=="glassy"||typeof t.background!=="string"||!/^#[0-9a-f]{6}$/i.test(t.background)||typeof t.foreground!=="string"||!/^#[0-9a-f]{6}$/i.test(t.foreground))return"";
 const e=Number.parseInt(t.background.slice(1,3),16),n=Number.parseInt(t.background.slice(3,5),16),i=Number.parseInt(t.background.slice(5,7),16),o=e+", "+n+", "+i,s=t.mode==="light"?"rgba(255,255,255,.8)":"rgba(0,0,0,.8)";
-return":root:root, [data-core-ui-v2-theme='light'][data-core-ui-v2-theme], :root:not([data-theme='dark']), [data-core-ui-v2-theme='dark'][data-core-ui-v2-theme], [data-core-v2-portals='dark'][data-core-v2-portals], :root[data-theme='dark']{--core-v2-bg-page:transparent;--surface-1:transparent}\\nhtml{background-color:transparent!important}\\nbody, #root{background-color:transparent!important}\\n[data-windows-content-surface], [data-window-backdrop-v2]{background-color:transparent!important}\\n[data-windows-content-frame='true']{background:rgba("+o+", .65)!important;border-color:var(--border-1)!important}\\n[data-sidebar-visible], [data-windows-title-bar-v2]{background-color:rgba("+o+", .35)!important}\\n[data-sidebar-visible] [data-factory-port-sidebar-surface], [data-sidebar-visible] [data-sidebar-overlay], [data-sidebar-visible] [data-factory-port-titlebar-surface], [data-windows-title-bar-v2] [data-factory-port-titlebar-surface]{background-color:transparent!important}\\n[data-factory-port-sidebar-surface][data-factory-port-sidebar-surface], [data-windows-title-bar-v2][data-windows-title-bar-v2]{--core-v2-text-primary:"+t.foreground+"!important;--core-v2-text-secondary:color-mix(in srgb,"+t.foreground+" 85%,"+t.background+")!important;--core-v2-text-tertiary:color-mix(in srgb,"+t.foreground+" 75%,"+t.background+")!important;--sidebar-text:var(--core-v2-text-secondary)!important;--sidebar-text-hover:var(--core-v2-text-primary)!important;color:var(--core-v2-text-primary);text-shadow:0 1px 2px "+s+"}"+factoryPortComposerBorderCss(r)
+return":root:root, [data-core-ui-v2-theme='light'][data-core-ui-v2-theme], :root:not([data-theme='dark']), [data-core-ui-v2-theme='dark'][data-core-ui-v2-theme], [data-core-v2-portals='dark'][data-core-v2-portals], :root[data-theme='dark']{--core-v2-bg-page:transparent;--surface-1:transparent;--factory-port-page-color:"+t.background+"}\\nhtml{background-color:transparent!important}\\nbody, #root{background-color:transparent!important}\\n[data-windows-content-surface], [data-window-backdrop-v2]{background-color:transparent!important}\\n[data-windows-content-frame='true']{background:rgba("+o+", .65)!important;border-color:var(--border-1)!important}\\n[data-sidebar-visible], [data-windows-title-bar-v2]{background-color:rgba("+o+", .35)!important}\\n[data-sidebar-visible] [data-factory-port-sidebar-surface], [data-sidebar-visible] [data-sidebar-overlay], [data-sidebar-visible] [data-factory-port-titlebar-surface], [data-windows-title-bar-v2] [data-factory-port-titlebar-surface]{background-color:transparent!important}\\n[data-factory-port-sidebar-surface][data-factory-port-sidebar-surface], [data-windows-title-bar-v2][data-windows-title-bar-v2]{--core-v2-text-primary:"+t.foreground+"!important;--core-v2-text-secondary:color-mix(in srgb,"+t.foreground+" 85%,"+t.background+")!important;--core-v2-text-tertiary:color-mix(in srgb,"+t.foreground+" 75%,"+t.background+")!important;--sidebar-text:var(--core-v2-text-secondary)!important;--sidebar-text-hover:var(--core-v2-text-primary)!important;color:var(--core-v2-text-primary);text-shadow:0 1px 2px "+s+"}"+factoryPortComposerBorderCss(r)
 }
 `;
 
 export const rendererHelpers = `${baseRendererHelpers}\nconst factoryPortNavigationGlassCss=${JSON.stringify(glassyNavigationCss)};\n${factoryPortMountApplicationMenu.toString()}\n${factoryPortUpdateSidebarMask.toString()}\n`;
+
+export const cssChanges = [
+  ['keep inverted text readable while the glass page token is transparent',
+    '--text-inverted: var(--core-v2-bg-page)',
+    '--text-inverted: var(--factory-port-page-color, var(--core-v2-bg-page))'],
+];
 
 export const rendererChanges = [
   ['persisted opt-in and live Omarchy snapshot store',
@@ -278,6 +292,11 @@ export function diagnoseThemePreloadCollisions(source) {
 
 export function diagnoseThemeHtmlCollisions(source) {
   return ['factory-port-theme-source', 'factory-port-theme-cache']
+    .filter(key => source.includes(key));
+}
+
+export function diagnoseThemeCssCollisions(source) {
+  return ['--factory-port-page-color']
     .filter(key => source.includes(key));
 }
 

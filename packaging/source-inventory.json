@@ -234,6 +234,10 @@
       "mode": "0644"
     },
     {
+      "path": "tests/mission-theme-repro.mjs",
+      "mode": "0644"
+    },
+    {
       "path": "tests/package-content-proof.mjs",
       "mode": "0644"
     },
