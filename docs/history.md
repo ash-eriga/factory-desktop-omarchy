@@ -60,6 +60,27 @@ of the public tree; the methodology behind each change is described in
   writes no contrast of its own.
 - Port revision 3 rebuilds the bundle with the raised ceiling.
 
+## Factory Desktop 1.0.0, port revision 4
+
+- Revision 3 raised the contrast ceiling, but the composer box did not
+  get more visible on a glassy window: it got less. The panel is painted
+  with `background-color: transparent` and marked only by its border, and
+  that border is mixed from the palette background. Over the glass tint
+  the pixels behind the panel come from the desktop wallpaper, not from
+  the palette background, so the two colours drift apart as contrast
+  rises. With a bright wallpaper the measured pane is `#454d56` and the
+  inner border token lands at `#495060` — 1.06:1, where a contrast of 50
+  gives 1.57:1.
+- The composer panel is now marked and filled by the glass layer with the
+  palette background at 72%, so the card separates from the pane whatever
+  the wallpaper is doing: 1.80:1 against the surrounding pixels, and the
+  border token reads as a rim at 1.91:1 against its own fill. The fill is
+  scoped to the glass gate, so an opaque window keeps upstream's
+  transparent panel, and no surface token is faded.
+- Revision 4 ships both the ceiling and the fill. The ceiling still helps
+  every opaque surface; the fill is what makes the composer box legible
+  on a followed glassy window.
+
 ## Security and file permissions
 
 - Port revision `0.206.0-17` updates the shipped Electron runtime to

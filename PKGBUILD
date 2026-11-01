@@ -1,7 +1,7 @@
 # Builds the inspected proprietary app locally. Do not publish the payload.
 pkgname=factory-droid-desktop
 pkgver=1.0.0
-pkgrel=3
+pkgrel=4
 pkgdesc='Unofficial Factory Droid Desktop port for Arch and Omarchy'
 arch=('x86_64')
 # The port was renamed from factory-desktop-arch. Both packages ship
@@ -29,8 +29,8 @@ options=('!strip' '!debug')
 # checkout: the same archive serves the GitHub clone and the AUR, so both
 # workflows ship the same bytes. A clone can generate the archive locally with
 # `npm run package:sources` before makepkg runs.
-source=('https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v1.0.0-3/factory-droid-desktop-port-1.0.0-3.tar.gz')
-sha256sums=('289f92a4d4e0ab32b48e6d228e2d708294e61302a3c9bf8b6e21626d6be947e6')
+source=('https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v1.0.0-4/factory-droid-desktop-port-1.0.0-4.tar.gz')
+sha256sums=('a18b74f75d35bb888015ed80636f21ec0b4c078d13fa8bde4b88a2242877a885')
 
 # The root directory of the archive. It is derived from the source name,
 # so the recipe and the archive cannot disagree about it.

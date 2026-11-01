@@ -388,6 +388,36 @@ test('glass clears the unscoped backdrop and full-pane border gradient while ret
   assert.equal(glassCss({ ...glassyPalette, windowMode: 'transparent' }), '');
 });
 
+test('the composer panel gets its own fill inside the glass gate', () => {
+  const { glassCss } = evaluateHelpers();
+  assert.match(glassCss(glassyPalette),
+    /\[data-factory-port-composer-surface\]\[data-factory-port-composer-surface\]\{background-color:color-mix\(in oklab, #101019 72%, transparent\)!important\}/,
+    'the panel that holds the composer keeps the palette background over the pane');
+  assert.equal(glassCss({ ...glassyPalette, windowMode: 'opaque' }), '',
+    'an opaque window keeps the upstream transparent panel');
+  const light = glassCss({ ...glassyPalette, mode: 'light', background: '#fafafa' });
+  assert.ok(light.includes('color-mix(in oklab, #fafafa 72%, transparent)'),
+    'the fill follows the palette background in light mode too');
+  assert.ok(!light.includes('transparent!important}background'), 'the rules stay separated');
+  assert.ok(!light.includes('--core-v2-bg-surface:transparent'),
+    'the fill is scoped to the panel and does not fade the surface token');
+});
+
+test('the composer panel anchor marks the real panel and leaves its upstream styling alone', { skip: upstreamMissing }, () => {
+  const renderer = readFileSync(rendererPath, 'utf8');
+  assert.ok(renderer.includes('const nxl=X.div`'), 'upstream still declares the plain styled div');
+  assert.ok(!renderer.includes('data-factory-port-composer-surface'), 'the marker does not exist upstream');
+  const patched = patch(renderer, rendererChanges);
+  assert.ok(patched.includes('const nxl=X.div.attrs({"data-factory-port-composer-surface":!0})`'),
+    'the panel that holds the composer carries the marker');
+  assert.equal(patched.split('.attrs({"data-factory-port-composer-surface":!0})').length - 1, 1,
+    'exactly one production site carries the marker');
+  assert.equal(patched.split('[data-factory-port-composer-surface][data-factory-port-composer-surface]').length - 1, 1,
+    'exactly one glass rule targets it');
+  assert.ok(patched.includes('background-color: transparent;\n    border: ${w.borderWidth.default} solid ${w.border.inner};'),
+    'the upstream transparent background and border token survive');
+});
+
 test('Glassy Bar chrome is scoped, keeps solid control tokens and supports both palette modes', () => {
   const { glassCss } = evaluateHelpers();
   const dark = glassCss(glassyPalette);

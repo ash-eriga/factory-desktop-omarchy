@@ -4,16 +4,19 @@
 // authoritative; following Omarchy is a separate, opt-in derived override.
 //
 // The appearance contrast slider stops at 100 upstream, where every fill token
-// has already taken the whole fill curve and the composer box, borders and
-// panels are as separated as a preset allows. On Omarchy palettes that sit on
-// pure black or on a dark blue the composer box still reads as a hairline. The
-// port raises the ceiling to 150 so a user who wants more separation can ask
-// for it, without changing anything at or below 100. Text tokens stop at their
-// contrast-100 value: their curve adds a fixed 20 points per 50 contrast, so
-// running it to 150 would make secondary text identical to primary and the
-// disabled label stop reading as disabled. Fills extend linearly instead
-// (2.5% -> 5.5% for the dark surface token), which is the part the composer box
-// is drawn from.
+// has already taken the whole fill curve. The port raises the ceiling to 150 so
+// a user who wants more separation can ask for it, without changing anything at
+// or below 100. Text tokens stop at their contrast-100 value: their curve adds
+// a fixed 20 points per 50 contrast, so running it to 150 would make secondary
+// text identical to primary and the disabled label stop reading as disabled.
+// Fills extend linearly instead (2.5% -> 5.5% for the dark surface token).
+// The ceiling alone cannot lift a panel that sits on the glass tint, though:
+// every token is mixed from the palette background, while the pixels behind the
+// panel come from the wallpaper. On a bright wallpaper the inner border token
+// reaches 1.06:1 against the pane at 150, lower than the 1.57:1 it has at 50.
+// The composer panel is therefore filled by the glass layer instead of relying
+// on its edge.
+//
 // This file owns the complete follow-row placement inside the theme editor
 // (MMu), immediately before the preset row, including the React memo-cache
 // slot accounting for zMu and MMu. It also owns the glassy-window renderer
@@ -29,7 +32,11 @@
 // controls and code keep their opaque bg-overlay/surface-raised tokens.
 // Structural painters are cleared directly: the outer backdrop can inherit
 // an opaque legacy page token, and the frame's border-box gradient otherwise
-// fills the whole pane when its padding-box layer becomes transparent.
+// fills the whole pane when its padding-box layer becomes transparent. One
+// painter is added rather than cleared: the composer panel keeps its upstream
+// transparent background over an opaque window, and receives a translucent
+// fill only inside the glass gate, where the wallpaper would otherwise show
+// through the box the user types into.
 
 import { applicationMenuPreload, factoryPortMountApplicationMenu } from './application-menu-patches.mjs';
 import { factoryPortUpdateSidebarMask, sidebarFadeChanges } from './sidebar-fade-patches.mjs';
@@ -130,7 +137,7 @@ function factoryPortSyncNativeFollow(store,forced){const desired=forced===void 0
 function factoryPortGlassCss(t){
 if(!t||typeof t!=="object"||t.available!==!0||t.windowMode!=="glassy"||typeof t.background!=="string"||!/^#[0-9a-f]{6}$/i.test(t.background)||typeof t.foreground!=="string"||!/^#[0-9a-f]{6}$/i.test(t.foreground))return"";
 const e=Number.parseInt(t.background.slice(1,3),16),n=Number.parseInt(t.background.slice(3,5),16),i=Number.parseInt(t.background.slice(5,7),16),o=e+", "+n+", "+i,s=t.mode==="light"?"rgba(255,255,255,.8)":"rgba(0,0,0,.8)";
-return":root:root, [data-core-ui-v2-theme='light'][data-core-ui-v2-theme], :root:not([data-theme='dark']), [data-core-ui-v2-theme='dark'][data-core-ui-v2-theme], [data-core-v2-portals='dark'][data-core-v2-portals], :root[data-theme='dark']{--core-v2-bg-page:transparent;--surface-1:transparent}\\nhtml{background-color:transparent!important}\\nbody, #root{background-color:transparent!important}\\n[data-windows-content-surface], [data-window-backdrop-v2]{background-color:transparent!important}\\n[data-windows-content-frame='true']{background:rgba("+o+", .65)!important;border-color:var(--border-1)!important}\\n[data-sidebar-visible], [data-windows-title-bar-v2]{background-color:rgba("+o+", .35)!important}\\n[data-sidebar-visible] [data-factory-port-sidebar-surface], [data-sidebar-visible] [data-sidebar-overlay], [data-sidebar-visible] [data-factory-port-titlebar-surface], [data-windows-title-bar-v2] [data-factory-port-titlebar-surface]{background-color:transparent!important}\\n[data-factory-port-sidebar-surface][data-factory-port-sidebar-surface], [data-windows-title-bar-v2][data-windows-title-bar-v2]{--core-v2-text-primary:"+t.foreground+"!important;--core-v2-text-secondary:color-mix(in srgb,"+t.foreground+" 85%,"+t.background+")!important;--core-v2-text-tertiary:color-mix(in srgb,"+t.foreground+" 75%,"+t.background+")!important;--sidebar-text:var(--core-v2-text-secondary)!important;--sidebar-text-hover:var(--core-v2-text-primary)!important;color:var(--core-v2-text-primary);text-shadow:0 1px 2px "+s+"}"
+return":root:root, [data-core-ui-v2-theme='light'][data-core-ui-v2-theme], :root:not([data-theme='dark']), [data-core-ui-v2-theme='dark'][data-core-ui-v2-theme], [data-core-v2-portals='dark'][data-core-v2-portals], :root[data-theme='dark']{--core-v2-bg-page:transparent;--surface-1:transparent}\\nhtml{background-color:transparent!important}\\nbody, #root{background-color:transparent!important}\\n[data-windows-content-surface], [data-window-backdrop-v2]{background-color:transparent!important}\\n[data-windows-content-frame='true']{background:rgba("+o+", .65)!important;border-color:var(--border-1)!important}\\n[data-sidebar-visible], [data-windows-title-bar-v2]{background-color:rgba("+o+", .35)!important}\\n[data-sidebar-visible] [data-factory-port-sidebar-surface], [data-sidebar-visible] [data-sidebar-overlay], [data-sidebar-visible] [data-factory-port-titlebar-surface], [data-windows-title-bar-v2] [data-factory-port-titlebar-surface]{background-color:transparent!important}\\n[data-factory-port-sidebar-surface][data-factory-port-sidebar-surface], [data-windows-title-bar-v2][data-windows-title-bar-v2]{--core-v2-text-primary:"+t.foreground+"!important;--core-v2-text-secondary:color-mix(in srgb,"+t.foreground+" 85%,"+t.background+")!important;--core-v2-text-tertiary:color-mix(in srgb,"+t.foreground+" 75%,"+t.background+")!important;--sidebar-text:var(--core-v2-text-secondary)!important;--sidebar-text-hover:var(--core-v2-text-primary)!important;color:var(--core-v2-text-primary);text-shadow:0 1px 2px "+s+"}\\n[data-factory-port-composer-surface][data-factory-port-composer-surface]{background-color:color-mix(in oklab, "+t.background+" 72%, transparent)!important}"
 }
 `;
 
@@ -190,6 +197,17 @@ export const rendererChanges = [
   ['mark the real title-bar painter without changing its native drag regions',
     'const HQl=X(He)`',
     'const HQl=X(He).attrs({"data-factory-port-titlebar-surface":!0})`'],
+  // The composer panel paints no fill of its own (background-color transparent)
+  // and marks its edge with the border token only. Over a glassy frame the
+  // panel therefore shows the .65 tint over the desktop wallpaper, and every
+  // border token is mixed from the palette background, which is not what is
+  // actually behind it: on a bright wallpaper the edge lands within one RGB
+  // step of the pane and the box dissolves. The marker lets the glass layer
+  // give the panel its own fill, so the card separates from the pane whatever
+  // the wallpaper is doing.
+  ['mark the composer panel as a surface the glass layer can fill',
+    'const nxl=X.div`',
+    'const nxl=X.div.attrs({"data-factory-port-composer-surface":!0})`'],
   ...sidebarFadeChanges,
   ...glassyNavigationChanges,
 ];
