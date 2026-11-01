@@ -68,6 +68,7 @@ checked in.
 ```bash
 npm run package:sources            # build the archive, check the pinned digest
 npm run package:sources:update     # refresh the inventory, digest and .SRCINFO
+npm run package:aur                # export the AUR submission and recipe archive
 ```
 
 `package:sources` writes the versioned archive under `build/`,
@@ -79,6 +80,16 @@ source inventory from the tracked files of the checkout, rebuilds the
 archive, rewrites the single `sha256sums=(...)` line of `PKGBUILD` and
 regenerates `.SRCINFO` with `makepkg --printsrcinfo`. It is the only mode
 that writes to the recipe.
+
+`package:aur` is the AUR export. It checks the source archive against the
+pinned digest and compares `.SRCINFO` with what makepkg writes for the
+recipe, then publishes `build/aur/<pkgname>-<pkgver>-<pkgrel>/` with
+`PKGBUILD`, `.SRCINFO` and `LICENSE` and
+`build/<pkgname>-aur-<pkgver>-<pkgrel>.tar.gz`. It never rewrites the
+recipe, the metadata or the inventory. It refuses stale metadata, a
+tampered source, a linked submission file and an output directory that
+holds other content. The publishing steps are in
+[`docs/aur.md`](docs/aur.md).
 
 The update is a transaction. Everything that can fail is done first, and
 the inventory, the recipe and the metadata keep their bytes and their

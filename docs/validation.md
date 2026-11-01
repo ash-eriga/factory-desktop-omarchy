@@ -52,6 +52,14 @@ What it covers:
   without a git index, that the recipe pins the digest of the archive,
   and that an AUR checkout with only the recipe, its metadata and the
   license unpacks the same sources as the clone,
+- the AUR export: that it publishes exactly `PKGBUILD`, `.SRCINFO` and
+  `LICENSE` at mode 0644 together with a recipe archive that extracts to
+  the package name, that both reproduce the same bytes on a rerun and
+  under umask 0022 or 0077, that it refuses stale metadata, a tampered
+  source, a linked submission file, unknown options, mixed `--update`
+  and `--aur` flags and a contaminated output directory without writing
+  or deleting canonical files, and that a changed valid release identity
+  renames the directory and the archive,
 - the guards of the source archive: that a listed or a tracked log, dump,
   core file, profiler output or bytecode is refused, that an artifact a
   tree merely holds is ignored instead, that a source tree that is a
@@ -125,6 +133,13 @@ release assets require authenticated access. The archive is
 unpacked and prepared locally, and the source tree it produces runs the
 same suite the clone runs.
 
+`npm run package:aur` exports the submission without contacting the AUR:
+it verifies the archive and the metadata, writes the three submission
+files under `build/aur/` and writes the recipe archive next to the source
+archive. Pushing the submission remains a manual step with the
+maintainer's own AUR credentials. The [publishing guide](aur.md) records
+the exact commands.
+
 The package is then checked with `tests/package-content-proof.mjs`,
 which compares the archive against the bundle manifest and against the
 recipe: every archived file's hash and mode, the license files, the
@@ -191,7 +206,7 @@ local step (Layer 3).
 ## Known limits
 
 - The AUR path is prepared but not published. It needs a public source
-  release and the AUR's own rules and license review. The recipe,
+  release and the AUR's own rules and later moderation. The recipe,
   `.SRCINFO` and unpacked archive can be validated locally without a
   public release. An authenticated download of a private release does
   not prove that the unauthenticated AUR download works.

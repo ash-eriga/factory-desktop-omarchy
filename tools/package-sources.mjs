@@ -21,18 +21,24 @@
 // packing step is given no override from the environment either: the
 // bytes are the ones the inventory asks for.
 //
-// Two modes:
+// Three modes:
 //   node tools/package-sources.mjs            build the archive and check
 //                                             it against the pinned digest
 //   node tools/package-sources.mjs --update   refresh the inventory from
 //                                             the checkout, rebuild the
 //                                             archive, pin its digest and
 //                                             regenerate .SRCINFO
+//   node tools/package-sources.mjs --aur      verify the archive and the
+//                                             metadata, then export the AUR
+//                                             submission and its recipe
+//                                             archive
 //
 // The update mode is the maintainer's mode: it is the only mode that
 // writes to the inventory or to the recipe. The default mode never
 // rewrites the checksum on a user's machine; a mismatch is reported, not
-// silently accepted.
+// silently accepted. The AUR mode never writes a canonical file either:
+// it verifies the recipe, the metadata and the archive, and publishes
+// only the two derived artifacts.
 //
 // The update mode is a transaction: the candidate inventory, the
 // archive, the recipe and the metadata are prepared before anything is
@@ -44,7 +50,7 @@ import { chmod, copyFile, lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, 
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ROOT, hash } from './common.mjs';
+import { ROOT, hash, versions } from './common.mjs';
 
 // The port's own sources. The recipe files are not part of them:
 // PKGBUILD and .SRCINFO are provided by the packaging workflow, and a
@@ -133,12 +139,15 @@ function gitLines(args) {
 
 // The recipe's own metadata, read by sourcing the recipe with bash: the
 // recipe is the authority, and the shell expands it exactly like makepkg
-// does. Only the two attributes the archive needs are read: the source
-// it declares and the digest it pins for it.
+// does.
 function readRecipe() {
   const script = `
 set -u
 source "$1"
+printf 'pkgname=%s\\n' "\${pkgname-}"
+printf 'pkgver=%s\\n' "\${pkgver-}"
+printf 'pkgrel=%s\\n' "\${pkgrel-}"
+printf 'url=%s\\n' "\${url-}"
 for value in \${source[@]+"\${source[@]}"}; do
   printf 'source=%s\\n' "$value"
 done
@@ -381,7 +390,7 @@ function serializeInventory(entries) {
 // and packed by GNU tar with sorted names, zeroed timestamps and numeric
 // root ownership; gzip writes the stream without a name and without a
 // timestamp, so the bytes only depend on the content.
-async function createArchive(entries, topLevel, output) {
+async function createArchive(entries, topLevel, output, source = ROOT) {
   const stage = await mkdtemp(path.join(tmpdir(), 'factory-sources-'));
   try {
     const tree = path.join(stage, topLevel);
@@ -389,7 +398,7 @@ async function createArchive(entries, topLevel, output) {
     for (const entry of entries) {
       const target = path.join(tree, entry.path);
       await mkdir(path.dirname(target), { recursive: true });
-      await copyFile(path.join(ROOT, entry.path), target);
+      await copyFile(path.join(source, entry.path), target);
       await chmod(target, entry.mode);
     }
     await normalizeDirectories(tree);
@@ -443,15 +452,13 @@ function printSrcinfo() {
   return result.stdout;
 }
 
-// The metadata is written by makepkg, so makepkg has to be there before
-// the maintainer's mode writes anything at all.
 function requireMakepkg() {
   const result = spawnSync('makepkg', ['--version'], {
     cwd: ROOT, encoding: 'utf8', env: childEnvironment(),
   });
   if (result.error || result.status !== 0)
-    throw new Error('makepkg is required to regenerate .SRCINFO: '
-      + 'the metadata of the recipe is written by makepkg itself.');
+    throw new Error('makepkg is required: the metadata of the recipe is written and checked '
+      + 'by makepkg itself.');
 }
 
 // The bytes and the mode of a file, so a failed update can put back
@@ -620,8 +627,147 @@ async function runUpdate(archiveName, topLevel) {
   console.log(`  files:  ${entries.length}`);
 }
 
+const AUR_FILES = Object.freeze([
+  { path: 'PKGBUILD', mode: 0o644 },
+  { path: '.SRCINFO', mode: 0o644 },
+  { path: 'LICENSE', mode: 0o644 },
+]);
+
+function releaseIdentity(recipe) {
+  const scalar = name => {
+    const values = recipe.get(name) || [];
+    if (values.length !== 1 || !values[0])
+      throw new Error(`The recipe must set exactly one ${name}`);
+    return values[0];
+  };
+  const pkgname = scalar('pkgname');
+  if (!/^[a-z0-9][a-z0-9+._-]*$/.test(pkgname))
+    throw new Error(`The recipe declares an unsafe package name: ${pkgname}`);
+  const pkgver = scalar('pkgver');
+  if (pkgver !== versions.desktop)
+    throw new Error(`The recipe pkgver must match versions.desktop ${versions.desktop}: ${pkgver}`);
+  const pkgrel = scalar('pkgrel');
+  if (!/^[1-9]\d*$/.test(pkgrel))
+    throw new Error(`The recipe declares an unsafe pkgrel: ${pkgrel}`);
+  const url = scalar('url');
+  if (!/^https?:\/\/[^\s'"]+$/.test(url))
+    throw new Error(`The recipe declares an unsafe project URL: ${url}`);
+  const source = recipe.get('source')[0];
+  const version = `${pkgver}-${pkgrel}`;
+  const sourceArchive = `${pkgname}-port-${version}.tar.gz`;
+  const sourceUrl = `${url}/releases/download/v${version}/${sourceArchive}`;
+  if (source !== sourceUrl)
+    throw new Error('The recipe source does not match its own release identity.\n'
+      + `  source:   ${source}\n`
+      + `  expected: ${sourceUrl}`);
+  return Object.freeze({
+    pkgname,
+    sourceArchive,
+    sourceTopLevel: `${pkgname}-port-${version}`,
+    sha256: recipe.get('sha256sums')[0],
+    directory: `${pkgname}-${version}`,
+    archive: `${pkgname}-aur-${version}.tar.gz`,
+  });
+}
+
+async function outputDirectory(target) {
+  const info = await lstat(target).catch(() => null);
+  if (!info) {
+    await mkdir(target);
+    return;
+  }
+  if (info.isSymbolicLink())
+    throw new Error(`Refusing to write through a symbolic link: ${path.relative(ROOT, target)}`);
+  if (!info.isDirectory())
+    throw new Error(`Refusing to write over a file: ${path.relative(ROOT, target)}`);
+}
+
+async function existingSubmission(target, contents) {
+  const info = await lstat(target);
+  if (info.isSymbolicLink() || !info.isDirectory())
+    throw new Error(`Refusing an unsafe AUR export: ${path.relative(ROOT, target)}`);
+  const names = (await readdir(target)).sort();
+  const expected = [...contents.keys()].sort();
+  if (names.length !== expected.length || names.some((name, index) => name !== expected[index]))
+    throw new Error('Refusing a contaminated AUR export.\n'
+      + `  directory: ${path.relative(ROOT, target)}\n`
+      + `  expected:  ${expected.join(', ')}\n`
+      + `  found:     ${names.join(', ') || 'nothing'}\n`
+      + 'Move the directory aside before exporting this release.');
+  for (const [name, bytes] of contents) {
+    const file = path.join(target, name);
+    const fileInfo = await lstat(file);
+    if (fileInfo.isSymbolicLink() || !fileInfo.isFile() || (fileInfo.mode & 0o777) !== 0o644)
+      throw new Error(`Refusing an unsafe AUR submission file: ${path.relative(ROOT, file)}`);
+    if (!(await readFile(file)).equals(bytes))
+      throw new Error(`Refusing to overwrite a different AUR export: ${path.relative(ROOT, target)}\n`
+        + 'Move the directory aside before exporting this release.');
+  }
+}
+
+async function existingArchive(target, pending) {
+  const info = await lstat(target);
+  if (info.isSymbolicLink() || !info.isFile())
+    throw new Error(`Refusing an unsafe AUR archive: ${path.relative(ROOT, target)}`);
+  if (!(await readFile(target)).equals(await readFile(pending)))
+    throw new Error(`Refusing to overwrite a different AUR archive: ${path.relative(ROOT, target)}\n`
+      + 'Move the file aside before exporting this release.');
+}
+
+async function runAur(identity) {
+  requireMakepkg();
+  for (const entry of AUR_FILES) await inspectSource(entry.path);
+  const contents = new Map();
+  for (const entry of AUR_FILES)
+    contents.set(entry.path, await readFile(path.join(ROOT, entry.path)));
+  if (contents.get('.SRCINFO').toString('utf8') !== printSrcinfo())
+    throw new Error('The metadata is stale: .SRCINFO is not what makepkg writes for this recipe.\n'
+      + 'A maintainer regenerates the inventory, the digest and .SRCINFO with '
+      + '`npm run package:sources:update`.');
+  const build = path.join(ROOT, 'build');
+  const aurRoot = path.join(build, 'aur');
+  await outputDirectory(build);
+  await outputDirectory(aurRoot);
+  await runDefault(identity.sourceArchive, identity.sourceTopLevel, identity.sha256);
+
+  const target = path.join(aurRoot, identity.directory);
+  const archive = path.join(build, identity.archive);
+  const work = await mkdtemp(path.join(aurRoot, '.stage-'));
+  const stage = path.join(work, 'submission');
+  const pending = path.join(work, 'recipe.tar.gz');
+  try {
+    await mkdir(stage);
+    for (const entry of AUR_FILES) {
+      const file = path.join(stage, entry.path);
+      await writeFile(file, contents.get(entry.path));
+      await chmod(file, entry.mode);
+    }
+    await chmod(stage, 0o755);
+    await createArchive(AUR_FILES, identity.pkgname, pending, stage);
+    const keptDirectory = await lstat(target).catch(() => null);
+    if (keptDirectory) await existingSubmission(target, contents);
+    const keptArchive = await lstat(archive).catch(() => null);
+    if (keptArchive) await existingArchive(archive, pending);
+    if (!keptDirectory) await rename(stage, target);
+    if (!keptArchive) await rename(pending, archive);
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
+  console.log(`The AUR submission is ready: ${path.relative(ROOT, target)}`);
+  for (const entry of AUR_FILES) console.log(`  ${entry.path}`);
+  console.log(`The recipe archive is ready: ${path.relative(ROOT, archive)}`);
+  console.log('Publish it by hand. See docs/aur.md.');
+}
+
 async function main(argv) {
+  for (const argument of argv)
+    if (argument !== '--update' && argument !== '--aur')
+      throw new Error(`Unknown option: ${argument}`);
   const update = argv.includes('--update');
+  const aur = argv.includes('--aur');
+  if (update && aur)
+    throw new Error('The --update and --aur modes are exclusive: one writes the recipe, '
+      + 'the other exports it.');
   const recipe = readRecipe();
   const sources = recipe.get('source') || [];
   if (sources.length !== 1)
@@ -634,6 +780,10 @@ async function main(argv) {
   if (pinned.length !== 1 || !/^[a-f0-9]{64}$/.test(pinned[0]))
     throw new Error('The recipe must pin exactly one sha256 digest for the source archive');
 
+  if (aur) {
+    await runAur(releaseIdentity(recipe));
+    return;
+  }
   if (update) {
     await runUpdate(archiveName, topLevel);
     return;

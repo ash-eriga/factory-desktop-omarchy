@@ -18,6 +18,10 @@
       "mode": "0644"
     },
     {
+      "path": "docs/aur.md",
+      "mode": "0644"
+    },
+    {
       "path": "docs/history.md",
       "mode": "0644"
     },
