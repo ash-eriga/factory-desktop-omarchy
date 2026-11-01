@@ -4,8 +4,6 @@ Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_
 
 [![Factory Desktop Omarchy following Omarchy themes, animated demo](media/demo-fast.webp)](media/demo-fast.mp4)
 
-[Open the demo video](media/demo-fast.mp4) — 720p, 22 s, 0.5 MB.
-
 ## Features
 
 - Separate Desktop profile. Your standalone Droid CLI stays unchanged.
@@ -65,22 +63,6 @@ SRCDEST="$PWD/build" makepkg -Csi
 ```
 
 The app can notify you about stable releases of this port. It never installs updates automatically and does not announce pre-releases. Check manually from **File → Check for port updates…**.
-
-## Uninstall
-
-If you ran `factory-callback register`, restore the previous browser handler first:
-
-```bash
-factory-callback rollback
-```
-
-Quit the app, then remove the package:
-
-```bash
-sudo pacman -R factory-droid-desktop
-```
-
-Your Desktop data and standalone Droid CLI are preserved.
 
 ## Documentation
 
