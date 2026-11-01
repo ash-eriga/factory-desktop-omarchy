@@ -32,7 +32,7 @@ options=('!strip' '!debug')
 # workflows ship the same bytes. A clone can generate the archive locally with
 # `npm run package:sources` before makepkg runs.
 source=("$url/releases/download/v$pkgver-$pkgrel/$pkgname-port-$pkgver-$pkgrel.tar.gz")
-sha256sums=('5f121439db1e5d16a40414c9d29ea3b0176a0012cf5054d8034d284a429936c5')
+sha256sums=('db99d3d0862168dad3ce81553f4839ca3604d4a93a8b3dd5dc32159c59a5b3fd')
 
 # The root directory of the archive. It is derived from the source name,
 # so the recipe and the archive cannot disagree about it.
