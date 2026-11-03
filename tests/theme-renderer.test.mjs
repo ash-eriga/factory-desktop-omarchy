@@ -38,8 +38,8 @@ function evaluateHelpers({ locale = 'en-US' } = {}) {
     },
     navigator: { language: locale },
     c: { jsx: (type, props) => ({ type, props }) },
-    Pye: 'Checkbox',
-    ad: 'SettingRow',
+    ha: 'Checkbox',
+    yd: 'SettingRow',
   });
   const result = vm.runInContext(
     `${rendererHelpers}\n({normalize:factoryPortNormalizeTheme,overlay:factoryPortOverlayAppearance,buildRow:factoryPortBuildThemeRow,glassCss:factoryPortGlassCss,sync:factoryPortSyncNativeFollow})`,
@@ -75,7 +75,7 @@ function executeCachedBootstrap({ values, hasApi = true, systemDark = true }) {
 const upstreamMissing = !existsSync(rendererPath) || !existsSync(preloadPath) || !existsSync(htmlPath)
   ? 'the pristine vendor snapshot is absent; run the build to produce it' : false;
 
-test('all renderer, preload and HTML anchors match the pinned 1.0.0 upstream exactly once', { skip: upstreamMissing }, () => {
+test('all renderer, preload and HTML anchors match the pinned 1.1.0 upstream exactly once', { skip: upstreamMissing }, () => {
   const renderer = readFileSync(rendererPath, 'utf8');
   const preload = readFileSync(preloadPath, 'utf8');
   const html = readFileSync(htmlPath, 'utf8');
@@ -112,15 +112,15 @@ test('contrast runs to 150 for fills while text tokens stop at the upstream ceil
 
   // The slider, the stored-value validation and the displayed number share the
   // bounds object, so raising its max is the one place the ceiling lives.
-  assert.ok(renderer.includes('oYe={min:0,max:100}'), 'upstream still caps contrast at 100');
-  assert.equal(patched.split('oYe={min:0,max:150}').length, 2, 'the ceiling is replaced exactly once');
-  assert.ok(!patched.includes('oYe={min:0,max:100}'), 'no stale ceiling survives the patch');
+  assert.ok(renderer.includes('Vqe={min:0,max:100}'), 'upstream still caps contrast at 100');
+  assert.equal(patched.split('Vqe={min:0,max:150}').length, 2, 'the ceiling is replaced exactly once');
+  assert.ok(!patched.includes('Vqe={min:0,max:100}'), 'no stale ceiling survives the patch');
 
-  const start = patched.indexOf('function qGr(');
-  const end = patched.indexOf('function lYe(', start);
+  const start = patched.indexOf('function JCa(');
+  const end = patched.indexOf('function Yqe(', start);
   assert.ok(start !== -1 && end > start, 'the token curve is present in the patched renderer');
   const amount = vm.runInContext(
-    `function Wse(t,e,n){return Math.min(n,Math.max(e,t))}\n${patched.slice(start, end)}\nqGr`,
+    `function Oie(t,e,n){return Math.min(n,Math.max(e,t))}\n${patched.slice(start, end)}\nJCa`,
     vm.createContext({}),
   );
   const fill = mode => ({ kind: 'fill', [mode]: 2.5 });
@@ -164,30 +164,30 @@ test('follow row is placed inside the theme editor before the preset row with ex
   const renderer = readFileSync(rendererPath, 'utf8');
   const patched = patch(renderer, rendererChanges);
 
-  // H$u (Appearance screen) grows its cache only for the follow state hooks
+  // ZSu (Appearance screen) grows its cache only for the follow state hooks
   // and the three new prop dependencies of the editor call site.
   assert.ok(patched.includes(
-    'function H$u(){const t=H.c(235),{t:e}=de("settings"),[n,i]=Cs(_Me),'
-    + '[factoryPortFollow,setFactoryPortFollow]=Cs(factoryPortThemeFollow),'
-    + '[factoryPortState]=Cs(factoryPortThemeSnapshot),'
-    + '{theme:o,themePreference:s,setThemePreference:r}=lN(),',
-  ), 'H$u reads the follow atoms and grew its memo cache from 232 to 235');
+    'function ZSu(){const t=z.c(235),{t:e}=he("settings"),[n,i]=ks(iBe),'
+    + '[factoryPortFollow,setFactoryPortFollow]=ks(factoryPortThemeFollow),'
+    + '[factoryPortState]=ks(factoryPortThemeSnapshot),'
+    + '{theme:o,themePreference:s,setThemePreference:r}=bM(),',
+  ), 'ZSu reads the follow atoms and grew its memo cache from 232 to 235');
   assert.ok(patched.includes(
     't[29]!==a||t[30]!==l||t[31]!==m||t[32]!==k||t[232]!==factoryPortFollow'
     + '||t[233]!==factoryPortState||t[234]!==setFactoryPortFollow'
-    + '?(R=c.jsx(D$u,{mode:a,onChange:k,onChoose:m,theme:l,factoryPortFollow,'
+    + '?(R=c.jsx($Su,{mode:a,onChange:k,onChoose:m,theme:l,factoryPortFollow,'
     + 'factoryPortState,setFactoryPortFollow},a)',
   ), 'the editor call site declares all follow prop dependencies');
-  assert.ok(!patched.includes('function H$u(){const t=H.c(232),'), 'stale H$u cache size removed');
+  assert.ok(!patched.includes('function ZSu(){const t=z.c(232),'), 'stale ZSu cache size removed');
 
-  // D$u (theme editor) receives the props, grows its cache, memoizes the row
+  // $Su (theme editor) receives the props, grows its cache, memoizes the row
   // and places it as the first child, immediately before the preset row.
   assert.ok(patched.includes(
-    'function D$u(t){const e=H.c(211),{mode:n,onChange:i,onChoose:o,theme:s,'
-    + 'factoryPortFollow,factoryPortState,setFactoryPortFollow}=t,{t:r}=de("settings"),',
-  ), 'D$u receives the follow props and grew its memo cache from 206 to 211');
+    'function $Su(t){const e=z.c(211),{mode:n,onChange:i,onChoose:o,theme:s,'
+    + 'factoryPortFollow,factoryPortState,setFactoryPortFollow}=t,{t:r}=he("settings"),',
+  ), '$Su receives the follow props and grew its memo cache from 206 to 211');
   assert.ok(patched.includes(
-    'const{palette:b}=v;let factoryPortThemeRow;e[206]!==factoryPortFollow'
+    'const{palette:b}=y;let factoryPortThemeRow;e[206]!==factoryPortFollow'
     + '||e[207]!==factoryPortState||e[208]!==setFactoryPortFollow'
     + '?(factoryPortThemeRow=factoryPortBuildThemeRow(factoryPortFollow,factoryPortState,'
     + 'setFactoryPortFollow),e[206]=factoryPortFollow,e[207]=factoryPortState,'
@@ -195,21 +195,21 @@ test('follow row is placed inside the theme editor before the preset row with ex
     + 'let C;if(e[11]!==n||e[12]!==s.preset){',
   ), 'the row is memoized from its three controlled props before the preset options memo');
   assert.ok(patched.includes(
-    'e[188]!==qe||e[210]!==factoryPortThemeRow'
-    + '?(tt=c.jsxs(P1,{children:[factoryPortThemeRow,Z,ne,Ce,pe,me,xe,Re,Ie,We,je,qe]})',
+    'e[188]!==et||e[210]!==factoryPortThemeRow'
+    + '?(Ze=c.jsxs(m1,{children:[factoryPortThemeRow,Z,te,Ee,ve,Ae,we,Be,xe,Ue,He,et]})',
   ), 'the follow row renders immediately before the preset row inside the editor');
-  assert.ok(!patched.includes('function D$u(t){const e=H.c(206),'), 'stale D$u cache size removed');
+  assert.ok(!patched.includes('function $Su(t){const e=z.c(206),'), 'stale $Su cache size removed');
 
   // The screen-level fragment stays untouched: the row lives only in the editor.
   assert.ok(patched.includes(
-    'Ft=c.jsxs(c.Fragment,{children:[T,R,Qe,At,Yt]}),t[226]=T,t[227]=R,t[228]=Qe,t[229]=At,t[230]=Yt,t[231]=Ft',
+    'wt=c.jsxs(c.Fragment,{children:[T,R,Qe,st,Vt]}),t[226]=T,t[227]=R,t[228]=Qe,t[229]=st,t[230]=Vt,t[231]=wt',
   ), 'the Appearance screen fragment keeps its original children and return cache');
   assert.equal(patched.split('factoryPortBuildThemeRow(factoryPortFollow').length - 1, 1,
     'the row is built from exactly one call site');
 });
 
 test('renderer snapshot store lets a newer live event win over initial IPC and cleans up', async () => {
-  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('Stt.onMount='));
+  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('IYe.onMount='));
   const values = new Map([
     ['factory-port-theme-source', 'omarchy'],
     ['factory-port-theme-cache', JSON.stringify({
@@ -225,12 +225,12 @@ test('renderer snapshot store lets a newer live event win over initial IPC and c
     onOmarchyChanged: callback => { eventListener = callback; return () => { unsubscribeCount++; }; },
   };
   const atoms = [];
-  const cs = initial => {
+  const Qo = initial => {
     const atom = { value: initial, onMount: null };
     atoms.push(atom);
     return atom;
   };
-  const Yle = (key, initial, storage) => ({ key, initial, storage });
+  const Are = (key, initial, storage) => ({ key, initial, storage });
   const context = vm.createContext({
     localStorage: {
       getItem: key => values.get(key) ?? null,
@@ -239,7 +239,7 @@ test('renderer snapshot store lets a newer live event win over initial IPC and c
     },
     navigator: { language: 'en-US' },
     window: { electronAPI: { theme: api } },
-    cs, Yle, Nnd: () => 'system',
+    Qo, Are, qNc: () => "system",
   });
   vm.runInContext(`${storeSetup}\nglobalThis.__snapshot = factoryPortThemeSnapshot;`, context);
   const snapshot = context.__snapshot;
@@ -275,13 +275,13 @@ function miniAtomStore() {
   const getters = new Map();
   const subs = new Map();
   const storages = new Map();
-  const cs = initial => {
+  const Qo = initial => {
     const atom = Symbol('atom');
     if (typeof initial === 'function') getters.set(atom, initial); else values.set(atom, initial);
     subs.set(atom, []);
     return atom;
   };
-  const Yle = (key, initial, storage) => {
+  const Are = (key, initial, storage) => {
     const atom = Symbol('stored-atom');
     values.set(atom, initial);
     storages.set(atom, { key, storage });
@@ -309,11 +309,11 @@ function miniAtomStore() {
       };
     },
   };
-  return { cs, Yle, store };
+  return { Qo, Are, store };
 }
 
 function evaluateStoreSetup(context = {}) {
-  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('Stt.onMount='));
+  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('IYe.onMount='));
   const values = new Map();
   const vmContext = vm.createContext({
     localStorage: {
@@ -336,9 +336,9 @@ const glassyPalette = {
 };
 
 test('glass tint is gated on follow, availability, the glassy windowMode and main acceptance', () => {
-  const { cs, Yle, store } = miniAtomStore();
+  const { Qo, Are, store } = miniAtomStore();
   const { context, values } = evaluateStoreSetup({
-    cs, Yle, Nnd: () => 'system',
+    Qo, Are, qNc: () => "system",
     window: { electronAPI: { theme: { getOmarchy() {} } } },
   });
   const { follow, snapshot, accepted, glassActive } = context.__port;
@@ -405,6 +405,16 @@ test('glass clears the unscoped backdrop and full-pane border gradient while ret
   assert.equal(glassCss({ ...glassyPalette, windowMode: 'transparent' }), '');
 });
 
+test('composer secondary buttons lose their opaque fill under glass at every contrast', () => {
+  const { glassCss } = evaluateHelpers();
+  for (const contrast of [undefined, 50, 100, 150]) {
+    const css = glassCss(glassyPalette, contrast);
+    assert.match(css, /\[data-factory-port-composer-surface\] button\{--core-v2-button-secondary-bg-default:transparent;--core-v2-button-secondary-bg-hover:color-mix\(in srgb,var\(--core-v2-text-primary\) 12%,transparent\)\}/,
+      `contrast ${contrast} clears the secondary button fill inside the composer`);
+  }
+  assert.equal(glassCss({ ...glassyPalette, windowMode: 'transparent' }), '', 'no rule outside the glass gate');
+});
+
 test('the composer outline only strengthens above a contrast of 100 and is never filled', () => {
   const { glassCss } = evaluateHelpers();
   const rule = css => /\[data-factory-port-composer-surface\]\[data-factory-port-composer-surface\]\{([^}]*)\}/.exec(css)?.[1];
@@ -415,7 +425,7 @@ test('the composer outline only strengthens above a contrast of 100 and is never
     const css = glassCss(glassyPalette, contrast);
     assert.ok(css.length > 0, `the glass tint still applies at contrast ${contrast}`);
     assert.equal(rule(css), undefined, `contrast ${contrast} leaves the composer edge untouched`);
-    assert.ok(!css.includes('composer-surface'), `contrast ${contrast} adds no composer rule`);
+    assert.ok(!css.includes('[data-factory-port-composer-surface][data-factory-port-composer-surface]'), `contrast ${contrast} adds no composer panel rule`);
   }
 
   // Just above 100 the blend starts, and it reaches the strong token at 150.
@@ -446,17 +456,17 @@ test('the composer outline only strengthens above a contrast of 100 and is never
 
 test('the composer panels are marked so the glass layer can strengthen their outline', { skip: upstreamMissing }, () => {
   const renderer = readFileSync(rendererPath, 'utf8');
-  assert.ok(renderer.includes('const V4=X(He)`\n  align-items: center;\n  border: 1px solid var(--border-1);'),
-    'upstream still declares the stacked panel with a bare div base');
-  assert.ok(renderer.includes('const nxl=X.div`'), 'upstream still declares the session composer card');
+  assert.ok(renderer.includes('const z_=X(it)`\n  align-items: center;\n  border: 1px solid var(--border-1);'),
+    'upstream still declares the stacked panel with a bare base');
+  assert.ok(renderer.includes('const QAa=X.div`'), 'upstream still declares the session composer card');
   assert.ok(!renderer.includes('data-factory-port-composer-surface'), 'the marker does not exist upstream');
   const patched = patch(renderer, rendererChanges);
   assert.equal(patched.split('.attrs({"data-factory-port-composer-surface":!0})').length - 1, 2,
     'the stacked panel and the session card both carry the marker');
-  assert.ok(patched.includes('const V4=X(He).attrs({"data-factory-port-composer-surface":!0})`\n'
+  assert.ok(patched.includes('const z_=X(it).attrs({"data-factory-port-composer-surface":!0})`\n'
     + '  align-items: center;\n  border: 1px solid var(--border-1);'),
   'the stacked panel keeps its border rule and gains only the attribute');
-  assert.ok(patched.includes('background-color: transparent;\n    border: ${w.borderWidth.default} solid ${w.border.inner};'),
+  assert.ok(patched.includes('background-color: transparent;\n    border: ${I.borderWidth.default} solid ${I.border.inner};'),
     'the session card keeps upstream transparent background and inner border');
   assert.equal(patched.split('[data-factory-port-composer-surface][data-factory-port-composer-surface]').length - 1, 1,
     'exactly one glass rule targets the marker');
@@ -477,9 +487,9 @@ test('Glassy Bar chrome is scoped, keeps solid control tokens and supports both 
 });
 
 test('ThemeSync lifecycle syncs one live native follow per change and never leaks subscriptions', async () => {
-  const { cs, Yle, store } = miniAtomStore();
+  const { Qo, Are, store } = miniAtomStore();
   const { context } = evaluateStoreSetup({
-    cs, Yle, Nnd: () => 'system',
+    Qo, Are, qNc: () => "system",
     window: { electronAPI: { theme: { getOmarchy() {}, setOmarchyFollow: () => {} } } },
   });
   const { follow, accepted } = context.__port;
@@ -510,12 +520,12 @@ test('ThemeSync lifecycle syncs one live native follow per change and never leak
     return new Promise(resolve => { resolvers.push(resolve); });
   };
 
-  const iufChange = rendererChanges.find(change => change[1].startsWith('const r=i.sub(SK,s)'));
+  const iufChange = rendererChanges.find(change => change[1].startsWith('const r=i.sub(pq,s)'));
   assert.ok(iufChange, 'the ThemeSync subscription change exists');
-  const effectSource = 'const s=()=>{YNf({appearanceBackground:i.get(w0i),theme:i.get(SK),'
+  const effectSource = 'const s=()=>{$rf({appearanceBackground:i.get(ypi),theme:i.get(pq),'
     + 'themePreference:i.get(factoryPortThemeSource)})};s();' + iufChange[2];
   const makeEffect = vm.runInContext(
-    '(YNf,SK,factoryPortThemeSource,w0i,factoryPortThemeFollow,factoryPortSyncNativeFollow)'
+    '($rf,pq,factoryPortThemeSource,ypi,factoryPortThemeFollow,factoryPortSyncNativeFollow)'
     + '=>(i,Xt)=>{' + effectSource + '}', context);
   const $H = Symbol('$H'), source = Symbol('source'), background = Symbol('background');
   const cleanup = makeEffect(

@@ -1,17 +1,17 @@
 // Renderer/ThemeSync integration smoke in a disposable, instrumented copy of
 // the candidate bundle. No authenticated profile, credential, or model call is
-// used. The fixture root mounts the real renderer atoms, `jIf`, `vBf`, `df`,
-// `ha`, and `Qc`; only the extra test root is synthetic. Target bundle, version and
-// renderer asset come from versions.json (Factory Desktop 1.0.0).
+// used. The fixture root mounts the real renderer atoms, `gJu`, `Hrf`, `Ix`,
+// `fa`, and `Sd`; only the extra test root is synthetic. Target bundle, version and
+// renderer asset come from versions.json (Factory Desktop 1.1.0).
 //
-// Glass scope, stated honestly: upstream mounts `jIf` (the appearance override
+// Glass scope, stated honestly: upstream mounts `gJu` (the appearance override
 // styles that carry the glass tint) only inside the authenticated shell, so a
 // signed-out window stays opaque by design (covered by the separate negative
 // login smoke). This test measures glass through the real production components
-// (`jIf`, `vBf`, the atoms, the real follow row using `ha` and `Qc`) explicitly
+// (`gJu`, `Hrf`, the atoms, the real follow row using `fa` and `Sd`) explicitly
 // mounted from the fixture root, the same provider set the authenticated shell
 // mounts. While measuring alpha the disposable clone hides the original
-// signed-out root and body portals so the real `df` fixture surface is the only
+// signed-out root and body portals so the real `Ix` fixture surface is the only
 // composited content; production code is untouched. Alpha is proven with
 // capturePage bitmaps because BrowserWindow.getBackgroundColor() reports
 // '#000000' even when the native surface is transparent. The glassy windowMode
@@ -123,26 +123,26 @@ async function instrumentClone(tempRoot) {
   const renderer = await readFile(rendererPath, 'utf8');
   for (const symbol of ['factoryPortThemeFollow', 'factoryPortThemeSnapshot', 'factoryPortBuildThemeRow',
     'factoryPortGlassCss', 'factoryPortSyncNativeFollow', 'factoryPortNativeFollowAccepted',
-    'factoryPortGlassActive', 'function jIf()', 'function vBf(']) {
+    'factoryPortGlassActive', 'function gJu()', 'function Hrf(']) {
     assert.ok(renderer.includes(symbol), `candidate renderer contains ${symbol}`);
   }
 
   // These references and this root exist only in this disposable copy. The
   // row, atom hooks, CSS generator and native ThemeSync are production code.
-  // 1.0.0 aliases: is=useAtom, ha=Checkbox, Qc=SettingRow, Cis=react-dom
-  // client, bge=jotai default store, jIf=appearance override styles, vBf=
-  // ThemeSync, zMu=Appearance screen, Pz=resolved theme, zRe=overrides
-  // enabled, cKe=theme preference, HRe=appearance settings. Include the
+  // 1.1.0 aliases: ks=useAtom, fa=Checkbox, Sd=SettingRow, hWo=react-dom
+  // client, P1e=jotai default store, gJu=appearance override styles, Hrf=
+  // ThemeSync, tAu=Appearance screen, KV=resolved theme, h7e=overrides
+  // enabled, EYe=theme preference, r7e=appearance settings. Include the
   // unscoped backdrop, native content wrapper and border-box frame gradient.
   const instrumentation = `\n;window.__factoryThemeSmoke=(()=>{\n` +
     glassyShellFixtureSource('factory-theme-smoke') +
     sidebarFadeFixtureSource() +
     navigationFixtureSource(renderer) +
     `const rootFactory=container=>{\n` +
-    `function Fixture(){const[enabled,setEnabled]=is(factoryPortThemeFollow),[state]=is(factoryPortThemeSnapshot);` +
-    `return c.jsx(NativeContent,{style:{position:"fixed",inset:0,zIndex:2147482999},children:c.jsx(Vu,{id:"factory-theme-smoke-theme",style:{position:"relative",minHeight:"100vh",display:"grid",placeContent:"center",gap:20,padding:32,boxSizing:"border-box",backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)"},children:c.jsxs(L.Fragment,{children:[c.jsx("div",{id:"factory-theme-smoke-surface",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",border:"3px solid var(--core-v2-accent-fill)",padding:"24px"},children:"Omarchy theme fixture"}),factoryPortBuildThemeRow(enabled,state,setEnabled)]})})})}` +
-    `const root=Cis.createRoot(container);root.render(c.jsx(vBf,{children:c.jsxs(L.Fragment,{children:[c.jsx(jIf,{}),c.jsx(Fixture,{})]})}));return root};` +
-    `const store=bge();return{mount:rootFactory,mountSidebarFade,mountNavigation,appearanceComponent:zMu,themeSync:vBf,themeStyles:jIf,followAtom:factoryPortThemeFollow,snapshotAtom:factoryPortThemeSnapshot,themeActiveAtom:factoryPortThemeActive,themeModeAtom:$H,themeSyncEnabledAtom:zRe,store,themePreferenceAtom:cKe,appearanceSettingsAtom:HRe,getDiagnostics:()=>{const snapshot=store.get(factoryPortThemeSnapshot),appearance=store.get(factoryPortEffectiveAppearance),settings=store.get(HRe),pick=t=>t?{background:t.background??null,foreground:t.foreground??null,accentColor:t.accentColor??null}:null;return{manualPreference:store.get(cKe),effectiveMode:store.get($H),follow:store.get(factoryPortThemeFollow),available:snapshot.available,snapshot:{mode:snapshot.mode,background:snapshot.background,foreground:snapshot.foreground,accent:snapshot.accent,revision:snapshot.revision,windowMode:snapshot.windowMode},active:store.get(factoryPortThemeActive),glass:store.get(factoryPortGlassActive),followAccepted:store.get(factoryPortNativeFollowAccepted),themeSyncEnabled:store.get(zRe),appearance:{light:pick(appearance.light),dark:pick(appearance.dark)},manualAppearance:{light:pick(settings.light),dark:pick(settings.dark)}}}}})();\n`;
+    `function Fixture(){const[enabled,setEnabled]=ks(factoryPortThemeFollow),[state]=ks(factoryPortThemeSnapshot);` +
+    `return c.jsx(NativeContent,{style:{position:"fixed",inset:0,zIndex:2147482999},children:c.jsx(Ix,{id:"factory-theme-smoke-theme",style:{position:"relative",minHeight:"100vh",display:"grid",placeContent:"center",gap:20,padding:32,boxSizing:"border-box",backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)"},children:c.jsxs(c.Fragment,{children:[c.jsx("div",{id:"factory-theme-smoke-surface",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",border:"3px solid var(--core-v2-accent-fill)",padding:"24px"},children:"Omarchy theme fixture"}),factoryPortBuildThemeRow(enabled,state,setEnabled)]})})})}` +
+    `const root=hWo.createRoot(container);root.render(c.jsx(Hrf,{children:c.jsxs(c.Fragment,{children:[c.jsx(gJu,{}),c.jsx(Fixture,{})]})}));return root};` +
+    `const store=P1e();return{mount:rootFactory,mountSidebarFade,mountNavigation,appearanceComponent:tAu,themeSync:Hrf,themeStyles:gJu,followAtom:factoryPortThemeFollow,snapshotAtom:factoryPortThemeSnapshot,themeActiveAtom:factoryPortThemeActive,themeModeAtom:KV,themeSyncEnabledAtom:h7e,store,themePreferenceAtom:EYe,appearanceSettingsAtom:r7e,getDiagnostics:()=>{const snapshot=store.get(factoryPortThemeSnapshot),appearance=store.get(factoryPortEffectiveAppearance),settings=store.get(r7e),pick=t=>t?{background:t.background??null,foreground:t.foreground??null,accentColor:t.accentColor??null}:null;return{manualPreference:store.get(EYe),effectiveMode:store.get(KV),follow:store.get(factoryPortThemeFollow),available:snapshot.available,snapshot:{mode:snapshot.mode,background:snapshot.background,foreground:snapshot.foreground,accent:snapshot.accent,revision:snapshot.revision,windowMode:snapshot.windowMode},active:store.get(factoryPortThemeActive),glass:store.get(factoryPortGlassActive),followAccepted:store.get(factoryPortNativeFollowAccepted),themeSyncEnabled:store.get(h7e),appearance:{light:pick(appearance.light),dark:pick(appearance.dark)},manualAppearance:{light:pick(settings.light),dark:pick(settings.dark)}}}}})();\n`;
   const activation = 'void api.activate(token, item.command);';
   assert.equal(renderer.split(activation).length - 1, 1);
   const observed = renderer.replace(activation, 'void api.activate(token, item.command).then(accepted=>{window.__factoryMenuSmokeActivation={accepted}});');

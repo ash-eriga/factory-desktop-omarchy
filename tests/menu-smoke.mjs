@@ -1,5 +1,5 @@
 // Appearance layout smoke in a disposable, instrumented copy of a built
-// bundle. It mounts the real zMu and iCu renderer components; no login,
+// bundle. It mounts the real tAu and z0u renderer components; no login,
 // credential, production profile, or external request is used.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -60,9 +60,9 @@ async function instrumentClone(tempRoot) {
   await asar.extractAll(sourceAsar, extracted);
   const rendererPath = path.join(extracted, rendererRelative);
   const renderer = await readFile(rendererPath, 'utf8');
-  for (const symbol of ['function zMu(){', 'function iCu(t){', 'function cJc(t){',
-    'function Mqc(t){', 'function dJc(t){', 'function _jc(t){const e=z.c(21),{authContext:n,router:i}=t,',
-    'function vBf(t){', 'function jIf()', 'const oUt=MAf(pHo())', 'c.jsx(JEo,{target:',
+  for (const symbol of ['function tAu(){', 'function z0u(t){', 'function gOc(t){',
+    'function FDc(t){', 'function mOc(t){', 'function WNc(t){const e=z.c(21),{authContext:n,router:i}=t,',
+    'function Hrf(t){', 'function gJu()', 'const zFt=raf(Ezo())', 'c.jsx(qSo,{target:',
     'factoryPortBuildThemeRow', 'factoryPortGlassCss', 'factoryPortGlassActive',
     'appearance-font-smoothing']) {
     assert.ok(renderer.includes(symbol), `candidate renderer contains ${symbol}`);
@@ -70,8 +70,8 @@ async function instrumentClone(tempRoot) {
   const preload = await readFile(path.join(extracted, '.vite/build/preload.js'), 'utf8');
   assert.ok(preload.includes('setOmarchyFollow'), 'candidate preload exposes the native follow opt-in');
 
-  const authCaptureBefore = 'function _jc(t){const e=z.c(21),{authContext:n,router:i}=t,';
-  const authCaptureAfter = 'function _jc(t){window.__factoryMenuSmokeAuth=t.authContext;const e=z.c(21),{authContext:n,router:i}=t,';
+  const authCaptureBefore = 'function WNc(t){const e=z.c(21),{authContext:n,router:i}=t,';
+  const authCaptureAfter = 'function WNc(t){window.__factoryMenuSmokeAuth=t.authContext;const e=z.c(21),{authContext:n,router:i}=t,';
   assert.equal(renderer.split(authCaptureBefore).length - 1, 1,
     'test-only auth context capture has one exact entrypoint anchor');
   const capturedRenderer = renderer.replace(authCaptureBefore, authCaptureAfter);
@@ -80,11 +80,11 @@ async function instrumentClone(tempRoot) {
   // theme editor and Follow row. It reuses the app's real environment and
   // signed-out auth context; only the extra mount point is synthetic.
   const instrumentation = `\n;window.__factoryMenuSmoke=(()=>{\n` +
-    `const store=Lhe();\n` +
+    `const store=P1e();\n` +
     glassyShellFixtureSource('factory-menu-smoke') +
-    `const factoryPortMenuSmokeTarget={type:T1.Global};\n` +
-    `return{mount(container){const root=Cis.createRoot(container);root.render(c.jsx(Mqc,{env:oUt,children:c.jsx(dJc,{value:window.__factoryMenuSmokeAuth,children:c.jsx(JEo,{target:factoryPortMenuSmokeTarget,children:c.jsx(cJc,{children:c.jsx(vBf,{children:c.jsxs(L.Fragment,{children:[c.jsx(jIf,{}),c.jsx(NativeContent,{children:c.jsx(Vu,{id:"factory-menu-smoke-theme",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",minHeight:"100%",padding:"16px",boxSizing:"border-box"},children:c.jsx(zMu,{})})})]})})})})})}));return root},` +
-    `seed(){store.set(JWe,"dark");const saved=store.get(Ske);store.set(Ske,{...saved,dark:{...saved.dark,background:"#20242a"}})},` +
+    `const factoryPortMenuSmokeTarget={type:V1.Global};\n` +
+    `return{mount(container){const root=hWo.createRoot(container);root.render(c.jsx(FDc,{env:zFt,children:c.jsx(mOc,{value:window.__factoryMenuSmokeAuth,children:c.jsx(qSo,{target:factoryPortMenuSmokeTarget,children:c.jsx(gOc,{children:c.jsx(Hrf,{children:c.jsxs(c.Fragment,{children:[c.jsx(gJu,{}),c.jsx(NativeContent,{children:c.jsx(Ix,{id:"factory-menu-smoke-theme",style:{backgroundColor:"var(--core-v2-bg-page)",color:"var(--core-v2-text-primary)",minHeight:"100%",padding:"16px",boxSizing:"border-box"},children:c.jsx(tAu,{})})})]})})})})})}));return root},` +
+    `seed(){store.set(EYe,"dark");const saved=store.get(r7e);store.set(r7e,{...saved,dark:{...saved.dark,background:"#20242a"}})},` +
     `glass(){const snapshot=store.get(factoryPortThemeSnapshot);return{active:store.get(factoryPortGlassActive),accepted:store.get(factoryPortNativeFollowAccepted),windowMode:snapshot.windowMode,available:snapshot.available}},` +
     `unmount(root){root.unmount()}}})();\n`;
   await writeFile(rendererPath, capturedRenderer + instrumentation);

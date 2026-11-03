@@ -8,11 +8,12 @@ Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_
 
 - Separate Desktop profile. Your standalone Droid CLI stays unchanged.
 - Optional Omarchy theme colors and transparency.
+- Workstreams active by default, no server-side experiment gate required.
 - Remote Control, enabled only when you choose.
 
-## Droid 1.0
+## Droid 1.2
 
-This port tracks Factory Desktop 1.0.0. Factory presents that generation as
+This port tracks Factory Desktop 1.2.0. Factory presents the 1.x generation as
 faster, higher scoring and cheaper per completed task than the agents around
 it, and publishes the benchmark behind the claim as the figure below.
 
