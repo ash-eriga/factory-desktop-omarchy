@@ -1,6 +1,6 @@
 import { PRODUCT_NAME, DESKTOP_ENTRY } from './app-identity.mjs';
 
-// Exact anchors from the inspected, checksum-pinned Desktop 1.0.0 bundle.
+// Exact anchors from the inspected, checksum-pinned Desktop 1.2.0 bundle.
 // Enable the vendor's integrated header, menu, theme and zoom capabilities
 // while keeping the actual Linux platform identity and daemon transport.
 //
@@ -21,7 +21,7 @@ export const linuxMenuKeyboardHandler = `
 if(process.platform==="linux"){
   const linuxOpenApplicationMenu=()=>{
     if(typeof factoryLinuxApplicationMenu!=="undefined"&&factoryLinuxApplicationMenu?.keyboard({sender:a.webContents,senderFrame:a.webContents.mainFrame}))return;
-    E.Menu.getApplicationMenu()?.popup({window:a});
+    A.Menu.getApplicationMenu()?.popup({window:a});
   };
   let linuxAltMenuPending=false;
   a.on("blur",()=>{linuxAltMenuPending=false});
@@ -52,35 +52,35 @@ export const changes = [
   // The package's desktop entry advertises factory-desktop:// through XDG.
   // Skip upstream's default-handler takeover; existing user choices stay
   // intact. Only fix the XDG desktop entry name for Linux badges here.
-  ['callback opt-in', 'function dde(){try{const e=s.getDesktopProtocol();',
-    `function dde(){if(process.platform==="linux"){E.app.setDesktopName("${DESKTOP_ENTRY}");return;}try{const e=s.getDesktopProtocol();`],
+  ['callback opt-in', 'function Jue(){try{const e=s.getDesktopProtocol();',
+    `function Jue(){if(process.platform==="linux"){A.app.setDesktopName("${DESKTOP_ENTRY}");return;}try{const e=s.getDesktopProtocol();`],
   // The visible name of the port. The official manifest names the
   // application "Factory"; the port ships as its own product, so the name
   // is set before the first window exists and before the protocol helper
   // runs. The window title, the taskbar entry and the application menu
   // read the name from here.
-  ['application name', 's.startupTracker.beginPhase("ipc_and_protocol_setup"),dde()',
-    `s.startupTracker.beginPhase("ipc_and_protocol_setup"),E.app.setName("${PRODUCT_NAME}"),dde()`],
+  ['application name', 's.startupTracker.beginPhase("ipc_and_protocol_setup"),Jue()',
+    `s.startupTracker.beginPhase("ipc_and_protocol_setup"),A.app.setName("${PRODUCT_NAME}"),Jue()`],
   // The pacman boundary: an Arch-managed install must never enforce the
   // vendor's minimum-version quit prompt, run its in-app updater entry
   // points, or offer its own updater in the menu. The port notification
-  // layer adds a separate release check without installation. Upstream 1.0.0
+  // layer adds a separate release check without installation. Upstream 1.1.0
   // already refuses to *start* the auto-updater for externally managed
-  // Linux installs (fs()/dl() detect the vendor's own packages); these
+  // Linux installs (qz()/Ia() detect the vendor's own packages); these
   // guards keep the manual and prompted paths equally closed.
-  ['minimum version prompt', 'async function BH(){try{if(s.getRuntimeAuthConfig().airgapEnabled)',
-    'async function BH(){if(process.platform==="linux")return!0;try{if(s.getRuntimeAuthConfig().airgapEnabled)'],
-  ['manual updater', 'async function $l({onAborted:e}={}){',
-    'async function $l({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'],
-  ['update checks', 'async function FH(){de("check-now-requested"),',
-    'async function FH(){if(process.platform==="linux")return;de("check-now-requested"),'],
-  ['update menu', 'r=!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:',
-    'r=process.platform==="linux"||!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:'],
+  ['minimum version prompt', 'async function qW(){try{',
+    'async function qW(){if(process.platform==="linux")return!0;try{'],
+  ['manual updater', 'async function Yl({onAborted:e}={}){',
+    'async function Yl({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'],
+  ['update checks', 'async function WW(){pe("check-now-requested"),',
+    'async function WW(){if(process.platform==="linux")return;pe("check-now-requested"),'],
+  ['update menu', 'o=!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:',
+    'o=process.platform==="linux"||!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:'],
   // Upstream still ships no keyboard affordance for the hidden Linux menu
-  // bar (no before-input-event handler exists in 1.0.0), so keep the port's
-  // Alt/F10 access through the integrated menu.
-  ['keyboard application menu', 'if(t){a.setMenuBarVisibility(!1);const S=()=>',
-    `if(t){a.setMenuBarVisibility(!1);${linuxMenuKeyboardHandler}const S=()=>`],
+  // bar (only a guest-webview input forwarder listens to before-input-event
+  // in 1.2.0), so keep the port's Alt/F10 access through the integrated menu.
+  ['keyboard application menu', 'if(t){a.setMenuBarVisibility(!1);const T=()=>',
+    `if(t){a.setMenuBarVisibility(!1);${linuxMenuKeyboardHandler}const T=()=>`],
   // Native alpha surfaces need the transparency flag at BrowserWindow
   // creation; it cannot be enabled later. Proven on the port's Electron
   // 42.11.15 with native Wayland (build/glassy-native-proof/report.json):
@@ -92,13 +92,13 @@ export const changes = [
   // follow machinery (theme-main-patches.mjs) deliberately applies
   // #00000000 for a valid glassy windowMode.
   ['Linux window icon', 'titleBarStyle:"hidden",titleBarOverlay:t?',
-    'icon:process.platform==="linux"?J.join(process.resourcesPath,"factory-desktop.png"):void 0,transparent:process.platform==="linux"||void 0,titleBarStyle:"hidden",titleBarOverlay:t?'],
+    'icon:process.platform==="linux"?te.join(process.resourcesPath,"factory-desktop.png"):void 0,transparent:process.platform==="linux"||void 0,titleBarStyle:"hidden",titleBarOverlay:t?'],
 ];
 
-// 1.0.0 exposes the integrated header's showApplicationMenu on every
+// 1.2.0 exposes the integrated header's showApplicationMenu on every
 // non-darwin platform (`window:{showApplicationMenu:process.platform==="darwin"?void 0:...}`),
 // so no preload patch is needed. The array stays (empty) so build.mjs keeps
-// its single diagnostic/patch pipeline; tests/main-upstream-1.0.0.test.mjs
+// its single diagnostic/patch pipeline; tests/main-upstream-1.1.0.test.mjs
 // guards the native branch against upstream regressions.
 export const preloadChanges = [];
 
@@ -112,8 +112,8 @@ export const rendererHelperNames = [
 
 export const rendererChanges = [
   ['pause hidden billing limits polling',
-    'function KDe(t){const e=H.c(3),n=t===void 0?!0:t,i=jf(),o=n&&!i;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Vn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!0,retry:!1},e[2]=r):r=e[2],ao(s,r)}',
-    'function factoryLinuxBillingFocusSnapshot(){return typeof document==="undefined"||document.visibilityState!=="hidden"&&(typeof document.hasFocus!=="function"||document.hasFocus())}function factoryLinuxBillingFocusSubscribe(t){if(typeof window==="undefined"||typeof document==="undefined")return()=>{};return window.addEventListener("focus",t),window.addEventListener("blur",t),document.addEventListener("visibilitychange",t),()=>{window.removeEventListener("focus",t),window.removeEventListener("blur",t),document.removeEventListener("visibilitychange",t)}}function factoryLinuxBillingUseFocused(){return L.useSyncExternalStore(factoryLinuxBillingFocusSubscribe,factoryLinuxBillingFocusSnapshot,factoryLinuxBillingFocusSnapshot)}function KDe(t){const focused=factoryLinuxBillingUseFocused(),e=H.c(3),n=t===void 0?!0:t,i=jf(),o=n&&!i&&focused;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Vn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!1,refetchOnWindowFocus:!0,retry:!1},e[2]=r):r=e[2],ao(s,r)}'],
+    'function B8e(t){const e=z.c(3),n=t===void 0?!0:t,i=Gu(),o=n&&!i;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Hn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!0,retry:!1},e[2]=r):r=e[2],Ao(s,r)}',
+    'function factoryLinuxBillingFocusSnapshot(){return typeof document==="undefined"||document.visibilityState!=="hidden"&&(typeof document.hasFocus!=="function"||document.hasFocus())}function factoryLinuxBillingFocusSubscribe(t){if(typeof window==="undefined"||typeof document==="undefined")return()=>{};return window.addEventListener("focus",t),window.addEventListener("blur",t),document.addEventListener("visibilitychange",t),()=>{window.removeEventListener("focus",t),window.removeEventListener("blur",t),document.removeEventListener("visibilitychange",t)}}function factoryLinuxBillingUseFocused(){return P.useSyncExternalStore(factoryLinuxBillingFocusSubscribe,factoryLinuxBillingFocusSnapshot,factoryLinuxBillingFocusSnapshot)}function B8e(t){const focused=factoryLinuxBillingUseFocused(),e=z.c(3),n=t===void 0?!0:t,i=Gu(),o=n&&!i&&focused;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Hn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!1,refetchOnWindowFocus:!0,retry:!1},e[2]=r):r=e[2],Ao(s,r)}'],
 ];
 
 // The window title belongs to the renderer: Electron propagates a page
@@ -125,9 +125,9 @@ export const rendererChanges = [
 // stays scoped to the billing gate, and the identity layers stay
 // separable from it.
 export const rendererTitleChanges = [
-  ['default window title', '$ri="Factory"', `$ri="${PRODUCT_NAME}"`],
-  ['session window title suffix', 'r=n?`${n} - Factory`:$ri;',
-    `r=n?\`\${n} - ${PRODUCT_NAME}\`:$ri;`],
+  ['default window title', 'lei="Factory"', `lei="${PRODUCT_NAME}"`],
+  ['session window title suffix', 'r=n?`${n} - Factory`:lei;',
+    `r=n?\`\${n} - ${PRODUCT_NAME}\`:lei;`],
 ];
 
 export function diagnoseRendererHelperCollisions(source) {

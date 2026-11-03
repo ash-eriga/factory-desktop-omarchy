@@ -7,25 +7,25 @@ import path from 'node:path';
 import { saveDisposableScreenshot } from './application-menu-smoke.mjs';
 
 export function navigationFixtureSource(renderer) {
-  const start = renderer.indexOf('function BTf('), end = renderer.indexOf('function DTf(', start);
+  const start = renderer.indexOf('function aif('), end = renderer.indexOf('function lif(', start);
   assert.ok(start > 0 && end > start, 'pinned settings layout is available');
   const settings = renderer.slice(start, end);
   return `
-const FactoryNavigationRoute=L.createContext(null);
+const FactoryNavigationRoute=P.createContext(null);
 function FactoryNavigationLink({to,onClick,children,...rest}){
- const route=L.useContext(FactoryNavigationRoute);
+ const route=P.useContext(FactoryNavigationRoute);
  return c.jsx("a",{...rest,href:to,onClick:event=>{event.preventDefault();onClick?.(event);route.navigate({to})},children});
 }
 const factoryNavigationItems=[
- {id:"general",label:"General",href:Qt.settings.general,sectionLabel:"ACCOUNT"},
+ {id:"general",label:"General",href:Kt.settings.general,sectionLabel:"ACCOUNT"},
  {id:"appearance",label:"Appearance",href:"/__navigation-smoke/appearance"},
- {id:"usage",label:"Usage",href:Qt.settings.usage??"/settings/usage"},
+ {id:"usage",label:"Usage",href:Kt.settings.usage??"/settings/usage"},
  {id:"support",label:"Support",href:"/__navigation-smoke/support"}
 ];
 const FactorySettingsLayout=(()=>{
- const ake=()=>({items:factoryNavigationItems,sidebarItems:factoryNavigationItems,searchCatalog:[]});
- const $7o=()=>({isSearching:false,results:[]}),uo=()=>false,h0=()=>({}),dd=()=>{};
- const Sg=()=>L.useContext(FactoryNavigationRoute),ao=()=>L.useContext(FactoryNavigationRoute).navigate,bf=FactoryNavigationLink;
+ const q8e=()=>({items:factoryNavigationItems,sidebarItems:factoryNavigationItems,searchCatalog:[]});
+ const t9o=()=>({isSearching:false,results:[]}),Vi=()=>false,RA=()=>({}),Od=()=>{};
+ const Hg=()=>P.useContext(FactoryNavigationRoute),ls=()=>P.useContext(FactoryNavigationRoute).navigate,ip=FactoryNavigationLink;
  return ${settings};
 })();
 function mountNavigation(){
@@ -34,23 +34,23 @@ function mountNavigation(){
  old.forEach(([node])=>{node.style.visibility="hidden"});parent.style.position="relative";
  const host=document.createElement("div");host.id="factory-navigation-fixture";
  host.style.cssText="position:absolute;inset:0";parent.append(host);
- const root=IKo.createRoot(host),savedQuery=store.get(TPt);store.set(TPt,"");
+ const root=IKo.createRoot(host),savedQuery=store.get(wFt);store.set(wFt,"");
  function Fixture({variant}){
-  const[path,navigateTo]=L.useState(Qt.settings.general);
-  const navigate=L.useCallback(({to})=>navigateTo(to),[]);
+  const[path,navigateTo]=P.useState(Kt.settings.general);
+  const navigate=P.useCallback(({to})=>navigateTo(to),[]);
   let content;
   if(variant==="settings")content=c.jsx(FactorySettingsLayout,{autoFocusSearch:false,sessionsReturnPath:"/__navigation-smoke/return"});
   else{
-   const nav=c.jsx(EUl,{items:factoryNavigationItems,currentPath:path,linkComponent:FactoryNavigationLink});
-   if(variant==="softwareFactory")content=c.jsx(G,{...Pm(),bg:w.bg.surface,"data-software-factory-nav-v2":true,direction:"column",height:"100%",style:{padding:16,boxSizing:"border-box"},children:nav});
-   else if(variant==="evaluations")content=c.jsx(G,{...Pm(),direction:"column",height:"100%",padding:16,children:nav});
+   const nav=c.jsx(XUl,{items:factoryNavigationItems,currentPath:path,linkComponent:FactoryNavigationLink});
+   if(variant==="softwareFactory")content=c.jsx(it,{...pv(),bg:I.bg.surface,"data-software-factory-nav-v2":true,direction:"column",height:"100%",style:{padding:16,boxSizing:"border-box"},children:nav});
+   else if(variant==="evaluations")content=c.jsx(it,{...pv(),direction:"column",height:"100%",padding:16,children:nav});
    else{
     const attrs=variant==="wiki"?{"data-wiki-nav-root-v2":""}:variant==="academy"?{"data-academy-nav-root-v2":""}:{"data-analytics-nav-root-v2":""};
-    const inner=variant==="wiki"?c.jsx(Me,{"data-wiki-nav-pane-v2":"",style:{padding:16},children:nav}):nav;
-    content=c.jsx(Me,{...attrs,style:{height:"100%",padding:variant==="wiki"?0:16,boxSizing:"border-box"},children:inner});
+    const inner=variant==="wiki"?c.jsx(Oe,{"data-wiki-nav-pane-v2":"",style:{padding:16},children:nav}):nav;
+    content=c.jsx(Oe,{...attrs,style:{height:"100%",padding:variant==="wiki"?0:16,boxSizing:"border-box"},children:inner});
    }
   }
-  return c.jsx(FactoryNavigationRoute.Provider,{value:{pathname:path,navigate},children:c.jsx(Vu,{style:{height:"100%",display:"flex",flexDirection:"column"},children:c.jsx(st,{...Pm(),"data-sidebar-overlay":true,"data-navigation-route":path,backgroundColor:"sidebar-bg",direction:"column",height:"100%",children:content})})});
+  return c.jsx(FactoryNavigationRoute.Provider,{value:{pathname:path,navigate},children:c.jsx(Vu,{style:{height:"100%",display:"flex",flexDirection:"column"},children:c.jsx(lt,{...pv(),"data-sidebar-overlay":true,"data-navigation-route":path,backgroundColor:"sidebar-bg",direction:"column",height:"100%",children:content})})});
  }
  return{
   render(variant){root.render(c.jsx(Fixture,{variant},variant))},

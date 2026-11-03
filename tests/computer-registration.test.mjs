@@ -1,5 +1,5 @@
 // Guards the port's desktop computer registration layer against the real,
-// checksum-pinned upstream 1.0.0 payload.
+// checksum-pinned upstream 1.2.0 payload.
 //
 // The defect this covers: upstream registers the local computer with the
 // account exactly once, from the startup sequence, before a fresh profile
@@ -361,8 +361,8 @@ test('forced requests that arrive before the queued attempt starts coalesce', as
 // does; only the network, the local configuration and the vendor runtime
 // module are replaced.
 function upstreamRegistration(source) {
-  const start = source.indexOf('const Gc=5e3;');
-  const end = source.indexOf('function N7(){return OD()}', start);
+  const start = source.indexOf('al=5e3;');
+  const end = source.indexOf('function Vv(){return $D()}', start);
   assert.ok(start >= 0 && end > start, 'upstream registration function not found');
   const state = { id: 'deleted-computer', requests: [], tokenReads: 0, warnings: [] };
   const sandbox = {
@@ -390,22 +390,28 @@ function upstreamRegistration(source) {
     },
     // The auth-context helper is a module-scope sibling of the registration
     // in the real bundle; the synthetic one keeps the org-scoped context.
-    A6: async run => await run(),
+    X6: async run => await run(),
     // The organization-scoped local configuration, as the real host store.
-    ka: () => ({
+    La: () => ({
       getHostIdentity: async () => ({ hostId: 'synthetic-host' }),
       getComputerConfig: async () => (state.id ? { computerId: state.id } : null),
       saveComputerRegistration: async ({ computerId }) => { state.id = computerId; },
       removeComputerRegistration: async () => { state.id = null; },
     }),
-    $n: { hostname: () => 'synthetic-name', userInfo: () => ({ username: 'synthetic-user' }) },
-    aP: name => name,
-    lP: name => name,
-    fP: provider => provider === 'byom',
+    Wn: { hostname: () => 'synthetic-name', userInfo: () => ({ username: 'synthetic-user' }) },
+    e_: name => name,
+    QA: name => name,
+    KA: provider => provider === 'byom',
+    te: { join: (...parts) => parts.join('/') },
+    Z6: () => '/synthetic',
+    il: { computers: {
+      collection: () => ({ hosted: { path: '/api/v0/computers' } }),
+      detail: id => ({ hosted: { path: `/api/v0/computers/${id}` } }),
+    } },
     AbortSignal,
   };
   vm.createContext(sandbox);
-  vm.runInContext(`${source.slice(start, end)};globalThis.register=KH`, sandbox);
+  vm.runInContext(`${source.slice(start, end)};globalThis.register=FV`, sandbox);
   return { state, register: sandbox.register };
 }
 
@@ -413,7 +419,7 @@ test('upstream repairs a record the backend deleted', sourceOptions, async () =>
   const h = upstreamRegistration(upstreamMain);
   await h.register();
   assert.equal(h.state.id, 'new-computer');
-  // 1.0.0 verifies the stored record, lists the account's computers so it can
+  // 1.2.0 verifies the stored record, lists the account's computers so it can
   // adopt by host id, and then creates the record the backend no longer has.
   assert.deepEqual(h.state.requests.map(([url, method]) => [url, method]), [
     ['/api/v0/computers/deleted-computer', 'GET'],
@@ -533,34 +539,38 @@ function patchedRegistration(source, options = {}) {
     s: runtime,
     // The broadcast the main process sends to every window when a
     // registration replaces the local computer id.
-    As: (channel, payload) => state.broadcasts.push([channel, payload]),
+    Ns: (channel, payload) => state.broadcasts.push([channel, payload]),
     // The real auth-context helper: it keeps the org-scoped context and
     // drops it when the account has no organization.
-    A6: async run => {
+    X6: async run => {
       const context = await run();
       return context?.organizationId ? context : null;
     },
-    ka: () => hostStore,
-    fP: provider => provider === 'byom',
-    aP: name => name,
-    lP: name => name,
-    $n: { hostname: () => 'synthetic-name', userInfo: () => ({ username: 'synthetic-user' }) },
-    k6: () => '/synthetic',
-    J: { join: (...parts) => parts.join('/') },
+    La: () => hostStore,
+    KA: provider => provider === 'byom',
+    e_: name => name,
+    QA: name => name,
+    Wn: { hostname: () => 'synthetic-name', userInfo: () => ({ username: 'synthetic-user' }) },
+    Z6: () => '/synthetic',
+    te: { join: (...parts) => parts.join('/') },
+    il: { computers: {
+      collection: () => ({ hosted: { path: '/api/v0/computers' } }),
+      detail: id => ({ hosted: { path: `/api/v0/computers/${id}` } }),
+    } },
     AbortSignal,
     console,
   };
   vm.createContext(sandbox);
-  const start = source.indexOf('const Gc=5e3;');
-  const end = source.indexOf('function N7(){return OD()}', start);
+  const start = source.indexOf('al=5e3;');
+  const end = source.indexOf('function Vv(){return $D()}', start);
   assert.ok(start >= 0 && end > start, 'upstream registration region not found');
-  vm.runInContext(`${source.slice(start, end)};globalThis.register=KH;globalThis.local=WH;`
+  vm.runInContext(`${source.slice(start, end)};globalThis.register=FV;globalThis.local=DV;`
     + 'globalThis.driver=typeof factoryPortComputerRegistration==="undefined"?null:'
     + 'factoryPortComputerRegistration;', sandbox);
   // The local-id handler, taken from the patched main.
-  const handlerStart = 'E.ipcMain.handle("computer:getLocalId",';
+  const handlerStart = 'A.ipcMain.handle("computer:getLocalId",';
   const from = source.indexOf(handlerStart);
-  const to = source.indexOf(',E.ipcMain.handle("computer:getLocalHostId"', from);
+  const to = source.indexOf(',A.ipcMain.handle("computer:getLocalHostId"', from);
   assert.ok(from >= 0 && to > from, 'the local computer id handler moved');
   const handler = vm.runInContext(`(${source.slice(from + handlerStart.length, to - 1)})`, sandbox);
   return { state, register: sandbox.register, local: sandbox.local, handler, driver: sandbox.driver };
@@ -611,7 +621,7 @@ test('a second login during a running forced attempt still registers the new acc
 
 
 
-test('every registration anchor matches the real unpatched 1.0.0 source once', sourceOptions, () => {
+test('every registration anchor matches the real unpatched 1.2.0 source once', sourceOptions, () => {
   assert.deepEqual(diagnose(upstreamMain, computerRegistrationMainChanges), [],
     'main-process registration anchors drifted');
   assert.deepEqual(diagnose(upstream, computerRegistrationRendererChanges), [],
@@ -776,15 +786,15 @@ test('preload forwards the id change notification and its release', sourceOption
 
 test('a missing computer has an explicit registration action, not a mount side effect', sourceOptions, async () => {
   const source = patch(upstream, computerRegistrationRendererChanges);
-  const component = sliceUntil(source, 'function factoryPortRegisterThisComputer(', 'function qes(){');
+  const component = sliceUntil(source, 'function factoryPortRegisterThisComputer(', 'function Ezo(){');
   const calls = [];
   const errors = [];
   let id = 'new-computer';
   const Component = vm.runInNewContext(`${component};factoryPortRegisterThisComputer`, {
-    L: { useState: () => [false, value => calls.push(['busy', value])] },
-    zo: () => ({ showError: (...args) => errors.push(args) }),
+    P: { useState: () => [false, value => calls.push(['busy', value])] },
+    Xo: () => ({ showError: (...args) => errors.push(args) }),
     c: { jsx: (type, props) => ({ type, props }) },
-    $a: 'card', Fe: 'button',
+    Qw: 'card',
     window: { electronAPI: { getLocalComputerId: async options => {
       calls.push(['register', options.register]);
       return id;
@@ -792,14 +802,14 @@ test('a missing computer has an explicit registration action, not a mount side e
   });
   const card = Component({ onRegistered: async value => calls.push(['registered', value]) });
   assert.equal(calls.length, 0, 'rendering the card must not recreate a deleted computer');
-  assert.equal(card.props.action.props.children, 'Register this computer');
-  await card.props.action.props.onClick();
+  assert.equal(card.props.action.label, 'Register this computer');
+  await card.props.action.onClick();
   assert.deepEqual(calls, [['busy', true], ['register', true],
     ['registered', 'new-computer'], ['busy', false]]);
   assert.equal(errors.length, 0);
   calls.length = 0;
   id = null;
-  await card.props.action.props.onClick();
+  await card.props.action.onClick();
   assert.equal(errors.length, 1);
   assert.ok(!calls.some(([action]) => action === 'registered'));
   assert.deepEqual(calls.at(-1), ['busy', false]);
@@ -807,36 +817,36 @@ test('a missing computer has an explicit registration action, not a mount side e
 
 test('registration fallback respects desktop, loading and organization gates', sourceOptions, () => {
   const source = patch(upstream, computerRegistrationRendererChanges);
-  const start = source.indexOf('children:[T&&F?c.jsx(XWu,{computer:T,droidConnectionManager:r})')
+  const start = source.indexOf('children:[B&&$?c.jsx(Yxu,{computer:B,droidConnectionManager:d})')
     + 'children:['.length;
   assert.ok(start > 'children:['.length);
-  const end = source.indexOf(',F?c.jsx(OAi,', start);
+  const end = source.indexOf(',$?c.jsx(lfi,', start);
   const expression = source.slice(start, end);
-  // a: Electron desktop, S: local computer id, F: computer allowed by the
-  // organization, u: list still loading, f: list failed, T: the computer
+  // u: Electron desktop, w: local computer id, $: computer allowed by the
+  // organization, p: list still loading, g: list failed, B: the computer
   // the account already lists.
   const render = overrides => vm.runInNewContext(`(${expression})`, {
-    a: true, S: true, F: true, u: false, f: false, T: null, r: {},
-    factoryPortRegisterThisComputer: 'register', XWu: 'registered',
+    u: true, w: true, $: true, p: false, g: false, B: null, d: {},
+    factoryPortRegisterThisComputer: 'register', Yxu: 'registered',
     c: { jsx: (type, props) => ({ type, props }) }, ...overrides,
   });
   assert.equal(render({}).type, 'register');
-  for (const gate of [{ a: false }, { S: false }, { F: false }, { u: true }, { f: true }])
+  for (const gate of [{ u: false }, { w: false }, { $: false }, { p: true }, { g: true }])
     assert.equal(render(gate), null);
-  assert.equal(render({ T: { id: 'existing' } }).type, 'registered');
+  assert.equal(render({ B: { id: 'existing' } }).type, 'registered');
 });
 
 test('the registration patch reverses exactly', sourceOptions, () => {
   let patchedMain = patch(upstreamMain, computerRegistrationMainChanges);
   for (const [, before, after] of [...computerRegistrationMainChanges].reverse()) {
     assert.equal(patchedMain.split(after).length - 1, 1);
-    patchedMain = patchedMain.replace(after, before);
+    patchedMain = patchedMain.replace(after, () => before);
   }
   assert.equal(patchedMain, upstreamMain);
   let patchedRenderer = patch(upstream, computerRegistrationRendererChanges);
   for (const [, before, after] of [...computerRegistrationRendererChanges].reverse()) {
     assert.equal(patchedRenderer.split(after).length - 1, 1);
-    patchedRenderer = patchedRenderer.replace(after, before);
+    patchedRenderer = patchedRenderer.replace(after, () => before);
   }
   assert.equal(patchedRenderer, upstream);
 });
@@ -860,24 +870,24 @@ test('negative control: upstream registers the computer only at startup', source
   // The registration function exists exactly once, and the startup sequence
   // is its only call site. Neither sign-in path reaches it, so a profile that
   // signs in after startup stays unregistered.
-  assert.equal(upstreamMain.split('async function KH(){').length - 1, 1);
-  assert.equal(upstreamMain.split('KH(),s.startupTracker.beginPhase').length - 1, 1);
+  assert.equal(upstreamMain.split('async function FV(){').length - 1, 1);
+  assert.equal(upstreamMain.split('FV(),s.startupTracker.beginPhase').length - 1, 1);
   const browserSignIn = sliceBetween(upstreamMain, 'p(s.DesktopSignInProgress.Connecting),',
     'webContents.send("auth:success",{user:m.user})');
-  assert.ok(browserSignIn.includes('await pm(),En(u).webContents.send('),
+  assert.ok(browserSignIn.includes('await zm(),Rn(u).webContents.send('),
     'the browser sign-in completion moved');
-  assert.doesNotMatch(browserSignIn, /\bKH\(|ensure\(/,
+  assert.doesNotMatch(browserSignIn, /\bFV\(|ensure\(/,
     'the browser sign-in must not reach the registration');
-  const customerSignIn = sliceBetween(upstreamMain, 'await O(),await pm();',
-    'As("auth:success",{user:x})');
-  assert.ok(customerSignIn.includes('const{user:x}=await p6();'));
-  assert.doesNotMatch(customerSignIn, /\bKH\(|ensure\(/,
+  const customerSignIn = sliceBetween(upstreamMain, 'await O(),await zm();',
+    'Ns("auth:success",{user:I})');
+  assert.ok(customerSignIn.includes('const{user:I}=await N6();'));
+  assert.doesNotMatch(customerSignIn, /\bFV\(|ensure\(/,
     'the customer sign-in must not reach the registration');
   // The local computer id is read straight from the local configuration,
   // with nothing in between that could register the computer.
-  const handler = sliceBetween(upstreamMain, 'E.ipcMain.handle("computer:getLocalId"',
-    'async()=>WH())');
-  assert.ok(handler.endsWith('async()=>WH())'));
+  const handler = sliceBetween(upstreamMain, 'A.ipcMain.handle("computer:getLocalId"',
+    'async()=>DV())');
+  assert.ok(handler.endsWith('async()=>DV())'));
   assert.doesNotMatch(handler, /ensure\(|await/,
     'upstream reads the local id without registering anything');
 });
@@ -886,7 +896,7 @@ test('the patched payload registers the computer once the account is signed in',
   const patchedMain = patch(upstreamMain, computerRegistrationMainChanges);
   for (const [from, to] of [
     ['p(s.DesktopSignInProgress.Connecting),', 'webContents.send("auth:success",{user:m.user})'],
-    ['await O(),await pm();', 'As("auth:success",{user:x})'],
+    ['await O(),await zm();', 'Ns("auth:success",{user:I})'],
   ]) {
     const signIn = sliceBetween(patchedMain, from, to);
     assert.ok(signIn.includes('factoryPortComputerRegistration.ensure({force:!0})'),
@@ -908,16 +918,16 @@ function patchedScenario({ upstreamBytes }) {
     : patch(upstreamMain, computerRegistrationMainChanges);
   const driver = upstreamBytes ? '' : sliceUntil(source,
     'function factoryPortCreateComputerRegistration({',
-    'async function WH(){if(!s.getHostedServicesEnabled())return null;');
+    'async function DV(){if(!s.getHostedServicesEnabled())return null;');
   // The browser sign-in completion: the credentials are stored just before
   // it, and the renderer is told that the account is ready just after.
   const signIn = sliceBetween(source, 'p(s.DesktopSignInProgress.Connecting),',
     'webContents.send("auth:success",{user:m.user})');
   // The handler is an IPC registration; the callable is its arrow function.
-  const handlerPrefix = 'E.ipcMain.handle("computer:getLocalId",';
+  const handlerPrefix = 'A.ipcMain.handle("computer:getLocalId",';
   const handlerStart = source.indexOf(handlerPrefix);
   assert.notEqual(handlerStart, -1, 'the local computer id handler moved');
-  const handlerEnd = source.indexOf(',E.ipcMain.handle("computer:getLocalHostId"', handlerStart);
+  const handlerEnd = source.indexOf(',A.ipcMain.handle("computer:getLocalHostId"', handlerStart);
   assert.notEqual(handlerEnd, -1, 'the local computer id handler moved');
   const handler = source.slice(handlerStart + handlerPrefix.length, handlerEnd - 1);
   return { driver, signIn, handler };
@@ -930,11 +940,11 @@ async function runScenario({ upstreamBytes }) {
   // the same bindings the real bundle uses.
   const script = `${driver}
 const state = { token: null, computerId: null, registrations: 0, registeredWith: null };
-const WH = async () => state.computerId;
-const KH = async token => { state.registrations++; state.registeredWith = token; state.computerId = 'computer-1'; };
-// The patched main bytes broadcast the id transition through As; the
+const DV = async () => state.computerId;
+const FV = async token => { state.registrations++; state.registeredWith = token; state.computerId = 'computer-1'; };
+// The patched main bytes broadcast the id transition through Ns; the
 // real main defines it, so the scenario does too.
-const As = () => {};
+const Ns = () => {};
 const s = {
   getHostedServicesEnabled: () => true,
   getRuntimeAuthConfig: () => ({}),
@@ -944,8 +954,8 @@ const s = {
   DesktopSignInProgress: { Connecting: 'connecting', Finishing: 'finishing' },
 };
 const p = () => {};
-const pm = async () => {};
-const En = () => ({ webContents: { send: () => {} } });
+const zm = async () => {};
+const Rn = () => ({ webContents: { send: () => {} } });
 const u = 'callback-url';
 const m = { user: { id: 'user-1' } };
 globalThis.__run = async () => {
@@ -987,8 +997,8 @@ test('an already registered computer is answered without registering anything', 
   const { driver, handler } = patchedScenario({ upstreamBytes: false });
   const script = `${driver}
 const state = { token: 'token', computerId: 'computer-1', registrations: 0 };
-const WH = async () => state.computerId;
-const KH = async token => { state.registrations++; state.computerId = 'computer-2'; };
+const DV = async () => state.computerId;
+const FV = async token => { state.registrations++; state.computerId = 'computer-2'; };
 const s = {
   getHostedServicesEnabled: () => true,
   getRuntimeAuthConfig: () => ({}),
@@ -1016,16 +1026,16 @@ globalThis.__run = async () => ({
 // the real bundle. The patched page declares the ref it compares against;
 // the unpatched page has no such declaration.
 function settingsEffect(source) {
-  const declared = source.indexOf('const factoryPortLocalComputerIdRef=L.useRef(null);');
-  const from = declared >= 0 ? declared : source.indexOf('rn(()=>{if(!a)return;async function ie(){');
-  const end = source.indexOf('ie()});', from);
+  const declared = source.indexOf('const factoryPortLocalComputerIdRef=P.useRef(null);');
+  const from = declared >= 0 ? declared : source.indexOf('hn(()=>{if(!u)return;async function ue(){');
+  const end = source.indexOf('ue()});', from);
   assert.ok(from >= 0 && end > from, 'the settings effect moved');
-  return source.slice(from, end + 'ie()});'.length);
+  return source.slice(from, end + 'ue()});'.length);
 }
 
 // Upstream's own effect helper: it runs an effect once, on mount.
 function upstreamEffectHelper(source) {
-  const match = /function rn\(t\)\{L\.useEffect\(t,\[\]\)\}/.exec(source);
+  const match = /function hn\(t\)\{P\.useEffect\(t,\[\]\)\}/.exec(source);
   assert.ok(match, 'the upstream effect helper moved');
   return match[0];
 }
@@ -1065,7 +1075,7 @@ function queryStub() {
 function rendererSandbox(query, { fail = false } = {}) {
   const state = { ids: [], loaded: 0, refreshes: 0, errors: [], list: null, ref: null };
   const sandbox = {
-    L: {
+    P: {
       // A ref keeps its value across renders of the same page.
       useRef: value => { if (!state.ref) state.ref = { current: value }; return state.ref; },
       useEffect: (fn, deps) => {
@@ -1073,17 +1083,17 @@ function rendererSandbox(query, { fail = false } = {}) {
         fn();
       },
     },
-    a: true,
-    I: value => state.ids.push(value),
-    E: value => { state.loaded = value; },
-    h: async () => {
+    u: true,
+    _: value => state.ids.push(value),
+    k: value => { state.loaded = value; },
+    m: async () => {
       state.refreshes++;
       if (fail) throw new Error('network down');
       const data = await query.fetch(undefined, { cancelRefetch: true });
       state.list = data;
       return { data };
     },
-    ot: (message, details) => { state.errors.push([message, details]); },
+    tt: (message, details) => { state.errors.push([message, details]); },
     window: { electronAPI: { getLocalComputerId: async () => 'new-computer' } },
     console,
   };
@@ -1166,7 +1176,7 @@ test('the settings page keeps the local computer id when the refresh fails', sou
 });
 
 test('the upstream effect runs on mount only', sourceOptions, () => {
-  assert.ok(upstream.includes('function rn(t){L.useEffect(t,[])}'));
+  assert.ok(upstream.includes('function hn(t){P.useEffect(t,[])}'));
 });
 
 test('the helper names are unique to this layer', () => {

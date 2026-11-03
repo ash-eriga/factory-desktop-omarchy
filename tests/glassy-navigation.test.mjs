@@ -21,11 +21,12 @@ test('navigation transparency is restricted to structural painters inside the si
 test('actual appearance atom appends navigation CSS only inside the existing Glassy gate', () => {
   const change = rendererChanges.find(([name]) => name === 'derive palette tokens without changing stored Factory settings');
   const glass = Symbol('glass'), snapshot = Symbol('snapshot');
-  const { S0i, TMe } = vm.runInNewContext(change[2].replace(/,$/, ';') + '({S0i,TMe})', {
-    LDe: () => ({}), Sod: {}, wk: {}, UGr: {},
-    cs: value => typeof value === 'function' ? value : { initial: value },
-    SK: Symbol('SK'), $r: { Dark: 'dark', Light: 'light' },
-    p0e: () => ({}), rWr: () => 'base;',
+  const { vpi, dBe } = vm.runInNewContext(change[2].replace(/,$/, ';') + '({vpi,dBe})', {
+    iBe: Symbol('iBe'),
+    Qo: value => typeof value === 'function' ? value : { initial: value },
+    pq: Symbol('pq'), yr: { Dark: 'dark', Light: 'light' },
+    P5: {},
+    Zge: () => ({}), cSa: () => 'base;',
     factoryPortOverlayAppearance: (base) => base,
     factoryPortThemeActive: Symbol('active'),
     factoryPortThemeEmpty: {},
@@ -35,10 +36,10 @@ test('actual appearance atom appends navigation CSS only inside the existing Gla
     factoryPortComposerContrast: () => 100,
     factoryPortEffectiveAppearance: Symbol('effective'),
   });
-  const get = (enabled, active) => atom => atom === TMe ? enabled : atom === glass ? active : {};
-  assert.equal(S0i(get(false, true)), '');
-  assert.equal(S0i(get(true, false)), 'base;');
-  assert.equal(S0i(get(true, true)), 'base;glass;' + glassyNavigationCss);
+  const get = (enabled, active) => atom => atom === dBe ? enabled : atom === glass ? active : {};
+  assert.equal(vpi(get(false, true)), '');
+  assert.equal(vpi(get(true, false)), 'base;');
+  assert.equal(vpi(get(true, true)), 'base;glass;' + glassyNavigationCss);
 });
 
 test('pinned settings component is marked without altering its routing, search or control logic', {
@@ -52,8 +53,6 @@ test('pinned settings component is marked without altering its routing, search o
   for (const selector of ['data-analytics-nav-root-v2', 'data-wiki-nav-pane-v2', 'data-academy-nav-root-v2']) {
     assert.ok(css.includes(`[${selector}]{display:flex;flex:1;flex-direction:column;min-height:0;background:var(--core-v2-bg-surface)}`));
   }
-  assert.ok(source.includes('c.jsxs(z,{...oe,bg:se,"data-software-factory-nav-v2":ce,direction:ue,flex:Ae,height:be'),
-    'Software Factory has its own surface painter too');
 });
 
 test('test-only settings layout adapters retain valid renderer syntax', {

@@ -19,6 +19,7 @@ import { ROOT, versions, elf, run, files, fingerprint, recipeFingerprint, recipe
          expectedExecutables, outputBundle, portVersion } from './common.mjs';
 import { PRODUCT_NAME } from './app-identity.mjs';
 import { updateNotificationMainChanges, unpatchUpdateNotifications } from './update-notification-patches.mjs';
+import { workstreamsRendererChanges } from './workstreams-patches.mjs';
 
 const bundle = await outputBundle();
 const manifest = JSON.parse(await readFile(path.join(bundle, 'manifest.json'), 'utf8'));
@@ -63,7 +64,8 @@ const rendererSource = file => file === versions.renderer
 for (const [file, transformations] of [[versions.lifecycle, changes],
   ['.vite/build/preload.js', preloadChanges], [versions.renderer, rendererChanges],
   ['.vite/build/preload.js', computerRegistrationPreloadChanges],
-  [versions.renderer, rendererTitleChanges]]) {
+  [versions.renderer, rendererTitleChanges],
+  [versions.renderer, workstreamsRendererChanges]]) {
   const source = rendererSource(file);
   for (const [name, , after] of transformations) {
     if (source.split(after).length !== 2) throw new Error(`Shipped patch missing or duplicated: ${name}`);
@@ -100,7 +102,7 @@ for (const [name, , after] of htmlTitleChanges) {
 }
 if (rendererSource(versions.rendererHtml).includes('<title>Factory</title>'))
   throw new Error('Shipped page title still carries the upstream name');
-if (rendererSource(versions.renderer).includes('GGn="Factory"'))
+if (rendererSource(versions.renderer).includes('lei="Factory"'))
   throw new Error('Shipped renderer still falls back to the upstream name');
 const upstreamPackage = JSON.parse(asar.extractFile(archive, 'package.json').toString());
 if (upstreamPackage.version !== versions.desktop) throw new Error('Shipped Desktop version mismatch');

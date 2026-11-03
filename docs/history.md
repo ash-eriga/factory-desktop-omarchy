@@ -5,6 +5,37 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## Factory Desktop 1.2.0
+
+- The pinned upstream moves from 1.1.0 to 1.2.0 (`@factory/cli-linux-x64`
+  1.2.0). The installer digest and the bundle chunk names in `versions.json`
+  are those of the inspected 1.2.0 payload.
+- Every patch anchor is re-derived against the 1.2.0 bundle across main
+  process, preload, renderer, HTML and CSS. The theme-main injection no
+  longer pins vendor path/url aliases: the integration requires
+  `node:path`/`node:url` directly and keeps only the electron namespace
+  (`A`), the registered-window set (`qn`), the live-window reader (`br()`),
+  the webContents liveness check (`Rr()`), the vendor baseline (`Uue()`)
+  and the background applier (`zue()`).
+- **Workstreams are active by default**: a new renderer layer flips the
+  `missions_v2` Statsig fallback (`MissionsV2`) from off to on, so the
+  sidebar ships with the Workstreams (multi-agent missions) section
+  enabled from the first launch. Upstream keeps the feature behind a
+  server-side gate; the organization-level `hide_missions` decision still
+  wins over this default.
+
+## Factory Desktop 1.1.0
+
+- The pinned upstream moves from 1.0.0 to 1.1.0 (`@factory/cli-linux-x64`
+  1.1.0). The installer digest and the bundle chunk names in `versions.json`
+  are those of the inspected 1.1.0 payload.
+- Every patch anchor is re-derived against the 1.1.0 bundle across main
+  process, preload, renderer, HTML and CSS.
+- Upstream 1.1.0 removed the unguarded `⌘ Enter` review-controls shortcut and
+  renders the Software Factory v2 navigation fragment directly inside
+  `[data-sidebar-overlay]`, so those two 1.0.0-only renderer anchors are
+  retired.
+
 ## Factory Desktop 1.0.0
 
 - The pinned upstream moves from 0.208.0 to 1.0.0. The installer digest,

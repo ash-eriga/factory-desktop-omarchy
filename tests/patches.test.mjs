@@ -47,13 +47,13 @@ test('patched main guards keep the pacman boundary closed on Linux', () => {
   // the callback helper must only fix the desktop entry name on Linux.
   const source = changes.map(([, before]) => before).join('\n');
   const patched = patch(source);
-  assert.match(patched, /async function BH\(\)\{if\(process\.platform==="linux"\)return!0;/);
-  assert.match(patched, /async function \$l\(\{onAborted:e\}=\{\}\)\{if\(process\.platform==="linux"\)\{e\?\.\(\);return;\}/);
-  assert.match(patched, /async function FH\(\)\{if\(process\.platform==="linux"\)return;/);
-  assert.match(patched, /function dde\(\)\{if\(process\.platform==="linux"\)\{E\.app\.setDesktopName\("factory-droid-desktop\.desktop"\);return;\}/);
+  assert.match(patched, /async function qW\(\)\{if\(process\.platform==="linux"\)return!0;/);
+  assert.match(patched, /async function Yl\(\{onAborted:e\}=\{\}\)\{if\(process\.platform==="linux"\)\{e\?\.\(\);return;\}/);
+  assert.match(patched, /async function WW\(\)\{if\(process\.platform==="linux"\)return;/);
+  assert.match(patched, /function Jue\(\)\{if\(process\.platform==="linux"\)\{A\.app\.setDesktopName\("factory-droid-desktop\.desktop"\);return;\}/);
   // The visible name of the port is set before the first window exists.
-  assert.match(patched, /s\.startupTracker\.beginPhase\("ipc_and_protocol_setup"\),E\.app\.setName\("Factory Droid Desktop"\),dde\(\)/);
-  assert.match(patched, /r=process\.platform==="linux"\|\|!n\|\|s\.areDesktopUpdatesDisabledByCachedOrgSettings\(\)\?\[\]:/);
+  assert.match(patched, /s\.startupTracker\.beginPhase\("ipc_and_protocol_setup"\),A\.app\.setName\("Factory Droid Desktop"\),Jue\(\)/);
+  assert.match(patched, /o=process\.platform==="linux"\|\|!n\|\|s\.areDesktopUpdatesDisabledByCachedOrgSettings\(\)\?\[\]:/);
   // Nothing may widen the guards to other platforms.
   for (const [, , after] of changes) {
     for (const platform of ['"darwin"', '"win32"']) {
@@ -82,7 +82,7 @@ test('Linux main windows are created transparent-capable with native controls in
 });
 
 test('preload needs no patch: the native non-darwin menu API stays untouched', () => {
-  // 1.0.0 upstream exposes showApplicationMenu on every non-darwin platform,
+  // 1.2.0 upstream exposes showApplicationMenu on every non-darwin platform,
   // so the recipe must not rewrite preload.js at all.
   assert.deepEqual(preloadChanges, []);
   const source = 'window:{showApplicationMenu:process.platform==="darwin"?void 0:A=>1}';
@@ -100,7 +100,7 @@ test('hidden Linux menu stays accessible without stealing Alt shortcuts', () => 
     k: { Menu: { getApplicationMenu: () => ({ popup: ({window: target}) => {
       assert.equal(target, window); popups++;
     } }) } },
-    E: { Menu: { getApplicationMenu: () => ({ popup: ({window: target}) => {
+    A: { Menu: { getApplicationMenu: () => ({ popup: ({window: target}) => {
       assert.equal(target, window); popups++;
     } }) } },
   });
