@@ -39,21 +39,20 @@ test('menu anchors compose with the theme patch and exactly reverse in memory', 
   const patched = patchMenuRenderer(themed);
   assert.deepEqual(diagnoseMenuRenderer(patched), menuRendererChanges.map(([name]) => ({ name, count: 0 })));
   assert.equal(unpatchMenuRenderer(patched), themed, 'verification can restore the in-memory renderer snapshot');
-  assert.match(patched, /We=Ph\?c\.jsx\(ad,\{control:Oe,description:\$e,searchId:"appearance-font-smoothing"/);
-  assert.match(patched, /hotkey:Ph\?"⌘ Enter":"Ctrl\+Enter"/);
+  assert.match(patched, /Ue=Jf\?c\.jsx\(yd,\{control:De,description:Le,searchId:"appearance-font-smoothing"/);
 
   // The theme layer owns the complete follow-row integration; the final
   // follow position is still asserted here so no later layer can move it.
   const placements = patched.split('children:[factoryPortThemeRow,').length - 1;
   assert.equal(placements, 1, 'exactly one follow-row placement inside the theme editor group');
   const placementIndex = patched.indexOf('children:[factoryPortThemeRow,');
-  assert.ok(patched.indexOf('function D$u(') < placementIndex
-    && placementIndex < patched.indexOf('function H$u('),
+  assert.ok(patched.indexOf('function $Su(') < placementIndex
+    && placementIndex < patched.indexOf('function ZSu('),
   'follow row is placed inside the theme editor, before the Appearance settings function');
   assert.ok(patched.includes('searchId:"appearance-follow-omarchy"'), 'follow row content is present');
-  assert.ok(patched.includes('id:jx.Finder,label:Ph?"Finder":"File manager",iconName:"folder",buildUrl:t=>`file://${UCe(t)}`,buildFileUrl:t=>`file://${nue(t)}`,macOnly:!1'),
+  assert.ok(patched.includes('id:VI.Finder,label:Jf?"Finder":"File manager",iconName:"folder",buildUrl:t=>`file://${Qye(t)}`,buildFileUrl:t=>`file://${_le(t)}`,macOnly:!1'),
     'file reveal URL handlers stay unchanged around the label');
-  assert.ok(patched.includes('for(const n of[$r.Light,$r.Dark])t.nativeFontSmoothing[n]&&e.push(Vse(nXi[n],{"-webkit-font-smoothing":"auto !important","-moz-osx-font-smoothing":"auto !important"}));'),
+  assert.ok(patched.includes('for(const n of[yr.Light,yr.Dark])t.nativeFontSmoothing[n]&&e.push(Pie(Ieo[n],{"-webkit-font-smoothing":"auto !important","-moz-osx-font-smoothing":"auto !important"}));'),
     'native CSS generator stays unchanged');
 });
 
@@ -62,18 +61,18 @@ test('Appearance hides the Mac-only row on Linux and preserves its saved setting
   assert.equal(applyOne(rowBefore, menuRendererChanges[0]), rowAfter);
   const makeRow = isMac => vm.runInNewContext(`
     function renderRow() {
-      let Ve;
+      let Ue;
       ${rowAfter};
-      return We;
+      return Ue;
     }
     renderRow;
   `, {
     c: { jsx: (type, props) => ({ type, props }) },
-    ad: 'SettingRow',
-    Oe: { type: 'Checkbox' },
-    $e: 'Description',
+    yd: 'SettingRow',
+    De: { type: 'Checkbox' },
+    Le: 'Description',
     Ve: 'Native macOS font anti-aliasing',
-    Ph: isMac,
+    Jf: isMac,
   });
 
   const persisted = { nativeFontSmoothing: { light: true, dark: false } };
@@ -86,27 +85,14 @@ test('Appearance hides the Mac-only row on Linux and preserves its saved setting
   assert.equal(macRow.props.searchId, 'appearance-font-smoothing');
 });
 
-test('feedback shortcut hint is platform-specific while keyboard support stays cross-platform', () => {
-  const [, hotkeyBefore, hotkeyAfter] = menuRendererChanges[1];
-  assert.equal(applyOne(hotkeyBefore, menuRendererChanges[1]), hotkeyAfter);
-
-  const makeShortcut = platform => vm.runInNewContext(
-    `({ariaKeyShortcuts:"Meta+Enter Control+Enter",${hotkeyAfter}})`,
-    { Ph: platform === 'mac' },
-  );
-  assert.equal(makeShortcut('mac').hotkey, '⌘ Enter');
-  assert.equal(makeShortcut('linux').hotkey, 'Ctrl+Enter');
-  assert.equal(makeShortcut('linux').ariaKeyShortcuts, 'Meta+Enter Control+Enter');
-});
-
 test('file reveal keeps Finder on macOS and uses the generic File manager label elsewhere', () => {
-  for (const index of [2, 3]) {
+  for (const index of [1, 2]) {
     const change = menuRendererChanges[index];
     assert.equal(applyOne(change[1], change), change[2]);
     assert.match(change[2], /Finder/);
     assert.match(change[2], /File manager/);
   }
-  const label = isMac => vm.runInNewContext('Ph?"Finder":"File manager"', { Ph: isMac });
+  const label = isMac => vm.runInNewContext('Jf?"Finder":"File manager"', { Jf: isMac });
   assert.equal(label(true), 'Finder');
   assert.equal(label(false), 'File manager');
 });

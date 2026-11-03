@@ -40,14 +40,14 @@ export const sidebarMaskCss = `
 `;
 
 export const sidebarFadeChanges = [
-  // The marker belongs to the session-list scroll root, the styled root the
-  // session wrapper renders. 1.0.0 has a second root with the same styled
-  // base (`s8i`) shared with unrelated panels, so the marker must sit on
-  // `EZc`, the root `RZc` renders for the session list.
+  // The marker belongs to the session-list scroll root, the styled Radix
+  // Root the session-list wrapper (`ROc`) renders. 1.2.0 shares the styled
+  // base (`Tnt`) with an unrelated root (`uwi`), so the marker must sit on
+  // `wOc`, the root `ROc` renders for the session list.
   ['mask only the session-list viewport instead of painting rectangular edge overlays',
-    'EZc=X(krt)`',
-    `EZc=X(krt).attrs({"data-factory-port-sidebar-scroll":!0})\`${sidebarMaskCss}`],
+    'wOc=X(Tnt)`',
+    `wOc=X(Tnt).attrs({"data-factory-port-sidebar-scroll":!0})\`${sidebarMaskCss}`],
   ['reuse upstream edge observers for continuous sidebar mask depths',
-    'k={end:_<T-GLn,start:_>GLn};p(R=>',
-    'k={end:_<T-GLn,start:_>GLn};if(!v)factoryPortUpdateSidebarMask(y,_,T);p(R=>'],
+    'k={end:_<T-y7n,start:_>y7n};p(R=>',
+    'k={end:_<T-y7n,start:_>y7n};if(!y)factoryPortUpdateSidebarMask(v,_,T);p(R=>'],
 ];

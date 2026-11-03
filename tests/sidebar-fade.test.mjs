@@ -60,7 +60,7 @@ test('unrelated scroll areas receive no mask styles; CSS masks content and suppr
 
 test('actual upstream observer updates mask depths on scroll/resize/mutation and cleans up', vendorOptions, () => {
   const source = patch(readFileSync(upstreamFile, 'utf8'), sidebarFadeChanges);
-  const component = source.slice(source.indexOf('function kYe('), source.indexOf('function _ca('));
+  const component = source.slice(source.indexOf('function OVe('), source.indexOf('function W0('));
   const element = viewport(), listeners = new Map(), callbacks = {};
   let cleanup, disconnected = 0;
   element.firstElementChild = { children: [] };
@@ -76,15 +76,16 @@ test('actual upstream observer updates mask depths on scroll/resize/mutation and
     observe() {}
     disconnect() { disconnected++; }
   }
-  vm.runInNewContext(`${factoryPortUpdateSidebarMask.toString()};${component};kYe(props)`, {
+  vm.runInNewContext(`${factoryPortUpdateSidebarMask.toString()};${component};OVe(props)`, {
     props: { orientation: 'vertical', viewportRef: { current: element } },
-    H: { c: () => [] },
-    L: { useState: () => [{ start: false, end: false }, () => {}], Fragment: 'fragment' },
+    z: { c: () => [] },
+    P: { useState: () => [{ start: false, end: false }, () => {}], Fragment: 'fragment' },
     c: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }), Fragment: 'fragment' },
-    Sca: ['start', 'end'], Cca: [], xca: 'edge', Eca: 'edge-color',
-    wca: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
-    GLn: 1,
-    rn: effect => { cleanup = effect(); }, ResizeObserver, MutationObserver,
+    hXr: ['start', 'end'], fXr: [], mXr: 'fade', AXr: 'fade-color',
+    pXr: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
+    zVi: { vertical: 'vertical' }, gXr: fixture => fixture,
+    y7n: 1,
+    hn: effect => { cleanup = effect(); }, ResizeObserver, MutationObserver,
   });
   assert.deepEqual(depths(element), ['0px', '40px']);
   element.scrollTop = 2;
@@ -105,9 +106,9 @@ test('actual upstream observer updates mask depths on scroll/resize/mutation and
 test('only two exact source anchors change; shared colors, sizes and other call sites stay original', vendorOptions, () => {
   const source = readFileSync(upstreamFile, 'utf8');
   let updated = patch(source, sidebarFadeChanges);
-  assert.ok(updated.includes('mUt=[{offset:0,opacity:1},{offset:1,opacity:0}]'));
-  assert.ok(updated.includes('colorStops:mUt,orientation:"vertical",scrollbarInset:"0px",size:Hke,surface:w.bg.surface,testIdPrefix:"payment-panel"'));
-  assert.ok(updated.includes('colorStops:mUt,orientation:"vertical",scrollbarInset:ESo,size:Hke,surface:w.bg.surface,testIdPrefix:"session-list"'));
+  assert.ok(updated.includes('iPt=[{offset:0,opacity:1},{offset:1,opacity:0}]'));
+  assert.ok(updated.includes('colorStops:iPt,orientation:"vertical",scrollbarInset:"0px",size:C4e,surface:I.bg.page,testIdPrefix:"plan-list"'));
+  assert.ok(updated.includes('colorStops:iPt,orientation:"vertical",scrollbarInset:S1o,size:C4e,surface:I.bg.surface,testIdPrefix:"session-list"'));
   for (const [, before, after] of [...sidebarFadeChanges].reverse()) updated = updated.replace(after, before);
   assert.equal(updated, source);
 });
@@ -169,12 +170,12 @@ function traceSessionList(source) {
 // and the traced viewport come from the shipped bundle and not from a mock.
 function renderSessionList(trace) {
   const context = {
-    H: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
-    L: { useState: initial => [initial, () => {}], Fragment: 'fragment' },
+    z: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
+    P: { useState: initial => [initial, () => {}], Fragment: 'fragment' },
     c: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }), Fragment: 'fragment' },
-    mUt: [{ offset: 0, opacity: 1 }, { offset: 1, opacity: 0 }],
-    ESo: '10px', Hke: '28px',
-    w: { bg: { surface: '#000000' } },
+    iPt: [{ offset: 0, opacity: 1 }, { offset: 1, opacity: 0 }],
+    S1o: '10px', C4e: '28px',
+    I: { bg: { surface: '#000000' } },
   };
   for (const alias of trace.aliases) context[alias] = { [alias]: function () {} }[alias];
   const viewportRef = { current: null };
@@ -313,13 +314,13 @@ test('negative controls: a shared scroll root and an overlay-only fixture are re
 
   const overlayBody = functionBody(source, source.indexOf(`function ${trace.overlay}(`));
   const overlayContext = {
-    H: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
-    L: { useState: initial => [initial, () => {}], Fragment: 'fragment' },
+    z: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
+    P: { useState: initial => [initial, () => {}], Fragment: 'fragment' },
     c: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }), Fragment: 'fragment' },
-    Sca: ['start', 'end'], Cca: [],
-    xca: 'edge', Eca: 'edge-color',
-    wca: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
-    rn: () => {}, GLn: 1,
+    hXr: ['start', 'end'], fXr: [],
+    mXr: 'edge', AXr: 'edge-color',
+    pXr: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
+    hn: () => {}, y7n: 1,
   };
   assert.throws(
     () => vm.runInNewContext(`${overlayBody};${trace.overlay}({viewportRef:{current:null},children:"rows"})`, overlayContext),
