@@ -22,6 +22,7 @@ function harness() {
   let sequence = 0;
   const connection = {
     isFullyConnected: () => state.local,
+    on: () => {}, off: () => {},
     getRelayStatus: async () => state.relay
       ? { connected: true, computerId: state.relayId } : { connected: false },
     startRelay: async options => {
@@ -675,12 +676,12 @@ test('negative control: real upstream auto-start abandons a first relay error', 
   const source = remoteControlRendererChanges.find(([name]) => name.startsWith('recover the existing'))[1];
   assert.ok(upstream.includes(source));
   let starts = 0;
-  const run = vm.runInNewContext(`${source};Ee`, {
+  const run = vm.runInNewContext(`${source};Ce`, {
     window: { electronAPI: { getRemoteAccessEnabled: async () => true, getLocalComputerId: async () => 'test' } },
-    w: { current: true }, oo: 'local', ae: { getDaemonConnection: () => ({
+    _: { current: true }, ro: 'local', le: { getDaemonConnection: () => ({
       getRelayStatus: async () => ({ connected: false }),
       startRelay: async () => { starts++; throw new Error('simulated transient error'); },
-    }) }, cSd: 10, lSd: 1000, tt: () => {}, ve: () => {},
+    }) }, C_d: 10, b_d: 1000, nt: () => {}, Se: () => {},
   });
   await run(); assert.equal(starts, 1, 'vendor returns instead of retrying after failure');
 });
@@ -693,16 +694,16 @@ test('negative control: real upstream auto-start keeps the relay on the deleted 
   // at the id the relay serves, so it does nothing and the new computer is
   // unreachable although Remote Control is on.
   const calls = [];
-  const run = vm.runInNewContext(`${source};Ee`, {
+  const run = vm.runInNewContext(`${source};Ce`, {
     window: { electronAPI: {
       getRemoteAccessEnabled: async () => true,
       getLocalComputerId: async () => 'new-computer',
     } },
-    w: { current: true }, oo: 'local', ae: { getDaemonConnection: () => ({
+    _: { current: true }, ro: 'local', le: { getDaemonConnection: () => ({
       getRelayStatus: async () => ({ connected: true, computerId: 'old-computer' }),
       startRelay: async () => { calls.push('start'); },
       stopRelay: async () => { calls.push('stop'); },
-    }) }, cSd: 10, lSd: 1000, tt: () => {}, ve: () => {},
+    }) }, C_d: 10, b_d: 1000, nt: () => {}, Se: () => {},
   });
   await run();
   assert.deepEqual(calls, [], 'upstream neither stops nor starts the connected relay');
@@ -711,7 +712,7 @@ test('negative control: real upstream auto-start keeps the relay on the deleted 
 test('the patched renderer wires id change notifications to the recovery', sourceOptions, async () => {
   const patched = patch(upstream, remoteControlRendererChanges);
   const start = patched.indexOf('factoryPortComputerIdUnsubscribe=window.electronAPI?.onLocalComputerIdChanged');
-  const end = patched.indexOf('ve()});', start);
+  const end = patched.indexOf('factoryPortRecovery.notify);', start);
   assert.ok(start >= 0 && end > start, 'the local computer id subscription moved');
   // A real recovery with the id the relay serves still wired to the old
   // computer: firing the notification the main process broadcasts must
@@ -728,12 +729,16 @@ test('the patched renderer wires id change notifications to the recovery', sourc
       },
       daemon: { onAvailable: () => () => {} },
     } },
-    Ee: () => h.recovery.request(),
-    ae: { hasMachine: () => true, getDaemonConnection: () => ({ isFullyConnected: () => true }) },
-    oo: 'local', Nr: () => {}, ve: () => {},
+    Ce: () => h.recovery.request(),
+    le: { hasMachine: () => true, getDaemonConnection: () => ({ isFullyConnected: () => true, getRelayStatus: async () => h.state.relay ? { connected: true, computerId: h.state.relayId } : { connected: false }, startRelay: h.connection.startRelay, stopRelay: h.connection.stopRelay, on: () => {}, off: () => {} }), on: () => {}, off: () => {} },
+    ro: 'local', Fr: () => {}, Se: () => {},
+    factoryPortObserveRelay,
+    factoryPortRecovery: h.recovery,
+    wi: { MachineAdded: 'added', MachineRemoved: 'removed', RelayStatusChanged: 'relay' },
+    vf: { Connected: 'connected', Disconnected: 'disconnected' },
   };
   vm.createContext(context);
-  vm.runInNewContext(`${patched.slice(start, end + 've()});'.length)}`
+  vm.runInNewContext(`${patched.slice(start, end + 'factoryPortRecovery.notify);'.length)}\n`
     + ';globalThis.__unsubscribe=factoryPortComputerIdUnsubscribe', context);
   handler();
   await flush();
@@ -749,8 +754,8 @@ test('the patched renderer wires id change notifications to the recovery', sourc
 // Execute the real manual-enable hook, not a parallel implementation of its
 // preference/relay transaction. Only its services and React hooks are fixtures.
 function manualHook(source, register, staleStarts = 0) {
-  const start = source.indexOf('function Bmn(){');
-  const end = source.indexOf('const eUt=Qo(void 0)', start);
+  const start = source.indexOf('function n0n(){');
+  const end = source.indexOf('const oQt=Ko(void 0)', start);
   assert.ok(start >= 0 && end > start);
   const events = [];
   const state = { enabled: false, connected: false, changing: false };
@@ -764,18 +769,20 @@ function manualHook(source, register, staleStarts = 0) {
     getRelayStatus: async () => ({ connected: state.connected }),
   };
   const store = { subscribe: () => () => {}, getSnapshot: () => ({}), patch: () => {} };
-  const hook = vm.runInNewContext(`${source.slice(start, end)};Bmn()`, {
-    he: () => ({ t: key => key }),
-    Ds: () => ({ getDaemonConnection: () => connection }),
-    oo: 'local', $o: () => true, Ko: () => true, eeu: () => store, aKd: () => store,
-    qx: new Error('constructor only'),
-    ZFt: value => value,
+  const hook = vm.runInNewContext(`${source.slice(start, end)};n0n()`, {
+    fe: () => ({ t: key => key }),
+    ws: () => ({ getDaemonConnection: () => connection }),
+    ro: 'local', Wo: () => true,
+    lru: () => ({ subscribe: () => () => {}, getSnapshot: () => ({}), patch: () => {} }),
+    iQt: value => value,
+    fx: class Fx extends Error {},
+    Aui2unused: provider => provider,
     P: {
       useState: initial => [typeof initial === 'function' ? initial() : initial,
         value => { state.changing = value; }],
       useSyncExternalStore: () => ({}),
     },
-    Aci: () => ({
+    Aui: () => ({
       getEnabled: async () => state.enabled,
       setEnabled: async value => { events.push(`preference:${value}`); state.enabled = value; },
     }),
@@ -787,14 +794,19 @@ function manualHook(source, register, staleStarts = 0) {
     factoryPortLocalRelayRecovery: { manual: () => ({
       settled: Promise.resolve(), release: () => events.push('release'),
     }) },
-    XZd: 90000, kjt: value => value, tt: () => {}, factoryPortStartRelay,
-    Bn: Error, Tn: Error, ux: class extends Error {},
-    Cq: class extends Error {
-      constructor({ step, cause }) { super('relay failed', { cause }); this.step = step; }
+    rru: 90000, nt: () => {}, factoryPortStartRelay,
+    eW: class RelayError extends Error {
+      constructor(arg) {
+        const shape = typeof arg === 'string' ? { message: arg } : arg;
+        super(shape.message ?? 'relay failed');
+        this.step = shape.step;
+        this.cause = shape.cause;
+      }
     },
+    Ife: { SavePreference: 'preference', Relay: 'relay' },
     efe: { SavePreference: 'preference', Relay: 'relay' },
   });
-  return { hook, state, events };
+  return { hook, state, events, snippet: source.slice(start, end) };
 }
 
 test('manual enable waits for registration before changing preferences or starting relay', sourceOptions, async () => {
@@ -815,7 +827,13 @@ test('manual enable waits for registration before changing preferences or starti
 
 test('failed registration leaves Remote Control off and releases the manual operation', sourceOptions, async () => {
   const h = manualHook(patch(upstream, remoteControlRendererChanges), async () => null);
-  await assert.rejects(h.hook.enableRemoteAccess(), /registration did not complete/);
+  // 1.3.0 wraps the enable transaction in upstream's own step-classified
+  // catch: a failed registration surfaces as the relay step's cause, so the
+  // assertion accepts both spellings and checks the observable behavior.
+  await assert.rejects(h.hook.enableRemoteAccess(), error =>
+    /registration did not complete/.test(error.message)
+    || /registration did not complete/.test(error.cause?.message ?? ''));
+  console.log('DEBUG-REG-FAIL events', JSON.stringify(h.events));
   assert.deepEqual(h.events, ['register', 'release']);
   assert.equal(h.state.enabled, false);
   assert.equal(h.state.connected, false);

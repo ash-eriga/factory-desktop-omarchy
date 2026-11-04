@@ -1,6 +1,6 @@
 // Small, checksum-pinned renderer/preload/HTML adaptations for the optional
-// Omarchy theme bridge, targeting upstream Factory Desktop 1.2.0
-// (renderer index-CFmjDRYn.js). The upstream appearance store remains
+// Omarchy theme bridge, targeting upstream Factory Desktop 1.3.0
+// (renderer index-Cjwg6qqa.js). The upstream appearance store remains
 // authoritative; following Omarchy is a separate, opt-in derived override.
 //
 // The appearance contrast slider stops at 100 upstream, where every fill token
@@ -65,8 +65,8 @@ import { glassyNavigationCss, glassyNavigationChanges } from './glassy-navigatio
 
 const basePreloadChanges = [
   ['narrow Omarchy theme bridge',
-    'onCloseRequested:A=>{const e=()=>A();return v.ipcRenderer.on("app:closeRequested",e),()=>v.ipcRenderer.removeListener("app:closeRequested",e)}},getBugReportLogs:',
-    `onCloseRequested:A=>{const e=()=>A();return v.ipcRenderer.on("app:closeRequested",e),()=>v.ipcRenderer.removeListener("app:closeRequested",e)}},theme:(()=>{const e=n=>{const o={available:!1,mode:null,background:null,foreground:null,accent:null,revision:null,windowMode:null};if(!n||typeof n!=="object"||n.available!==!0||n.mode!=="light"&&n.mode!=="dark")return o;const s=r=>typeof r==="string"&&/^#[0-9a-f]{6}$/i.test(r)?r.toLowerCase():null,a=s(n.background),l=s(n.foreground),d=s(n.accent),w=n.windowMode==="opaque"||n.windowMode==="transparent"||n.windowMode==="glassy"?n.windowMode:null;return a&&l&&d?{available:!0,mode:n.mode,background:a,foreground:l,accent:d,revision:typeof n.revision==="string"?n.revision:null,windowMode:w}:o};return{getOmarchy:()=>v.ipcRenderer.invoke("factory-linux-theme:get").then(e,()=>e(null)),onOmarchyChanged:n=>{if(typeof n!=="function")return()=>{};const o=(s,r)=>n(e(r));return v.ipcRenderer.on("factory-linux-theme:changed",o),()=>v.ipcRenderer.removeListener("factory-linux-theme:changed",o)},setOmarchyFollow:n=>typeof n!=="boolean"?Promise.resolve(!1):v.ipcRenderer.invoke("factory-linux-theme:follow",n).then(r=>r===!0,()=>!1)}})(),getBugReportLogs:`],
+    'onCloseRequested:A=>{const e=()=>A();return F.ipcRenderer.on("app:closeRequested",e),()=>F.ipcRenderer.removeListener("app:closeRequested",e)}},getBugReportLogs:',
+    `onCloseRequested:A=>{const e=()=>A();return F.ipcRenderer.on("app:closeRequested",e),()=>F.ipcRenderer.removeListener("app:closeRequested",e)}},theme:(()=>{const e=n=>{const o={available:!1,mode:null,background:null,foreground:null,accent:null,revision:null,windowMode:null};if(!n||typeof n!=="object"||n.available!==!0||n.mode!=="light"&&n.mode!=="dark")return o;const s=r=>typeof r==="string"&&/^#[0-9a-f]{6}$/i.test(r)?r.toLowerCase():null,a=s(n.background),l=s(n.foreground),d=s(n.accent),w=n.windowMode==="opaque"||n.windowMode==="transparent"||n.windowMode==="glassy"?n.windowMode:null;return a&&l&&d?{available:!0,mode:n.mode,background:a,foreground:l,accent:d,revision:typeof n.revision==="string"?n.revision:null,windowMode:w}:o};return{getOmarchy:()=>F.ipcRenderer.invoke("factory-linux-theme:get").then(e,()=>e(null)),onOmarchyChanged:n=>{if(typeof n!=="function")return()=>{};const o=(s,r)=>n(e(r));return F.ipcRenderer.on("factory-linux-theme:changed",o),()=>F.ipcRenderer.removeListener("factory-linux-theme:changed",o)},setOmarchyFollow:n=>typeof n!=="boolean"?Promise.resolve(!1):F.ipcRenderer.invoke("factory-linux-theme:follow",n).then(r=>r===!0,()=>!1)}})(),getBugReportLogs:`],
 ];
 
 export const preloadChanges = basePreloadChanges.map(([name, before, after]) => [
@@ -158,7 +158,7 @@ function factoryPortReadFollow(){try{return localStorage.getItem(factoryPortThem
 function factoryPortReadCachedTheme(){try{if(!factoryPortReadFollow()||typeof window==="undefined"||!window.electronAPI?.theme?.getOmarchy)return factoryPortThemeEmpty;return factoryPortNormalizeTheme(JSON.parse(localStorage.getItem(factoryPortThemeCacheKey)||"null"))}catch{return factoryPortThemeEmpty}}
 function factoryPortPersistTheme(t){try{t.available?localStorage.setItem(factoryPortThemeCacheKey,JSON.stringify(t)):localStorage.removeItem(factoryPortThemeCacheKey)}catch{}}
 function factoryPortThemeUiCopy(e){let n="";try{n=localStorage.getItem("factory-app-startup-locale")||navigator.language||""}catch{}const i=/^pt(?:-|$)/i.test(n);return{title:i?"Seguir o tema do Omarchy":"Follow Omarchy theme",description:e.available?i?"Usa temporariamente as cores do Omarchy; sua aparência salva no Factory continua preservada.":"Temporarily use Omarchy colors; your saved Factory appearance stays intact.":i?"As cores do tema Omarchy não estão disponíveis; a aparência do Factory continua ativa.":"Omarchy theme colors are unavailable; your Factory appearance remains active."}}
-function factoryPortBuildThemeRow(t,e,n){const i=factoryPortThemeUiCopy(e),o=c.jsx(ha,{"aria-label":i.title,checked:t,disabled:!t&&!e.available,onCheckedChange:r=>n(r===!0)});return c.jsx(yd,{control:o,description:i.description,searchId:"appearance-follow-omarchy",title:i.title})}
+function factoryPortBuildThemeRow(t,e,n){const i=factoryPortThemeUiCopy(e),o=c.jsx(Ta,{"aria-label":i.title,checked:t,disabled:!t&&!e.available,onCheckedChange:r=>n(r===!0)});return c.jsx(md,{control:o,description:i.description,searchId:"appearance-follow-omarchy",title:i.title})}
 let factoryPortNativeFollowTicket=0;
 function factoryPortSyncNativeFollow(store,forced){const desired=forced===void 0?store.get(factoryPortThemeFollow)===!0:forced===!0,api=typeof window==="object"&&window!==null&&window.electronAPI?.theme?.setOmarchyFollow;if(typeof api!=="function"){store.set(factoryPortNativeFollowAccepted,!1);return}const requested=desired===!0,ticket=++factoryPortNativeFollowTicket;if(!requested)store.set(factoryPortNativeFollowAccepted,!1);Promise.resolve(api(desired)).then(r=>{ticket===factoryPortNativeFollowTicket&&store.set(factoryPortNativeFollowAccepted,requested&&r===!0)},()=>{ticket===factoryPortNativeFollowTicket&&store.set(factoryPortNativeFollowAccepted,!1)})}
 function factoryPortComposerContrast(t,e){if(!t||typeof t!=="object")return null;const n=e==null?t[t.mode]:t[e],i=n==null?void 0:n.contrast;return typeof i==="number"&&Number.isFinite(i)?i:null}
@@ -180,58 +180,58 @@ export const cssChanges = [
 
 export const rendererChanges = [
   ['persisted opt-in and live Omarchy snapshot store',
-    'MJe=Qo(qNc());MJe.onMount=',
-    `MJe=Qo(qNc());${rendererHelpers}const factoryPortThemeFollow=Are(factoryPortThemeKey,factoryPortReadFollow(),{getItem:()=>factoryPortReadFollow(),setItem:(t,e)=>{try{localStorage.setItem(t,e?"omarchy":"factory")}catch{}},removeItem:t=>{try{localStorage.removeItem(t)}catch{}}}),factoryPortThemeSnapshot=Qo(factoryPortReadCachedTheme());factoryPortThemeSnapshot.onMount=t=>{let e=!1,n=0,i=()=>{};if(typeof window==="undefined"||!window.electronAPI?.theme)return()=>{};const o=window.electronAPI.theme,a=r=>{if(!e){const l=factoryPortNormalizeTheme(r);factoryPortPersistTheme(l),t(l)}},s=r=>{n++,a(r)},l=n;try{typeof o.onOmarchyChanged==="function"&&(i=o.onOmarchyChanged(s))}catch{}try{Promise.resolve().then(()=>typeof o.getOmarchy==="function"?o.getOmarchy():null).then(r=>{n===l&&a(r)},()=>{n===l&&a(null)})}catch{a(null)}return()=>{e=!0;try{i?.()}catch{}}};const factoryPortThemeActive=Qo(t=>t(factoryPortThemeFollow)&&t(factoryPortThemeSnapshot).available),factoryPortThemeSource=Qo(t=>t(factoryPortThemeActive)?t(factoryPortThemeSnapshot).mode:t(DJe)),factoryPortNativeFollowAccepted=Qo(!1),factoryPortGlassActive=Qo(t=>t(factoryPortThemeFollow)===!0&&t(factoryPortThemeSnapshot).available===!0&&t(factoryPortThemeSnapshot).windowMode==="glassy"&&t(factoryPortNativeFollowAccepted)===!0);MJe.onMount=`],
+    'wXe=Ko(czc());wXe.onMount=',
+    `wXe=Ko(czc());${rendererHelpers}const factoryPortThemeFollow=qre(factoryPortThemeKey,factoryPortReadFollow(),{getItem:()=>factoryPortReadFollow(),setItem:(t,e)=>{try{localStorage.setItem(t,e?"omarchy":"factory")}catch{}},removeItem:t=>{try{localStorage.removeItem(t)}catch{}}}),factoryPortThemeSnapshot=Ko(factoryPortReadCachedTheme());factoryPortThemeSnapshot.onMount=t=>{let e=!1,n=0,i=()=>{};if(typeof window==="undefined"||!window.electronAPI?.theme)return()=>{};const o=window.electronAPI.theme,a=r=>{if(!e){const l=factoryPortNormalizeTheme(r);factoryPortPersistTheme(l),t(l)}},s=r=>{n++,a(r)},l=n;try{typeof o.onOmarchyChanged==="function"&&(i=o.onOmarchyChanged(s))}catch{}try{Promise.resolve().then(()=>typeof o.getOmarchy==="function"?o.getOmarchy():null).then(r=>{n===l&&a(r)},()=>{n===l&&a(null)})}catch{a(null)}return()=>{e=!0;try{i?.()}catch{}}};const factoryPortThemeActive=Ko(t=>t(factoryPortThemeFollow)&&t(factoryPortThemeSnapshot).available),factoryPortThemeSource=Ko(t=>t(factoryPortThemeActive)?t(factoryPortThemeSnapshot).mode:t(xXe)),factoryPortNativeFollowAccepted=Ko(!1),factoryPortGlassActive=Ko(t=>t(factoryPortThemeFollow)===!0&&t(factoryPortThemeSnapshot).available===!0&&t(factoryPortThemeSnapshot).windowMode==="glassy"&&t(factoryPortNativeFollowAccepted)===!0);wXe.onMount=`],
   ['derive resolved theme from opt-in source',
-    'const pq=Qo(t=>{const e=t(DJe);return e===W2.System?t(MJe):e===W2.Light?"light":e===W2.Dark?"dark":t(MJe)});',
-    'const pq=Qo(t=>{const e=t(factoryPortThemeSource);return e===W2.System?t(MJe):e===W2.Light?"light":e===W2.Dark?"dark":t(MJe)});'],
+    'const qq=Ko(t=>{const e=t(xXe);return e===bb.System?t(wXe):e===bb.Light?"light":e===bb.Dark?"dark":t(wXe)});',
+    'const qq=Ko(t=>{const e=t(factoryPortThemeSource);return e===bb.System?t(wXe):e===bb.Light?"light":e===bb.Dark?"dark":t(wXe)});'],
   ['derive palette tokens without changing stored Factory settings',
-    'const dBe=Qo(!1),bof=Qo(t=>{const e=t(pq)==="dark"?yr.Dark:yr.Light;return Zge({mode:e,settings:t(iBe)[e]})}),vpi=Qo(t=>t(dBe)?cSa({settings:t(iBe)}):""),',
-    'const dBe=Qo(!1),factoryPortEffectiveAppearance=Qo(t=>factoryPortOverlayAppearance(t(iBe),t(factoryPortThemeActive)?t(factoryPortThemeSnapshot):factoryPortThemeEmpty,P5)),bof=Qo(t=>{const e=t(pq)==="dark"?yr.Dark:yr.Light;return Zge({mode:e,settings:t(iBe)[e]})}),vpi=Qo(t=>{if(!t(dBe))return"";const e=cSa({settings:t(factoryPortEffectiveAppearance)});return t(factoryPortGlassActive)?e+factoryPortGlassCss(t(factoryPortThemeSnapshot),factoryPortComposerContrast(t(factoryPortEffectiveAppearance),t(factoryPortThemeSnapshot).mode))+factoryPortNavigationGlassCss:e}),'],
+    'const YBe=Ko(!1),Jdf=Ko(t=>{const e=t(qq)==="dark"?yr.Dark:yr.Light;return Mme({mode:e,settings:t(HBe)[e]})}),vmi=Ko(t=>t(YBe)?R_a({settings:t(HBe)}):""),',
+    'const YBe=Ko(!1),factoryPortEffectiveAppearance=Ko(t=>factoryPortOverlayAppearance(t(HBe),t(factoryPortThemeActive)?t(factoryPortThemeSnapshot):factoryPortThemeEmpty,lT)),Jdf=Ko(t=>{const e=t(qq)==="dark"?yr.Dark:yr.Light;return Mme({mode:e,settings:t(HBe)[e]})}),vmi=Ko(t=>{if(!t(YBe))return"";const e=R_a({settings:t(factoryPortEffectiveAppearance)});return t(factoryPortGlassActive)?e+factoryPortGlassCss(t(factoryPortThemeSnapshot),factoryPortComposerContrast(t(factoryPortEffectiveAppearance),t(factoryPortThemeSnapshot).mode))+factoryPortNavigationGlassCss:e}),'],
   // Upstream validates, clamps and displays the slider value against one
   // shared bounds object, so raising its max is what lets a stored 150 survive
   // the appearance store, the slider and a theme JSON import.
   ['raise the appearance contrast ceiling to 150',
-    'Vqe={min:0,max:100}',
-    'Vqe={min:0,max:150}'],
+    'HWe={min:0,max:100}',
+    'HWe={min:0,max:150}'],
   // The fill curve is linear in contrast and safe to extend. The text curve is
   // a fixed offset per 50 contrast, so it saturates: past 100 secondary text
   // reaches primary and the disabled label stops reading as disabled. Clamping
   // only the contrast fed to the text branch keeps every text token at its
   // contrast-100 value while fills keep growing.
   ['stop the text contrast curve at the upstream ceiling',
-    'function JCa({contrast:t,mix:e,mode:n}){const i=e[n],o=t/50;',
-    'function JCa({contrast:t,mix:e,mode:n}){const i=e[n],g=e.kind==="text"&&t>100?100:t,o=g/50;'],
+    'function v_a({contrast:t,mix:e,mode:n}){const i=e[n],o=t/50;',
+    'function v_a({contrast:t,mix:e,mode:n}){const i=e[n],g=e.kind==="text"&&t>100?100:t,o=g/50;'],
   ['use temporary source background while following',
-    'ypi=Qo(t=>t(dBe)?$Bt(t(bof)):void 0),',
-    'ypi=Qo(t=>{if(!t(dBe))return;return t(factoryPortThemeActive)?t(factoryPortThemeSnapshot).background:$Bt(t(bof))}),'],
+    'ymi=Ko(t=>t(YBe)?rDt(t(Jdf)):void 0),',
+    'ymi=Ko(t=>{if(!t(YBe))return;return t(factoryPortThemeActive)?t(factoryPortThemeSnapshot).background:rDt(t(Jdf))}),'],
   ['sync Electron native theme using effective preference',
-    'themePreference:i.get(DJe)',
+    'themePreference:i.get(xXe)',
     'themePreference:i.get(factoryPortThemeSource)'],
   ['observe effective theme source changes and sync native follow opt-in',
-    'const r=i.sub(pq,s),a=i.sub(DJe,s),l=i.sub(ypi,s);return()=>{r(),a(),l()}',
-    'const r=i.sub(pq,s),a=i.sub(factoryPortThemeSource,s),l=i.sub(ypi,s),g=()=>factoryPortSyncNativeFollow(i);g();const f=i.sub(factoryPortThemeFollow,g),factoryPortMenuStop=factoryPortMountApplicationMenu(window.electronAPI?.applicationMenu);return()=>{factoryPortMenuStop();r(),a(),l(),f(),factoryPortSyncNativeFollow(i,!1)}'],
+    'const r=i.sub(qq,s),a=i.sub(xXe,s),l=i.sub(ymi,s);return()=>{r(),a(),l()}',
+    'const r=i.sub(qq,s),a=i.sub(factoryPortThemeSource,s),l=i.sub(ymi,s),g=()=>factoryPortSyncNativeFollow(i);g();const f=i.sub(factoryPortThemeFollow,g),factoryPortMenuStop=factoryPortMountApplicationMenu(window.electronAPI?.applicationMenu);return()=>{factoryPortMenuStop();r(),a(),l(),f(),factoryPortSyncNativeFollow(i,!1)}'],
   ['Appearance screen reads follow state and grows its memo cache',
-    'function ZSu(){const t=z.c(232),{t:e}=he("settings"),[n,i]=ks(iBe),{theme:o,themePreference:s,setThemePreference:r}=bM(),',
-    'function ZSu(){const t=z.c(235),{t:e}=he("settings"),[n,i]=ks(iBe),[factoryPortFollow,setFactoryPortFollow]=ks(factoryPortThemeFollow),[factoryPortState]=ks(factoryPortThemeSnapshot),{theme:o,themePreference:s,setThemePreference:r}=bM(),'],
+    'function u4u(){const t=z.c(232),{t:e}=fe("settings"),[n,i]=ks(HBe),{theme:o,themePreference:s,setThemePreference:r}=FD(),',
+    'function u4u(){const t=z.c(235),{t:e}=fe("settings"),[n,i]=ks(HBe),[factoryPortFollow,setFactoryPortFollow]=ks(factoryPortThemeFollow),[factoryPortState]=ks(factoryPortThemeSnapshot),{theme:o,themePreference:s,setThemePreference:r}=FD(),'],
   ['pass follow state into the theme editor',
-    'let R;t[29]!==a||t[30]!==l||t[31]!==m||t[32]!==k?(R=c.jsx($Su,{mode:a,onChange:k,onChoose:m,theme:l},a),t[29]=a,t[30]=l,t[31]=m,t[32]=k,t[33]=R):R=t[33];',
-    'let R;t[29]!==a||t[30]!==l||t[31]!==m||t[32]!==k||t[232]!==factoryPortFollow||t[233]!==factoryPortState||t[234]!==setFactoryPortFollow?(R=c.jsx($Su,{mode:a,onChange:k,onChoose:m,theme:l,factoryPortFollow,factoryPortState,setFactoryPortFollow},a),t[29]=a,t[30]=l,t[31]=m,t[32]=k,t[232]=factoryPortFollow,t[233]=factoryPortState,t[234]=setFactoryPortFollow,t[33]=R):R=t[33];'],
+    'let R;t[29]!==a||t[30]!==l||t[31]!==m||t[32]!==k?(R=c.jsx(e4u,{mode:a,onChange:k,onChoose:m,theme:l},a),t[29]=a,t[30]=l,t[31]=m,t[32]=k,t[33]=R):R=t[33];',
+    'let R;t[29]!==a||t[30]!==l||t[31]!==m||t[32]!==k||t[232]!==factoryPortFollow||t[233]!==factoryPortState||t[234]!==setFactoryPortFollow?(R=c.jsx(e4u,{mode:a,onChange:k,onChoose:m,theme:l,factoryPortFollow,factoryPortState,setFactoryPortFollow},a),t[29]=a,t[30]=l,t[31]=m,t[32]=k,t[232]=factoryPortFollow,t[233]=factoryPortState,t[234]=setFactoryPortFollow,t[33]=R):R=t[33];'],
   ['theme editor accepts follow state and grows its memo cache',
-    'function $Su(t){const e=z.c(206),{mode:n,onChange:i,onChoose:o,theme:s}=t,{t:r}=he("settings"),',
-    'function $Su(t){const e=z.c(211),{mode:n,onChange:i,onChoose:o,theme:s,factoryPortFollow,factoryPortState,setFactoryPortFollow}=t,{t:r}=he("settings"),'],
+    'function e4u(t){const e=z.c(206),{mode:n,onChange:i,onChoose:o,theme:s}=t,{t:r}=fe("settings"),',
+    'function e4u(t){const e=z.c(211),{mode:n,onChange:i,onChoose:o,theme:s,factoryPortFollow,factoryPortState,setFactoryPortFollow}=t,{t:r}=fe("settings"),'],
   ['memoize the follow row from its three controlled props',
     'const{palette:b}=y;let C;if(e[11]!==n||e[12]!==s.preset){',
     'const{palette:b}=y;let factoryPortThemeRow;e[206]!==factoryPortFollow||e[207]!==factoryPortState||e[208]!==setFactoryPortFollow?(factoryPortThemeRow=factoryPortBuildThemeRow(factoryPortFollow,factoryPortState,setFactoryPortFollow),e[206]=factoryPortFollow,e[207]=factoryPortState,e[208]=setFactoryPortFollow,e[209]=factoryPortThemeRow):factoryPortThemeRow=e[209];let C;if(e[11]!==n||e[12]!==s.preset){'],
   ['place the follow row immediately before the preset row',
-    'let Ze;e[183]!==Z||e[184]!==Ee||e[185]!==Ae||e[186]!==Be||e[187]!==Ue||e[188]!==et?(Ze=c.jsxs(m1,{children:[Z,te,Ee,ve,Ae,we,Be,xe,Ue,He,et]}),e[183]=Z,e[184]=Ee,e[185]=Ae,e[186]=Be,e[187]=Ue,e[188]=et,e[189]=Ze):Ze=e[189];',
-    'let Ze;e[183]!==Z||e[184]!==Ee||e[185]!==Ae||e[186]!==Be||e[187]!==Ue||e[188]!==et||e[210]!==factoryPortThemeRow?(Ze=c.jsxs(m1,{children:[factoryPortThemeRow,Z,te,Ee,ve,Ae,we,Be,xe,Ue,He,et]}),e[183]=Z,e[184]=Ee,e[185]=Ae,e[186]=Be,e[187]=Ue,e[188]=et,e[210]=factoryPortThemeRow,e[189]=Ze):Ze=e[189];'],
+    'let Ye;e[183]!==Z||e[184]!==ye||e[185]!==Ae||e[186]!==Be||e[187]!==Ne||e[188]!==Xe?(Ye=c.jsxs(I1,{children:[Z,ee,ye,Ce,Ae,we,Be,_e,Ne,$e,Xe]}),e[183]=Z,e[184]=ye,e[185]=Ae,e[186]=Be,e[187]=Ne,e[188]=Xe,e[189]=Ye):Ye=e[189];',
+    'let Ye;e[183]!==Z||e[184]!==ye||e[185]!==Ae||e[186]!==Be||e[187]!==Ne||e[188]!==Xe||e[210]!==factoryPortThemeRow?(Ye=c.jsxs(I1,{children:[factoryPortThemeRow,Z,ee,ye,Ce,Ae,we,Be,_e,Ne,$e,Xe]}),e[183]=Z,e[184]=ye,e[185]=Ae,e[186]=Be,e[187]=Ne,e[188]=Xe,e[210]=factoryPortThemeRow,e[189]=Ye):Ye=e[189];'],
   ['mark the real sidebar pane without changing its layout or interactions',
-    'c.jsx(EPc,{$background:a,$borderRight:l,"data-testid":i',
-    'c.jsx(EPc,{$background:a,$borderRight:l,"data-factory-port-sidebar-surface":!0,"data-testid":i'],
+    'c.jsx(FQc,{$background:a,$borderRight:l,"data-testid":i',
+    'c.jsx(FQc,{$background:a,$borderRight:l,"data-factory-port-sidebar-surface":!0,"data-testid":i'],
   ['mark the real title-bar painter without changing its native drag regions',
-    'c.jsx(ut,{...ne,"data-windows-title-bar-v2":!0,flexShrink:0,children:',
-    'c.jsx(ut,{...ne,"data-factory-port-titlebar-surface":!0,"data-windows-title-bar-v2":!0,flexShrink:0,children:'],
+    'c.jsx(ft,{...te,"data-windows-title-bar-v2":!0,flexShrink:0,children:',
+    'c.jsx(ft,{...te,"data-factory-port-titlebar-surface":!0,"data-windows-title-bar-v2":!0,flexShrink:0,children:'],
   // The composer panel paints no fill of its own and marks its edge with the
   // border token only. Over a glassy frame the panel shows the .65 tint over
   // the desktop wallpaper, and every border token is mixed from the palette
@@ -246,11 +246,11 @@ export const rendererChanges = [
   // Tpa is the card the session composer uses. Both carry the same marker, so
   // the one rule strengthens whichever of them is on screen.
   ['mark the stacked composer panels the new-session view draws',
-    'const z_=X(it)`\n  align-items: center;\n  border: 1px solid var(--border-1);',
-    'const z_=X(it).attrs({"data-factory-port-composer-surface":!0})`\n  align-items: center;\n  border: 1px solid var(--border-1);'],
+    'const y4=X(ot)`\n  align-items: center;\n  border: 1px solid var(--border-1);',
+    'const y4=X(ot).attrs({"data-factory-port-composer-surface":!0})`\n  align-items: center;\n  border: 1px solid var(--border-1);'],
   ['mark the composer card the session view draws',
-    'const QAa=X.div`',
-    'const QAa=X.div.attrs({"data-factory-port-composer-surface":!0})`'],
+    'const c3a=X.div`',
+    'const c3a=X.div.attrs({"data-factory-port-composer-surface":!0})`'],
   ...sidebarFadeChanges,
   ...glassyNavigationChanges,
 ];

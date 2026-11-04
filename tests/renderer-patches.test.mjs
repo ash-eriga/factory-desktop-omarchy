@@ -56,7 +56,7 @@ function loadBillingHook(source, { exposeHelpers = true } = {}) {
   };
 
   const hooks = vm.runInNewContext(
-    `${source}\n({billingLimits:B8e${exposeHelpers ? ', snapshot:factoryLinuxBillingFocusSnapshot' : ''}})`,
+    `${source}\n({billingLimits:p7e${exposeHelpers ? ', snapshot:factoryLinuxBillingFocusSnapshot' : ''}})`,
     {
       Symbol,
       P,
@@ -66,9 +66,9 @@ function loadBillingHook(source, { exposeHelpers = true } = {}) {
         assert.equal(size, memoCache.length);
         return memoCache;
       } },
-      Gu: () => airgapEnabled,
-      Hn: { billing: { tokenLimits: ['billing', 'tokenLimits'] } },
-      Ao: (query, options) => ({ query, options }),
+      Ou: () => airgapEnabled,
+      Wn: { billing: { tokenLimits: ['billing', 'tokenLimits'] } },
+      mo: (query, options) => ({ query, options }),
     },
   );
 

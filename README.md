@@ -11,11 +11,15 @@ Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_
 - Workstreams active by default, no server-side experiment gate required.
 - Remote Control, enabled only when you choose.
 
-## Droid 1.2
+## Droid 1.3
 
-This port tracks Factory Desktop 1.2.0. Factory presents the 1.x generation as
-faster, higher scoring and cheaper per completed task than the agents around
-it, and publishes the benchmark behind the claim as the figure below.
+This port tracks Factory Desktop 1.3.0 (the release that adds editable email
+draft cards, faster replies with hundreds of tools, instant sidebar view
+switching and task permission inheritance; the upstream changelog lives at
+[docs.factory.com/changelog/release-notes](https://docs.factory.com/changelog/release-notes#v1.3.0)).
+Factory presents the 1.x generation as faster, higher scoring and cheaper per
+completed task than the agents around it, and publishes the benchmark behind
+the claim as the figure below.
 
 ![Terminal-Bench 4. Left panel GPT-6.1 Sol: Droid at 57.6% for $0.79 per passed task, Codex 54.0%, OpenCode 51.0%, Devin 45.0%. Right panel Opus 5.5: Droid at 65.2% for $4.73, OpenCode 62.1%, Cursor 62.1%, Devin 59.6%, Claude Code 57.6%.](media/terminal-bench-4.png)
 

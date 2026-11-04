@@ -106,12 +106,12 @@ function harness({ state, stateFn, env, platform = 'linux' } = {}) {
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: sender => windows.find(w => w.webContents === sender) ?? null },
     },
-    qn: registeredSet,
-    Rr: sender => !sender.isDestroyed() && !sender.isCrashed(),
-    br: () => windows,
+    Yn: registeredSet,
+    Mr: sender => !sender.isDestroyed() && !sender.isCrashed(),
+    Tr: () => windows,
     // Vendor main-bundle collaborators the integration reaches through:
-    Uue: () => '#17181c',
-    zue: (color, win) => {
+    Kpe: () => '#17181c',
+    Ype: (color, win) => {
       vendorBackground.push([color, win]);
       if (win && !win.isDestroyed()) { win.setBackgroundColor(color); return; }
       for (const w of windows) if (!w.isDestroyed()) w.setBackgroundColor(color);
@@ -121,7 +121,7 @@ function harness({ state, stateFn, env, platform = 'linux' } = {}) {
   // window:setBackgroundColor handler plus the injected integration) against
   // Electron-shaped mocks. The op log records every native background repaint
   // and every renderer broadcast in global order, so tests can prove the
-  // vendor Ile call runs first, the glass repaint lands last, and unfollowed
+  // vendor Ype call runs first, the glass repaint lands last, and unfollowed
   // windows are never touched.
   const vendorFragment = `${themeMainChanges.map(([, before]) => before).join('\n')},async()=>{})`;
   const patched = patch(vendorFragment, themeMainChanges).replace(
@@ -213,10 +213,10 @@ test('webview frames can never authenticate the bridge or opt into transparency'
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: () => owner },
     },
-    qn: new Set([owner]),
-    Rr: () => true,
-    br: () => [owner],
-    Uue: () => '#17181c',
+    Yn: new Set([owner]),
+    Mr: () => true,
+    Tr: () => [owner],
+    Kpe: () => '#17181c',
   };
   vm.runInNewContext(patch(
     `${themeMainChanges.map(([, before]) => before).join('\n')},async()=>{})`, themeMainChanges),
@@ -326,7 +326,7 @@ test('vendor background IPC keeps vendor behavior first and re-glasses followed 
   // Targeted renderer background change while glassy.
   await h.setBackground(followed, '#2a2b31');
   assert.deepEqual(h.vendorBackground, [['#2a2b31', followed]],
-    'the real vendor zue call runs with the exact sender window');
+    'the real vendor Ype call runs with the exact sender window');
   assert.deepEqual(followed.backgrounds, ['#00000000', '#2a2b31', '#00000000'],
     'vendor repaint lands, then the tracked RGB is cached and glass is re-applied');
   assert.deepEqual(unfollowed.backgrounds, [], 'the other window is untouched by a targeted change');
@@ -350,7 +350,7 @@ test('vendor background IPC keeps vendor behavior first and re-glasses followed 
   await h.setBackground(followed, 'blue');
   await h.setBackground(followed, null);
   assert.equal(followed.backgrounds.length + unfollowed.backgrounds.length, before,
-    '8-digit or non-hex colors are rejected before zue or the tracking hook run');
+    '8-digit or non-hex colors are rejected before Ype or the tracking hook run');
 });
 
 test('resize repaints and window close never wedge the glass state', async () => {

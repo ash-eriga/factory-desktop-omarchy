@@ -2,11 +2,11 @@
 // Main-process only: no new renderer IPC, downloads or installation rights.
 export const updateNotificationMainChanges = [
   ['declare port update notifier',
-    'function Sd(){var u;',
-    'var factoryPortUpdates;function Sd(){var u;'],
+    'function Id(){var u;',
+    'var factoryPortUpdates;function Id(){var u;'],
   ['initialize port update notifier before building the application menu',
-    's.startupTracker.beginPhase("application_menu_create"),Sd(),s.onDesktopUpdatePolicyChange(Sd)',
-    's.startupTracker.beginPhase("application_menu_create"),process.platform==="linux"&&(factoryPortUpdates=require(Le.resolve(process.resourcesPath,"..","port","update-notifier.cjs")).createUpdateNotifier({electron:A,version:require(Le.resolve(process.resourcesPath,"..","port","release.json")).version,allowed:()=>s.getHostedServicesEnabled()&&s.getRuntimeAuthConfig().airgapEnabled!==!0&&!s.areDesktopUpdatesDisabledByCachedOrgSettings(),canAutoCheck:Xd,rebuildMenu:Sd})),Sd(),s.onDesktopUpdatePolicyChange(Sd)'],
+    's.startupTracker.beginPhase("application_menu_create"),Id(),s.onDesktopUpdatePolicyChange(Id)',
+    's.startupTracker.beginPhase("application_menu_create"),process.platform==="linux"&&(factoryPortUpdates=require(Le.resolve(process.resourcesPath,"..","port","update-notifier.cjs")).createUpdateNotifier({electron:A,version:require(Le.resolve(process.resourcesPath,"..","port","release.json")).version,allowed:()=>s.getHostedServicesEnabled()&&s.getRuntimeAuthConfig().airgapEnabled!==!0&&!s.areDesktopUpdatesDisabledByCachedOrgSettings(),canAutoCheck:nu,rebuildMenu:Id})),Id(),s.onDesktopUpdatePolicyChange(Id)'],
   ['offer port release notifications instead of the vendor updater',
     'o=process.platform==="linux"||!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:',
     'o=process.platform==="linux"?(factoryPortUpdates?.menuItems()??[]):!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:'],
