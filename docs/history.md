@@ -5,7 +5,28 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
-## Factory Desktop 1.2.0
+## Factory Desktop 1.3.0
+
+- The pinned upstream moves from 1.2.0 to 1.3.0 (`@factory/cli-linux-x64`
+  1.3.0). The installer digest and the bundle chunk names in `versions.json`
+  are those of the inspected 1.3.0 payload; the official rotor geometry is
+  unchanged, so the brand pins carry over.
+- Every patch anchor is re-derived against the 1.3.0 bundle across main
+  process, preload, renderer, HTML and CSS. The Linux guards, the update
+  notifier gate (`nu()`), the precinct registration driver (`HG`/`qG`), the
+  application menu handler (`Cfe`) and the theme main bridge (`Ype`/`Kpe`)
+  keep their exact responsibilities under the new names.
+- The sidebar fade keeps the 1.2-era shape on the new 1.3.0 bytes: the mask
+  still belongs only to the session-list scroll root the session-list
+  wrapper (`VUc`) actually renders (`$Uc`, the shared styled base `Iit`),
+  and the fade depth still grows with the real clipped distance of the
+  upstream scroll observer (`gMn` threshold) instead of popping to full
+  height. Negative controls still reject a shared root with the same base
+  and an overlay-only fixture, so the regression that shrank the sidebar
+  content cannot come back silently.
+- The appearance follow row is placed against 1.3.0's own memo-cache
+  slots, and the composer markers follow the renamed components
+  (`y4`, `c3a`); nothing outside the port's own additions changed.
 
 - The pinned upstream moves from 1.1.0 to 1.2.0 (`@factory/cli-linux-x64`
   1.2.0). The installer digest and the bundle chunk names in `versions.json`
