@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { runSmoke } from './ipc-smoke.mjs';
+import { runSmoke, daemonEnvironment } from './ipc-smoke.mjs';
 
 function fakeChild({ messages = [], exitCode = 0, exitSignal = null, exitAfterMs = 0, error }) {
   const child = {
@@ -96,4 +96,31 @@ test('unexpected exit after ready fails', async () => {
     assert.equal(result.ok, false);
     assert.match(result.reason, /unexpected exit after ready/);
   });
+});
+
+test('the daemon child env is allowlisted: ambient credentials never cross', () => {
+  const ambient = {
+    PATH: '/usr/bin', LANG: 'C.UTF-8', TMPDIR: '/tmp',
+    FACTORY_API_KEY: 'fk-synthetic-not-a-real-key',
+    GH_TOKEN: 'ghu-synthetic-not-a-real-token',
+    AWS_SECRET_ACCESS_KEY: 'synthetic-not-a-secret',
+    NODE_OPTIONS: '--require=evil.js',
+    ELECTRON_RUN_AS_NODE: '1',
+    ELECTRON_NO_ASAR: '1',
+    FACTORY_DESKTOP_RENDERER_URL: 'http://127.0.0.1:9',
+    FACTORY_E2E_DAEMON_HOOKS: '1',
+    FACTORY_DESKTOP_DAEMON_BINARY: '/evil/droid',
+  };
+  const env = daemonEnvironment('/tmp/fake-home', ambient);
+  for (const key of Object.keys(ambient)) {
+    if (!['PATH', 'LANG', 'TMPDIR'].includes(key)) {
+      assert.equal(env[key], undefined, `${key} must not reach the daemon child`);
+    }
+  }
+  assert.equal(env.HOME, '/tmp/fake-home');
+  assert.equal(env.FACTORY_DISABLE_KEYRING, '1');
+  assert.match(env.FACTORY_HOME_OVERRIDE, /factory-home$/);
+  assert.equal(env.HTTP_PROXY, 'http://127.0.0.1:9');
+  assert.equal(env.HTTPS_PROXY, 'http://127.0.0.1:9');
+  assert.equal(env.ALL_PROXY, 'http://127.0.0.1:9');
 });

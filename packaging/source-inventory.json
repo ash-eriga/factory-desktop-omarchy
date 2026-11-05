@@ -26,6 +26,14 @@
       "mode": "0644"
     },
     {
+      "path": "docs/rust-rewrite-decisions.tsv",
+      "mode": "0644"
+    },
+    {
+      "path": "docs/rust-rewrite-plan.md",
+      "mode": "0644"
+    },
+    {
       "path": "docs/update.md",
       "mode": "0644"
     },

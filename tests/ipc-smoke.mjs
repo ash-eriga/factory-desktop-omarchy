@@ -6,6 +6,10 @@
 // message AND a clean shutdown; a child that exits cleanly before reporting
 // ready is a failure, not a pass.
 //
+// The daemon child runs under an explicit environment allowlist with a
+// dead-end proxy, like the other smokes: ambient shell credentials can
+// never reach it.
+//
 // Usage:
 //   node tests/ipc-smoke.mjs <bundle> [timeout-seconds]
 import { spawn } from 'node:child_process';
@@ -72,17 +76,35 @@ function defaultHomeFactory() {
   return home;
 }
 
+// Ambient keys the daemon may see, matching the gui-smoke allowlist minus
+// the display-only keys a headless daemon never reads.
+const ALLOWED_AMBIENT_KEYS = ['PATH', 'USER', 'LOGNAME', 'LANG', 'LC_ALL', 'TMPDIR'];
+
+// The child environment the smoke really runs under. A seam on purpose:
+// the regression test asserts on exactly what the daemon receives.
+export function daemonEnvironment(home, ambient = process.env) {
+  const env = {};
+  for (const key of ALLOWED_AMBIENT_KEYS) {
+    if (ambient[key] !== undefined) env[key] = ambient[key];
+  }
+  return {
+    ...env,
+    HOME: home,
+    FACTORY_HOME_OVERRIDE: path.join(home, 'factory-home'),
+    XDG_CACHE_HOME: path.join(home, 'cache'),
+    XDG_CONFIG_HOME: path.join(home, 'config'),
+    XDG_STATE_HOME: path.join(home, 'state'),
+    HTTP_PROXY: 'http://127.0.0.1:9',
+    HTTPS_PROXY: 'http://127.0.0.1:9',
+    ALL_PROXY: 'http://127.0.0.1:9',
+    FACTORY_DISABLE_KEYRING: '1',
+  };
+}
+
 function nodeSpawn(droid, args, home) {
   const child = spawn(droid, args, {
     cwd: path.join(home, 'desktop-home'),
-    env: {
-      ...process.env,
-      HOME: home,
-      FACTORY_HOME_OVERRIDE: path.join(home, 'factory-home'),
-      XDG_CACHE_HOME: path.join(home, 'cache'),
-      XDG_CONFIG_HOME: path.join(home, 'config'),
-      XDG_STATE_HOME: path.join(home, 'state'),
-    },
+    env: daemonEnvironment(home),
     stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
   });
   return {
