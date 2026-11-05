@@ -47,3 +47,10 @@ jobs:
 
       - name: Run the offline test suite
         run: npm test
+
+      # Separate on purpose: benchmarks/ is excluded from the source archive,
+      # so the packaged tree may not contain it and npm test must not glob it.
+      # These gates encode the runtime-helper math (CPU percent factor, PSS
+      # availability); a regression here broke real measurements before.
+      - name: Run the benchmark unit gates
+        run: node --test benchmarks/*.test.mjs
