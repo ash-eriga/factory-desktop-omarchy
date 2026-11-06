@@ -11,12 +11,18 @@ Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_
 - Workstreams active by default, no server-side experiment gate required.
 - Remote Control, enabled only when you choose.
 
-## Droid 1.3
+## Droid 1.5
 
-This port tracks Factory Desktop 1.3.0 (the release that adds editable email
-draft cards, faster replies with hundreds of tools, instant sidebar view
-switching and task permission inheritance; the upstream changelog lives at
-[docs.factory.com/changelog/release-notes](https://docs.factory.com/changelog/release-notes#v1.3.0)).
+This port tracks Factory Desktop 1.5.0, two upstream releases after the
+previous ported pin: 1.4.0 added Loops on Droid Computers, a readable
+session tree view, one shared image-preview toolbar and a long series of
+session resume and Windows command fixes; 1.5.0 adds the automation
+creation menu (from a template, with Droid, or manually), a simpler custom
+model form, connector logos and categories for Splunk, Elasticsearch and
+Google BigQuery, saved pull request titles in the environment panel, safer
+Environment choices in New Session, and the return of older messages after
+compaction and on short sessions (the upstream changelog lives at
+[docs.factory.com/changelog/release-notes](https://docs.factory.com/changelog/release-notes#v1.5.0)).
 Factory presents the 1.x generation as faster, higher scoring and cheaper per
 completed task than the agents around it, and publishes the benchmark behind
 the claim as the figure below.

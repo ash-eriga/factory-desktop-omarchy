@@ -5,6 +5,59 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## Factory Desktop 1.5.0
+
+- The pinned upstream moves from 1.3.0 to 1.5.0 (`@factory/cli-linux-x64`
+  1.5.0). The installer digest and the bundle chunk names in `versions.json`
+  are those of the inspected 1.5.0 payload; the official rotor geometry is
+  unchanged, so the brand pins carry over.
+- Every patch anchor is re-derived against the 1.5.0 bundle across main
+  process, preload, renderer, HTML and CSS. The Electron namespace moved
+  from `A` to `I`, the registered-window set from `Yn` to `Jn`, the live
+  window reader from `Tr()` to `or()`, the webContents liveness check from
+  `Mr()` to `$r()`, the vendor baseline from `Kpe()` to `$he()` and the
+  native background applier from `Ype()` to `Fhe()`; the Linux guards, the
+  update notifier gate (`Va()`), the computer registration driver
+  (`FZ`/`HZ`), the application menu handler (`mme`) and the theme main
+  bridge keep their exact responsibilities under the new names.
+- The renderer theme layer follows the rewritten appearance system: the
+  atom creators are `Di`/`bce` (was `Ko`/`qre`), the appearance store is
+  `pnt` (was `wXe`), the resolved theme atom is `YH` (was `qq`) and now
+  honours upstream's org-managed default override (`wQt`) ahead of the
+  port's follow source; the theme editor is `zUu` (was `e4u`) and the
+  Appearance screen is `t$u` (was `u4u`), with the same memo-cache growth
+  (232→235 and 206→211) for the follow state hooks.
+- The remote-control layer follows the renamed connection hook (`vjd`, was
+  `I_d`), manager (`ce`, was `le`), machine id (`oo`, was `ro`), connect
+  (`be`, was `Se`), auto-start (`ve`, was `Ce`) and cleanup names, plus the
+  machine/connection event enums (`ki`/`Kf`, was `wi`/`vf`) and the manual
+  enable/disable hook (`Lyn`, was `n0n`).
+- The sidebar fade keeps the 1.2-era shape on the new 1.5.0 bytes: the mask
+  still belongs only to the session-list scroll root the session-list
+  wrapper (`Ytd`) actually renders (`Vtd`), and the fade depth still grows
+  with the real clipped distance of the upstream scroll observer (`DNn`
+  threshold) instead of popping to full height. Negative controls still
+  reject a shared root with the same base and an overlay-only fixture.
+- The composer markers follow the renamed components (`a4` from the
+  new-session stacked panel, `kBa` from the session card); nothing outside
+  the port's own additions changed. The preload's Electron binding moved
+  from `F` to `M`, and the port update notifier registration follows the
+  renamed menu builder (`qd`, was `Id`) and the auto-check gate (`Va`, was
+  `nu`).
+- A follow-up glass pass fixes two 1.5.0 regressions on a followed glassy
+  window: the composer wrapper's backdrop-blur scrim assumes an opaque
+  page, so over a transparent window it blurs the wallpaper and paints a
+  dark gradient band with a hard edge above the composer — the glass scope
+  now disables that scrim through the composer surface marker; and the
+  mission-role chip paints an opaque `accent-dim` fill under 1.5.0, so it
+  follows the composer chips standard with a transparent fill.
+- A new typography layer aligns the composer model chip with the row it
+  renders into: the chip renders through the app Typography component,
+  whose shared base line-height is 1.2 (14.4px), while every neighbour in
+  the row paints a 15px core-v2 line-height, leaving the chip's ink ~0.3px
+  low. The chip's own Typography call receives an inline 15px line-height;
+  the shared base and every other Typography instance stay untouched.
+
 ## Factory Desktop 1.3.0
 
 - The pinned upstream moves from 1.2.0 to 1.3.0 (`@factory/cli-linux-x64`

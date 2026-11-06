@@ -38,8 +38,8 @@ function evaluateHelpers({ locale = 'en-US' } = {}) {
     },
     navigator: { language: locale },
     c: { jsx: (type, props) => ({ type, props }) },
-    Ta: 'Checkbox',
-    md: 'SettingRow',
+    Ia: 'Checkbox',
+    ad: 'SettingRow',
   });
   const result = vm.runInContext(
     `${rendererHelpers}\n({normalize:factoryPortNormalizeTheme,overlay:factoryPortOverlayAppearance,buildRow:factoryPortBuildThemeRow,glassCss:factoryPortGlassCss,sync:factoryPortSyncNativeFollow})`,
@@ -112,15 +112,15 @@ test('contrast runs to 150 for fills while text tokens stop at the upstream ceil
 
   // The slider, the stored-value validation and the displayed number share the
   // bounds object, so raising its max is the one place the ceiling lives.
-  assert.ok(renderer.includes('HWe={min:0,max:100}'), 'upstream still caps contrast at 100');
-  assert.equal(patched.split('HWe={min:0,max:150}').length, 2, 'the ceiling is replaced exactly once');
-  assert.ok(!patched.includes('HWe={min:0,max:100}'), 'no stale ceiling survives the patch');
+  assert.ok(renderer.includes('TXe={min:0,max:100}'), 'upstream still caps contrast at 100');
+  assert.equal(patched.split('TXe={min:0,max:150}').length, 2, 'the ceiling is replaced exactly once');
+  assert.ok(!patched.includes('TXe={min:0,max:100}'), 'no stale ceiling survives the patch');
 
-  const start = patched.indexOf('function v_a(');
-  const end = patched.indexOf('function qWe(', start);
+  const start = patched.indexOf('function W$n(');
+  const end = patched.indexOf('function MXe(', start);
   assert.ok(start !== -1 && end > start, 'the token curve is present in the patched renderer');
   const amount = vm.runInContext(
-    `function hoe(t,e,n){return Math.min(n,Math.max(e,t))}function Oie(t,e,n){return Math.min(n,Math.max(e,t))}\n${patched.slice(start, end)}\nv_a`,
+    `function Lre(t,e,n){return Math.min(n,Math.max(e,t))}\n${patched.slice(start, end)}\nW$n`,
     vm.createContext({}),
   );
   const fill = mode => ({ kind: 'fill', [mode]: 2.5 });
@@ -167,25 +167,25 @@ test('follow row is placed inside the theme editor before the preset row with ex
   // u4u (Appearance screen) grows its cache only for the follow state hooks
   // and the three new prop dependencies of the editor call site.
   assert.ok(patched.includes(
-    'function u4u(){const t=z.c(235),{t:e}=fe("settings"),[n,i]=ks(HBe),'
-    + '[factoryPortFollow,setFactoryPortFollow]=ks(factoryPortThemeFollow),'
-    + '[factoryPortState]=ks(factoryPortThemeSnapshot),'
-    + '{theme:o,themePreference:s,setThemePreference:r}=FD(),',
+    'function t$u(){const t=z.c(235),{t:e}=fe("settings"),[n,i]=Gs(H9e),'
+    + '[factoryPortFollow,setFactoryPortFollow]=Gs(factoryPortThemeFollow),'
+    + '[factoryPortState]=Gs(factoryPortThemeSnapshot),'
+    + '{theme:o,themePreference:s,setThemePreference:r}=M8(),',
   ), 'u4u reads the follow atoms and grew its memo cache from 232 to 235');
   assert.ok(patched.includes(
     't[29]!==a||t[30]!==l||t[31]!==m||t[32]!==k||t[232]!==factoryPortFollow'
     + '||t[233]!==factoryPortState||t[234]!==setFactoryPortFollow'
-    + '?(R=c.jsx(e4u,{mode:a,onChange:k,onChoose:m,theme:l,factoryPortFollow,'
+    + '?(R=c.jsx(zUu,{mode:a,onChange:k,onChoose:m,theme:l,factoryPortFollow,'
     + 'factoryPortState,setFactoryPortFollow},a)',
   ), 'the editor call site declares all follow prop dependencies');
-  assert.ok(!patched.includes('function u4u(){const t=z.c(232),'), 'stale u4u cache size removed');
+  assert.ok(!patched.includes('function t$u(){const t=z.c(232),'), 'stale u4u cache size removed');
 
-  // e4u (theme editor) receives the props, grows its cache, memoizes the row
+  // zUu (theme editor) receives the props, grows its cache, memoizes the row
   // and places it as the first child, immediately before the preset row.
   assert.ok(patched.includes(
-    'function e4u(t){const e=z.c(211),{mode:n,onChange:i,onChoose:o,theme:s,'
+    'function zUu(t){const e=z.c(211),{mode:n,onChange:i,onChoose:o,theme:s,'
     + 'factoryPortFollow,factoryPortState,setFactoryPortFollow}=t,{t:r}=fe("settings"),',
-  ), 'e4u receives the follow props and grew its memo cache from 206 to 211');
+  ), 'zUu receives the follow props and grew its memo cache from 206 to 211');
   assert.ok(patched.includes(
     'const{palette:b}=y;let factoryPortThemeRow;e[206]!==factoryPortFollow'
     + '||e[207]!==factoryPortState||e[208]!==setFactoryPortFollow'
@@ -195,21 +195,21 @@ test('follow row is placed inside the theme editor before the preset row with ex
     + 'let C;if(e[11]!==n||e[12]!==s.preset){',
   ), 'the row is memoized from its three controlled props before the preset options memo');
   assert.ok(patched.includes(
-    'e[188]!==Xe||e[210]!==factoryPortThemeRow'
-    + '?(Ye=c.jsxs(I1,{children:[factoryPortThemeRow,Z,ee,ye,Ce,Ae,we,Be,_e,Ne,$e,Xe]})',
+    'e[188]!==Ye||e[210]!==factoryPortThemeRow'
+    + '?(Ze=c.jsxs(x1,{children:[factoryPortThemeRow,Z,te,de,ve,ge,xe,_e,Ee,je,Qe,Ye]})',
   ), 'the follow row renders immediately before the preset row inside the editor');
-  assert.ok(!patched.includes('function e4u(t){const e=z.c(206),'), 'stale e4u cache size removed');
+  assert.ok(!patched.includes('function zUu(t){const e=z.c(206),'), 'stale zUu cache size removed');
 
   // The screen-level fragment stays untouched: the row lives only in the editor.
   assert.ok(patched.includes(
-    'wt=c.jsxs(c.Fragment,{children:[T,R,Ge,et,Ft]}),t[226]=T,t[227]=R,t[228]=Ge,t[229]=et,t[230]=Ft,t[231]=wt',
+    'It=c.jsxs(c.Fragment,{children:[T,R,ze,ot,Ot]}),t[226]=T,t[227]=R,t[228]=ze,t[229]=ot,t[230]=Ot,t[231]=It',
   ), 'the Appearance screen fragment keeps its original children and return cache');
   assert.equal(patched.split('factoryPortBuildThemeRow(factoryPortFollow').length - 1, 1,
     'the row is built from exactly one call site');
 });
 
 test('renderer snapshot store lets a newer live event win over initial IPC and cleans up', async () => {
-  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('wXe.onMount='));
+  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('pnt.onMount='));
   const values = new Map([
     ['factory-port-theme-source', 'omarchy'],
     ['factory-port-theme-cache', JSON.stringify({
@@ -225,12 +225,12 @@ test('renderer snapshot store lets a newer live event win over initial IPC and c
     onOmarchyChanged: callback => { eventListener = callback; return () => { unsubscribeCount++; }; },
   };
   const atoms = [];
-  const Ko = initial => {
+  const Di = initial => {
     const atom = { value: initial, onMount: null };
     atoms.push(atom);
     return atom;
   };
-  const qre = (key, initial, storage) => ({ key, initial, storage });
+  const bce = (key, initial, storage) => ({ key, initial, storage });
   const context = vm.createContext({
     localStorage: {
       getItem: key => values.get(key) ?? null,
@@ -239,7 +239,7 @@ test('renderer snapshot store lets a newer live event win over initial IPC and c
     },
     navigator: { language: 'en-US' },
     window: { electronAPI: { theme: api } },
-    Ko, qre, czc: () => "system",
+    Di, bce, msd: () => "system",
   });
   vm.runInContext(`${storeSetup}\nglobalThis.__snapshot = factoryPortThemeSnapshot;`, context);
   const snapshot = context.__snapshot;
@@ -275,13 +275,13 @@ function miniAtomStore() {
   const getters = new Map();
   const subs = new Map();
   const storages = new Map();
-  const Ko = initial => {
+  const Di = initial => {
     const atom = Symbol('atom');
     if (typeof initial === 'function') getters.set(atom, initial); else values.set(atom, initial);
     subs.set(atom, []);
     return atom;
   };
-  const qre = (key, initial, storage) => {
+  const bce = (key, initial, storage) => {
     const atom = Symbol('stored-atom');
     values.set(atom, initial);
     storages.set(atom, { key, storage });
@@ -309,11 +309,11 @@ function miniAtomStore() {
       };
     },
   };
-  return { Ko, qre, store };
+  return { Di, bce, store };
 }
 
 function evaluateStoreSetup(context = {}) {
-  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('wXe.onMount='));
+  const storeSetup = rendererChanges[0][2].slice(0, rendererChanges[0][2].lastIndexOf('pnt.onMount='));
   const values = new Map();
   const vmContext = vm.createContext({
     localStorage: {
@@ -336,9 +336,9 @@ const glassyPalette = {
 };
 
 test('glass tint is gated on follow, availability, the glassy windowMode and main acceptance', () => {
-  const { Ko, qre, store } = miniAtomStore();
+  const { Di, bce, store } = miniAtomStore();
   const { context, values } = evaluateStoreSetup({
-    Ko, qre, czc: () => "system",
+    Di, bce, msd: () => "system",
     window: { electronAPI: { theme: { getOmarchy() {} } } },
   });
   const { follow, snapshot, accepted, glassActive } = context.__port;
@@ -389,7 +389,7 @@ test('glass clears the native content wrapper without fading controls or all sid
     'the real Linux/native-menu content wrapper must not cover the glass tint with sidebar-bg');
   assert.ok(!css.includes('--sidebar-bg:transparent'),
     'only the structural wrapper is cleared, not every sidebar-colored control or panel');
-  assert.ok(!css.includes('opacity') && !css.includes('filter'));
+  assert.ok(!css.includes('opacity') && !css.includes('blur(') && !/filter:(?!none)/.test(css.replace(/backdrop-filter:none!important/g, '')));
 });
 
 test('glass clears the unscoped backdrop and full-pane border gradient while retaining a solid border', () => {
@@ -413,6 +413,22 @@ test('composer secondary buttons lose their opaque fill under glass at every con
       `contrast ${contrast} clears the secondary button fill inside the composer`);
   }
   assert.equal(glassCss({ ...glassyPalette, windowMode: 'transparent' }), '', 'no rule outside the glass gate');
+});
+
+test('the composer blur scrim and the mission-role chip follow the transparent theme', () => {
+  const { glassCss } = evaluateHelpers();
+  const css = glassCss(glassyPalette);
+  // The composer wrapper blurs what is behind it. Over an opaque window that
+  // is the app's own content; over a transparent window it is the window
+  // backdrop, so the blur paints a dark gradient band with a hard edge above
+  // the composer. The glass scope disables the scrim.
+  assert.ok(css.includes("[data-windows-content-frame='true'] :has([data-factory-port-composer-surface])::before{backdrop-filter:none!important}"),
+    'the composer wrapper backdrop blur must be disabled under glass');
+  // The mission-role chip paints an accent-dim fill that reads as a solid box
+  // over the glass. It follows the composer chips standard: no fill.
+  assert.ok(css.includes('[data-factory-port-composer-surface] *{--core-v2-accent-bg-dim:transparent}'),
+    'the mission-role chip fill must not stay opaque under glass');
+  assert.equal(glassCss({ ...glassyPalette, windowMode: 'opaque' }), '', 'no rule outside the glass gate');
 });
 
 test('the composer outline only strengthens above a contrast of 100 and is never filled', () => {
@@ -456,17 +472,17 @@ test('the composer outline only strengthens above a contrast of 100 and is never
 
 test('the composer panels are marked so the glass layer can strengthen their outline', { skip: upstreamMissing }, () => {
   const renderer = readFileSync(rendererPath, 'utf8');
-  assert.ok(renderer.includes('const y4=X(ot)`\n  align-items: center;\n  border: 1px solid var(--border-1);'),
+  assert.ok(renderer.includes('const a4=X(st)`\n  align-items: center;\n  border: 1px solid var(--border-1);'),
     'upstream still declares the stacked panel with a bare base');
-  assert.ok(renderer.includes('const c3a=X.div`'), 'upstream still declares the session composer card');
+  assert.ok(renderer.includes('const kBa=X.div`'), 'upstream still declares the session composer card');
   assert.ok(!renderer.includes('data-factory-port-composer-surface'), 'the marker does not exist upstream');
   const patched = patch(renderer, rendererChanges);
   assert.equal(patched.split('.attrs({"data-factory-port-composer-surface":!0})').length - 1, 2,
     'the stacked panel and the session card both carry the marker');
-  assert.ok(patched.includes('const y4=X(ot).attrs({"data-factory-port-composer-surface":!0})`\n'
+  assert.ok(patched.includes('const a4=X(st).attrs({"data-factory-port-composer-surface":!0})`\n'
     + '  align-items: center;\n  border: 1px solid var(--border-1);'),
   'the stacked panel keeps its border rule and gains only the attribute');
-  assert.ok(patched.includes('background-color: transparent;\n    border: ${I.borderWidth.default} solid ${I.border.inner};'),
+  assert.ok(patched.includes('background-color: transparent;\n    border: ${E.borderWidth.default} solid ${E.border.inner};'),
     'the session card keeps upstream transparent background and inner border');
   assert.equal(patched.split('[data-factory-port-composer-surface][data-factory-port-composer-surface]').length - 1, 1,
     'exactly one glass rule targets the marker');
@@ -487,9 +503,9 @@ test('Glassy Bar chrome is scoped, keeps solid control tokens and supports both 
 });
 
 test('ThemeSync lifecycle syncs one live native follow per change and never leaks subscriptions', async () => {
-  const { Ko, qre, store } = miniAtomStore();
+  const { Di, bce, store } = miniAtomStore();
   const { context } = evaluateStoreSetup({
-    Ko, qre, czc: () => "system",
+    Di, bce, msd: () => "system",
     window: { electronAPI: { theme: { getOmarchy() {}, setOmarchyFollow: () => {} } } },
   });
   const { follow, accepted } = context.__port;
@@ -504,7 +520,7 @@ test('ThemeSync lifecycle syncs one live native follow per change and never leak
   const nufCalls = [];
   const fakeStore = {
     get: atom => (atom === follow ? followValue : atom === $H ? 'dark' : atom === source ? 'dark'
-      : atom === background ? '#1a1a2a' : undefined),
+      : atom === settings ? 'dark' : atom === background ? '#1a1a2a' : undefined),
     set: (atom, value) => { if (atom === accepted) acceptedValues.push(value); },
     sub: (atom, listener) => {
       subCalls.push(atom);
@@ -520,16 +536,17 @@ test('ThemeSync lifecycle syncs one live native follow per change and never leak
     return new Promise(resolve => { resolvers.push(resolve); });
   };
 
-  const iufChange = rendererChanges.find(change => change[1].startsWith('const r=i.sub(qq,s)'));
+  const iufChange = rendererChanges.find(change => change[1].startsWith('const r=i.sub(YH,s)'));
   assert.ok(iufChange, 'the ThemeSync subscription change exists');
-  const effectSource = 'const s=()=>{$rf({appearanceBackground:i.get(ymi),theme:i.get(qq),'
+  const effectSource = 'const s=()=>{$rf({appearanceBackground:i.get($1i),theme:i.get(YH),'
     + 'themePreference:i.get(factoryPortThemeSource)})};s();' + iufChange[2];
   const makeEffect = vm.runInContext(
-    '($rf,qq,factoryPortThemeSource,ymi,factoryPortThemeFollow,factoryPortSyncNativeFollow)'
+    '($rf,YH,Dke,factoryPortThemeSource,$1i,wQt,factoryPortThemeFollow,factoryPortSyncNativeFollow)'
     + '=>(i,Xt)=>{' + effectSource + '}', context);
-  const $H = Symbol('$H'), source = Symbol('source'), background = Symbol('background');
+  const $H = Symbol('$H'), source = Symbol('source'), background = Symbol('background'),
+    settings = Symbol('settings'), override = Symbol('override');
   const cleanup = makeEffect(
-    payload => { nufCalls.push(payload); }, $H, source, background, follow, sync,
+    payload => { nufCalls.push(payload); }, $H, settings, source, background, override, follow, sync,
   )(fakeStore, () => {});
 
   assert.equal(invocations.length, 1, 'mounting ThemeSync syncs the follow opt-in exactly once');
@@ -537,7 +554,7 @@ test('ThemeSync lifecycle syncs one live native follow per change and never leak
   assert.deepEqual(acceptedValues, [false]);
   assert.deepEqual({ ...nufCalls[0] }, { appearanceBackground: '#1a1a2a', theme: 'dark', themePreference: 'dark' },
     'ThemeSync still performs its original vendor theme sync');
-  assert.deepEqual(subCalls, [$H, source, background, follow],
+  assert.deepEqual(subCalls, [$H, settings, background, override, follow],
     'ThemeSync subscribes the vendor atoms plus exactly one follow atom');
   const followListener = subscriptions.find(entry => entry.atom === follow).listener;
 
@@ -624,8 +641,9 @@ test('renderer DTO validation is strict and palette overlay preserves saved Fact
   assert.ok(css.includes('body, #root{background-color:transparent!important}'));
   assert.equal((css.match(/\.65/g) || []).length, 1, 'one content tint rule');
   assert.equal((css.match(/\.35/g) || []).length, 1, 'one shared chrome tint rule');
-  assert.ok(!css.includes('opacity') && !css.includes('filter'),
-    'glass never uses whole-document opacity or filter');
+  assert.ok(!css.includes('opacity') && !css.includes('blur(')
+    && !/filter:(?!none)/.test(css.replace(/backdrop-filter:none!important/g, '')),
+    'glass never uses whole-document opacity, blur layers or a fading filter');
   assert.equal(glassCss({ ...valid, windowMode: 'transparent' }), '',
     'no glass CSS unless the followed snapshot itself is glassy');
   assert.equal(glassCss({ ...valid, available: false }), '');

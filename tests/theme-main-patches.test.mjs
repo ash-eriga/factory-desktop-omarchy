@@ -19,7 +19,7 @@ test('main theme bridge patch is unique and syntactically valid', () => {
   assert.ok(patched.includes('factory-linux-theme:get'));
   assert.ok(patched.includes('factory-linux-theme:changed'));
   assert.ok(patched.includes('factory-linux-theme:follow'));
-  assert.ok(patched.includes('process.platform==="linux"&&factoryLinuxOmarchyTrack&&factoryLinuxOmarchyTrack(I,W)'),
+  assert.ok(patched.includes('process.platform==="linux"&&factoryLinuxOmarchyTrack&&factoryLinuxOmarchyTrack(k,W)'),
     'the vendor background IPC must keep its vendor behavior first and only then call the Linux tracking hook');
   assert.ok(patched.includes('setBackgroundColor("#00000000")'),
     'native transparency is a fully transparent native background, not a fade of the whole window');
@@ -98,20 +98,20 @@ function harness({ state, stateFn, env, platform = 'linux' } = {}) {
       assert.equal(request, path.resolve('/opt/factory/resources', '..', 'port', 'theme-bridge.cjs'));
       return bridge;
     },
-    // 1.2.0 initLifecycle-B9LDWMKS.js module aliases verified upstream:
+    // 1.5.0 initLifecycle-DJfdIaHS.js module aliases verified upstream:
     s: { DESKTOP_RENDERER_ORIGIN: undefined },
-    A: {
+    I: {
       app: { getPath: name => { assert.equal(name, 'home'); return '/tmp/theme-fixture'; },
         on: (name, listener) => appEvents.set(name, listener) },
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: sender => windows.find(w => w.webContents === sender) ?? null },
     },
-    Yn: registeredSet,
-    Mr: sender => !sender.isDestroyed() && !sender.isCrashed(),
-    Tr: () => windows,
+    Jn: registeredSet,
+    $r: sender => !sender.isDestroyed() && !sender.isCrashed(),
+    or: () => windows,
     // Vendor main-bundle collaborators the integration reaches through:
-    Kpe: () => '#17181c',
-    Ype: (color, win) => {
+    $he: () => '#17181c',
+    Fhe: (color, win) => {
       vendorBackground.push([color, win]);
       if (win && !win.isDestroyed()) { win.setBackgroundColor(color); return; }
       for (const w of windows) if (!w.isDestroyed()) w.setBackgroundColor(color);
@@ -121,7 +121,7 @@ function harness({ state, stateFn, env, platform = 'linux' } = {}) {
   // window:setBackgroundColor handler plus the injected integration) against
   // Electron-shaped mocks. The op log records every native background repaint
   // and every renderer broadcast in global order, so tests can prove the
-  // vendor Ype call runs first, the glass repaint lands last, and unfollowed
+  // vendor Fhe call runs first, the glass repaint lands last, and unfollowed
   // windows are never touched.
   const vendorFragment = `${themeMainChanges.map(([, before]) => before).join('\n')},async()=>{})`;
   const patched = patch(vendorFragment, themeMainChanges).replace(
@@ -208,15 +208,15 @@ test('webview frames can never authenticate the bridge or opt into transparency'
       return bridge;
     },
     s: { DESKTOP_RENDERER_ORIGIN: undefined },
-    A: {
+    I: {
       app: { getPath: () => '/tmp/theme-fixture', on: () => {} },
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: () => owner },
     },
-    Yn: new Set([owner]),
-    Mr: () => true,
-    Tr: () => [owner],
-    Kpe: () => '#17181c',
+    Jn: new Set([owner]),
+    $r: () => true,
+    or: () => [owner],
+    $he: () => '#17181c',
   };
   vm.runInNewContext(patch(
     `${themeMainChanges.map(([, before]) => before).join('\n')},async()=>{})`, themeMainChanges),
@@ -326,7 +326,7 @@ test('vendor background IPC keeps vendor behavior first and re-glasses followed 
   // Targeted renderer background change while glassy.
   await h.setBackground(followed, '#2a2b31');
   assert.deepEqual(h.vendorBackground, [['#2a2b31', followed]],
-    'the real vendor Ype call runs with the exact sender window');
+    'the real vendor Fhe call runs with the exact sender window');
   assert.deepEqual(followed.backgrounds, ['#00000000', '#2a2b31', '#00000000'],
     'vendor repaint lands, then the tracked RGB is cached and glass is re-applied');
   assert.deepEqual(unfollowed.backgrounds, [], 'the other window is untouched by a targeted change');
@@ -350,7 +350,7 @@ test('vendor background IPC keeps vendor behavior first and re-glasses followed 
   await h.setBackground(followed, 'blue');
   await h.setBackground(followed, null);
   assert.equal(followed.backgrounds.length + unfollowed.backgrounds.length, before,
-    '8-digit or non-hex colors are rejected before Ype or the tracking hook run');
+    '8-digit or non-hex colors are rejected before Fhe or the tracking hook run');
 });
 
 test('resize repaints and window close never wedge the glass state', async () => {

@@ -31,6 +31,7 @@ import { applicationMenuMainChanges } from './application-menu-patches.mjs';
 import { computerRegistrationMainChanges, computerRegistrationRendererChanges,
   computerRegistrationPreloadChanges, diagnoseComputerRegistrationHelpers } from './computer-registration-patches.mjs';
 import { workstreamsRendererChanges } from './workstreams-patches.mjs';
+import { typographyRendererChanges } from './typography-patches.mjs';
 import { writeVendorSnapshot } from './vendor-snapshot.mjs';
 import { writeBrandAssets, ensureBrandAssets, brandSource, BRAND_DIR } from './brand-assets.mjs';
 import { applyAppIdentity } from './app-identity.mjs';
@@ -185,15 +186,16 @@ async function main() {
     ...diagnose(preloadSource, computerRegistrationPreloadChanges),
     ...diagnose(rendererSource, rendererChanges),
     ...diagnose(rendererSource, rendererTitleChanges),
-    ...diagnose(rendererSource, workstreamsRendererChanges)];
+    ...diagnose(rendererSource, workstreamsRendererChanges),
+    ...diagnose(rendererSource, typographyRendererChanges)];
   const linuxLifecycle = patch(lifecycleSource);
   const linuxPreload = patch(patch(preloadSource, preloadChanges), computerRegistrationPreloadChanges);
   // The renderer's own title sources and the initial page title carry the
   // port's name: the window shows it from the first frame on. The
   // workstreams default flips upstream's `missions_v2` Statsig fallback so
   // the sidebar ships with Workstreams active.
-  const linuxRenderer = patch(patch(patch(rendererSource, rendererChanges), rendererTitleChanges),
-    workstreamsRendererChanges);
+  const linuxRenderer = patch(patch(patch(patch(rendererSource, rendererChanges), rendererTitleChanges),
+    workstreamsRendererChanges), typographyRendererChanges);
   const identityHtml = patch(rendererHtmlSource, htmlTitleChanges);
   const themePatchedRenderer = patchThemeRenderer(linuxRenderer, themeRendererChanges);
   failures.push(...diagnose(linuxLifecycle, themeMainChanges));

@@ -256,25 +256,25 @@ test('the window title carries the port name and keeps the session title',
 
     // The renderer owns the window title: Electron propagates a page title
     // to the native window.
-    const start = patched.indexOf('function uVc(');
-    const end = patched.indexOf('function fVc(', start);
+    const start = patched.indexOf('function yad(');
+    const end = patched.indexOf('function bad(', start);
     assert.ok(start > 0 && end > start, 'the title hook was not found');
     const hook = patched.slice(start, end);
-    const fallback = patched.match(/lni="([^"]+)"/)?.[1];
+    const fallback = patched.match(/Sli="([^"]+)"/)?.[1];
     assert.equal(fallback, PRODUCT_NAME, 'the default title must be the port name');
 
     const run = props => {
       let cleanup;
       const context = {
         document: { title: '' },
-        lni: fallback,
-        Rs: current => () => {},
-        f5o: { subscribe: () => () => {} },
+        Sli: fallback,
+        qo: current => () => {},
+        iMo: { subscribe: () => () => {} },
         z: { c: n => Array(n) },
-        hn: effect => { cleanup = effect(); },
+        nn: effect => { cleanup = effect(); },
         props,
       };
-      vm.runInNewContext(`${hook};uVc(props);`, context, { timeout: 1000 });
+      vm.runInNewContext(`${hook};yad(props);`, context, { timeout: 1000 });
       return { context, cleanup: () => cleanup() };
     };
 

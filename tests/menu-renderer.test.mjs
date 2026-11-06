@@ -39,20 +39,20 @@ test('menu anchors compose with the theme patch and exactly reverse in memory', 
   const patched = patchMenuRenderer(themed);
   assert.deepEqual(diagnoseMenuRenderer(patched), menuRendererChanges.map(([name]) => ({ name, count: 0 })));
   assert.equal(unpatchMenuRenderer(patched), themed, 'verification can restore the in-memory renderer snapshot');
-  assert.match(patched, /Ne=lh\?c\.jsx\(md,\{control:Me,description:Ue,searchId:"appearance-font-smoothing"/);
+  assert.match(patched, /je=Yf\?c\.jsx\(ad,\{control:Me,description:Fe,searchId:"appearance-font-smoothing"/);
 
   // The theme layer owns the complete follow-row integration; the final
   // follow position is still asserted here so no later layer can move it.
   const placements = patched.split('children:[factoryPortThemeRow,').length - 1;
   assert.equal(placements, 1, 'exactly one follow-row placement inside the theme editor group');
   const placementIndex = patched.indexOf('children:[factoryPortThemeRow,');
-  assert.ok(patched.indexOf('function e4u(') < placementIndex
-    && placementIndex < patched.indexOf('function u4u('),
+  assert.ok(patched.indexOf('function zUu(') < placementIndex
+    && placementIndex < patched.indexOf('function t$u('),
   'follow row is placed inside the theme editor, before the Appearance settings function');
   assert.ok(patched.includes('searchId:"appearance-follow-omarchy"'), 'follow row content is present');
-  assert.ok(patched.includes('id:WI.Finder,label:lh?"Finder":"File manager",iconName:"folder",buildUrl:t=>`file://${I2e(t)}`,buildFileUrl:t=>`file://${nce(t)}`,macOnly:!1'),
+  assert.ok(patched.includes('id:fx.Finder,label:Yf?"Finder":"File manager",iconName:"folder",buildUrl:t=>`file://${uSe(t)}`,buildFileUrl:t=>`file://${Nue(t)}`,macOnly:!1'),
     'file reveal URL handlers stay unchanged around the label');
-  assert.ok(patched.includes('for(const n of[yr.Light,yr.Dark])t.nativeFontSmoothing[n]&&e.push(poe(Pio[n],{"-webkit-font-smoothing":"auto !important","-moz-osx-font-smoothing":"auto !important"}));'),
+  assert.ok(patched.includes('for(const n of[Ir.Light,Ir.Dark])t.nativeFontSmoothing[n]&&e.push(Nre(qco[n],{"-webkit-font-smoothing":"auto !important","-moz-osx-font-smoothing":"auto !important"}));'),
     'native CSS generator stays unchanged');
 });
 
@@ -61,18 +61,18 @@ test('Appearance hides the Mac-only row on Linux and preserves its saved setting
   assert.equal(applyOne(rowBefore, menuRendererChanges[0]), rowAfter);
   const makeRow = isMac => vm.runInNewContext(`
     function renderRow() {
-      let Ne;
+      let je;
       ${rowAfter};
-      return Ne;
+      return je;
     }
     renderRow;
   `, {
     c: { jsx: (type, props) => ({ type, props }) },
-    md: 'SettingRow',
+    ad: 'SettingRow',
     Me: { type: 'Checkbox' },
-    Ue: 'Description',
-    ze: 'Native macOS font anti-aliasing',
-    lh: isMac,
+    Fe: 'Description',
+    We: 'Native macOS font anti-aliasing',
+    Yf: isMac,
   });
 
   const persisted = { nativeFontSmoothing: { light: true, dark: false } };
@@ -92,7 +92,7 @@ test('file reveal keeps Finder on macOS and uses the generic File manager label 
     assert.match(change[2], /Finder/);
     assert.match(change[2], /File manager/);
   }
-  const label = isMac => vm.runInNewContext('lh?"Finder":"File manager"', { lh: isMac });
+  const label = isMac => vm.runInNewContext('Yf?"Finder":"File manager"', { Yf: isMac });
   assert.equal(label(true), 'Finder');
   assert.equal(label(false), 'File manager');
 });
