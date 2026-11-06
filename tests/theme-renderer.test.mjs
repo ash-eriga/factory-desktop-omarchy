@@ -389,7 +389,7 @@ test('glass clears the native content wrapper without fading controls or all sid
     'the real Linux/native-menu content wrapper must not cover the glass tint with sidebar-bg');
   assert.ok(!css.includes('--sidebar-bg:transparent'),
     'only the structural wrapper is cleared, not every sidebar-colored control or panel');
-  assert.ok(!css.includes('opacity') && !css.includes('filter'));
+  assert.ok(!css.includes('opacity') && !css.includes('blur(') && !/filter:(?!none)/.test(css.replace(/backdrop-filter:none!important/g, '')));
 });
 
 test('glass clears the unscoped backdrop and full-pane border gradient while retaining a solid border', () => {
@@ -413,6 +413,22 @@ test('composer secondary buttons lose their opaque fill under glass at every con
       `contrast ${contrast} clears the secondary button fill inside the composer`);
   }
   assert.equal(glassCss({ ...glassyPalette, windowMode: 'transparent' }), '', 'no rule outside the glass gate');
+});
+
+test('the composer blur scrim and the mission-role chip follow the transparent theme', () => {
+  const { glassCss } = evaluateHelpers();
+  const css = glassCss(glassyPalette);
+  // The composer wrapper blurs what is behind it. Over an opaque window that
+  // is the app's own content; over a transparent window it is the window
+  // backdrop, so the blur paints a dark gradient band with a hard edge above
+  // the composer. The glass scope disables the scrim.
+  assert.ok(css.includes("[data-windows-content-frame='true'] :has([data-factory-port-composer-surface])::before{backdrop-filter:none!important}"),
+    'the composer wrapper backdrop blur must be disabled under glass');
+  // The mission-role chip paints an accent-dim fill that reads as a solid box
+  // over the glass. It follows the composer chips standard: no fill.
+  assert.ok(css.includes('[data-factory-port-composer-surface] *{--core-v2-accent-bg-dim:transparent}'),
+    'the mission-role chip fill must not stay opaque under glass');
+  assert.equal(glassCss({ ...glassyPalette, windowMode: 'opaque' }), '', 'no rule outside the glass gate');
 });
 
 test('the composer outline only strengthens above a contrast of 100 and is never filled', () => {
@@ -625,8 +641,9 @@ test('renderer DTO validation is strict and palette overlay preserves saved Fact
   assert.ok(css.includes('body, #root{background-color:transparent!important}'));
   assert.equal((css.match(/\.65/g) || []).length, 1, 'one content tint rule');
   assert.equal((css.match(/\.35/g) || []).length, 1, 'one shared chrome tint rule');
-  assert.ok(!css.includes('opacity') && !css.includes('filter'),
-    'glass never uses whole-document opacity or filter');
+  assert.ok(!css.includes('opacity') && !css.includes('blur(')
+    && !/filter:(?!none)/.test(css.replace(/backdrop-filter:none!important/g, '')),
+    'glass never uses whole-document opacity, blur layers or a fading filter');
   assert.equal(glassCss({ ...valid, windowMode: 'transparent' }), '',
     'no glass CSS unless the followed snapshot itself is glassy');
   assert.equal(glassCss({ ...valid, available: false }), '');
