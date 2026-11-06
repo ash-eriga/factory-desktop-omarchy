@@ -27,6 +27,13 @@ Factory presents the 1.x generation as faster, higher scoring and cheaper per
 completed task than the agents around it, and publishes the benchmark behind
 the claim as the figure below.
 
+On top of the pinned release, this port fixes three visual defects against
+1.5.0's own bytes. On a glassy (Follow Omarchy) window the composer no longer
+paints a dark gradient band with a hard edge above it, the Orchestrator chip
+renders transparent like every other chip in its row, and the model chip's
+text aligns with its neighbours' line instead of sitting a fraction of a
+pixel low. An opaque window keeps upstream's rendering untouched.
+
 ![Terminal-Bench 4. Left panel GPT-6.1 Sol: Droid at 57.6% for $0.79 per passed task, Codex 54.0%, OpenCode 51.0%, Devin 45.0%. Right panel Opus 5.5: Droid at 65.2% for $4.73, OpenCode 62.1%, Cursor 62.1%, Devin 59.6%, Claude Code 57.6%.](media/terminal-bench-4.png)
 
 On the GPT-6.1 Sol panel Droid passes 57.6% of tasks at $0.79 each; Codex
