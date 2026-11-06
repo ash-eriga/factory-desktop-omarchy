@@ -13,6 +13,6 @@ export const glassyNavigationCss = `
 
 export const glassyNavigationChanges = [
   ['identify the settings navigation painter without changing settings behavior',
-    'const CZl=X.div`',
-    'const CZl=X.div.attrs({"data-factory-port-navigation-surface":!0})`'],
+    'const Quc=X.div`',
+    'const Quc=X.div.attrs({"data-factory-port-navigation-surface":!0})`'],
 ];
