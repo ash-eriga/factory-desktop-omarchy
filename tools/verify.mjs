@@ -20,6 +20,7 @@ import { ROOT, versions, elf, run, files, fingerprint, recipeFingerprint, recipe
 import { PRODUCT_NAME } from './app-identity.mjs';
 import { updateNotificationMainChanges, unpatchUpdateNotifications } from './update-notification-patches.mjs';
 import { workstreamsRendererChanges } from './workstreams-patches.mjs';
+import { typographyRendererChanges } from './typography-patches.mjs';
 
 const bundle = await outputBundle();
 const manifest = JSON.parse(await readFile(path.join(bundle, 'manifest.json'), 'utf8'));
@@ -65,7 +66,8 @@ for (const [file, transformations] of [[versions.lifecycle, changes],
   ['.vite/build/preload.js', preloadChanges], [versions.renderer, rendererChanges],
   ['.vite/build/preload.js', computerRegistrationPreloadChanges],
   [versions.renderer, rendererTitleChanges],
-  [versions.renderer, workstreamsRendererChanges]]) {
+  [versions.renderer, workstreamsRendererChanges],
+  [versions.renderer, typographyRendererChanges]]) {
   const source = rendererSource(file);
   for (const [name, , after] of transformations) {
     if (source.split(after).length !== 2) throw new Error(`Shipped patch missing or duplicated: ${name}`);

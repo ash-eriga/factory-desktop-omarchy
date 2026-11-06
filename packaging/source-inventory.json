@@ -318,6 +318,10 @@
       "mode": "0644"
     },
     {
+      "path": "tests/typography-patches.test.mjs",
+      "mode": "0644"
+    },
+    {
       "path": "tests/update-notifier.test.mjs",
       "mode": "0644"
     },
@@ -375,6 +379,10 @@
     },
     {
       "path": "tools/theme-renderer-patches.mjs",
+      "mode": "0644"
+    },
+    {
+      "path": "tools/typography-patches.mjs",
       "mode": "0644"
     },
     {

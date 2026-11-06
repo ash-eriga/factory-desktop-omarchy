@@ -44,6 +44,19 @@ of the public tree; the methodology behind each change is described in
   from `F` to `M`, and the port update notifier registration follows the
   renamed menu builder (`qd`, was `Id`) and the auto-check gate (`Va`, was
   `nu`).
+- A follow-up glass pass fixes two 1.5.0 regressions on a followed glassy
+  window: the composer wrapper's backdrop-blur scrim assumes an opaque
+  page, so over a transparent window it blurs the wallpaper and paints a
+  dark gradient band with a hard edge above the composer — the glass scope
+  now disables that scrim through the composer surface marker; and the
+  mission-role chip paints an opaque `accent-dim` fill under 1.5.0, so it
+  follows the composer chips standard with a transparent fill.
+- A new typography layer aligns the composer model chip with the row it
+  renders into: the chip renders through the app Typography component,
+  whose shared base line-height is 1.2 (14.4px), while every neighbour in
+  the row paints a 15px core-v2 line-height, leaving the chip's ink ~0.3px
+  low. The chip's own Typography call receives an inline 15px line-height;
+  the shared base and every other Typography instance stay untouched.
 
 ## Factory Desktop 1.3.0
 
