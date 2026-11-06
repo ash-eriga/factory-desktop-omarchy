@@ -1,0 +1,16 @@
+[package]
+name = "factory-droid-desktop"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Native Rust + GPUI port of Factory Desktop for Omarchy"
+
+[dependencies]
+gpui = "0.2.2"
+# xattr 0.2.3 (pulled in by gpui) references libc::ENOATTR, which libc
+# removed in 0.2.175. Pin the last version that still defines it.
+libc = "=0.2.174"
+
+[profile.release]
+lto = "thin"
+strip = true

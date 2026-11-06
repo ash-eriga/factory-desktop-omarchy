@@ -5,7 +5,9 @@ node_modules/
 build/
 dist/
 pkg/
-src/
+# The vendor source tree at the repository root only; a crate's own src/
+# directory is source, not payload.
+/src/
 
 # Packages and archives.
 *.pkg.tar.*
