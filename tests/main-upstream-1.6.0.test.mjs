@@ -1,5 +1,5 @@
 // Guards the Linux port's main-process patch recipe against the real,
-// checksum-pinned upstream 1.5.0 payload.
+// checksum-pinned upstream 1.6.0 payload.
 //
 // These tests are deliberately not fixtures: they load the actual unpatched
 // bundle, require every anchor to match it exactly once, apply the recipe,
@@ -23,10 +23,10 @@ import {
 import { themeMainChanges, diagnoseThemeMainHelpers } from '../tools/theme-main-patches.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const APP = path.join(ROOT, 'build', 'upstream-pristine-1.5.0', 'app');
+const APP = path.join(ROOT, 'build', 'upstream-pristine-1.6.0', 'app');
 const BUILD = path.join(APP, '.vite', 'build');
 const RENDERER_DIR = path.join(APP, '.vite', 'renderer', 'main_window');
-const SKIP = `payload ${APP} not present; recipe unvalidated against 1.5.0`;
+const SKIP = `payload ${APP} not present; recipe unvalidated against 1.6.0`;
 
 const present = await access(APP).then(() => true, () => false);
 
@@ -54,9 +54,9 @@ async function discover() {
 let up = null;
 if (present) up = await discover();
 
-test('payload identity and versions.json names for 1.5.0', { skip: present ? false : SKIP }, async () => {
+test('payload identity and versions.json names for 1.6.0', { skip: present ? false : SKIP }, async () => {
   const manifest = JSON.parse(await readFile(path.join(APP, 'package.json'), 'utf8'));
-  assert.equal(manifest.version, '1.5.0', 'fixture must be the inspected 1.5.0 payload');
+  assert.equal(manifest.version, '1.6.0', 'fixture must be the inspected 1.6.0 payload');
   const versions = JSON.parse(await readFile(path.join(ROOT, 'versions.json'), 'utf8'));
   assert.equal(versions.desktop, manifest.version);
   assert.equal(versions.lifecycle, `.vite/build/${up.lifecycleName}`);
@@ -118,12 +118,12 @@ test('upstream native Linux branches are present and stay enabled', { skip: pres
     'inline menu handler is no longer darwin-gated');
   assert.ok(up.lifecycle.includes('const t=process.platform!=="darwin"'),
     'window factory no longer treats Linux like Windows for title-bar integration');
-  assert.ok(up.lifecycle.includes('for(const p of or())p.setMenuBarVisibility(!1)'),
+  assert.ok(up.lifecycle.includes('for(const p of Dn())p.setMenuBarVisibility(!1)'),
     'menu rebuild no longer hides the separate menu bar on non-darwin');
   // The vendor's own Linux external-install updater boundary (pacman and
   // every other non-vendor package manager) must remain in force. Upstream
   // decides it through the update policy instead of an inline platform check.
-  assert.ok(up.lifecycle.includes('$K(){return{kind:"disabled",reason:"external-install"'),
+  assert.ok(up.lifecycle.includes('(){return{kind:"disabled",reason:"external-install"'),
     'upstream removed its Linux external-install update policy');
   assert.ok(up.lifecycle.includes('start-skipped-external-install'));
   assert.ok(up.lifecycle.includes('factory.daemon.ready'),
@@ -133,9 +133,9 @@ test('upstream native Linux branches are present and stay enabled', { skip: pres
 test('the real patched billing hook pauses when hidden or unfocused', { skip: present ? false : SKIP }, () => {
   const patchedRenderer = patch(up.renderer, rendererChanges);
   const start = patchedRenderer.indexOf('function factoryLinuxBillingFocusSnapshot');
-  const end = patchedRenderer.indexOf('yo(s,r)}', start);
+  const end = patchedRenderer.indexOf('Co(s,r)}', start);
   assert.ok(start !== -1 && end !== -1, 'patched hook not found in the real renderer');
-  const segment = patchedRenderer.slice(start, end + 'yo(s,r)}'.length);
+  const segment = patchedRenderer.slice(start, end + 'Co(s,r)}'.length);
 
   class FakeEventTarget {
     listeners = new Map();
@@ -153,7 +153,7 @@ test('the real patched billing hook pauses when hidden or unfocused', { skip: pr
   let focused = true;
   let airgap = false;
   const store = { notifications: 0 };
-  const hooks = vm.runInNewContext(`${segment}\n({billingLimits:IDe,snapshot:factoryLinuxBillingFocusSnapshot})`, {
+  const hooks = vm.runInNewContext(`${segment}\n({billingLimits:nDe,snapshot:factoryLinuxBillingFocusSnapshot})`, {
     Symbol,
     P: { useSyncExternalStore(subscribe, get) {
       if (subscribe !== store.subscribe) {
@@ -165,9 +165,9 @@ test('the real patched billing hook pauses when hidden or unfocused', { skip: pr
     } },
     window, document,
     z: { c: () => [Symbol.for('react.memo_cache_sentinel'), null, Symbol.for('react.memo_cache_sentinel')] },
-    Qu: () => airgap,
-    Wn: { billing: { tokenLimits: ['billing', 'tokenLimits'] } },
-    yo: (query, options) => ({ query, options }),
+    Ru: () => airgap,
+    Gn: { billing: { tokenLimits: ['billing', 'tokenLimits'] } },
+    Co: (query, options) => ({ query, options }),
   });
 
   assert.equal(hooks.billingLimits().query.enabled, true);
@@ -190,14 +190,14 @@ test('the real patched billing hook pauses when hidden or unfocused', { skip: pr
   // Control: the same mocks against the unpatched real hook show the test
   // detects an unpatched bundle.
   const unpatched = rendererChanges[0][1];
-  const unpatchedHooks = vm.runInNewContext(`${unpatched}\n({billingLimits:IDe})`, {
+  const unpatchedHooks = vm.runInNewContext(`${unpatched}\n({billingLimits:nDe})`, {
     Symbol,
     P: {},
     window, document,
     z: { c: () => [Symbol.for('react.memo_cache_sentinel'), null, Symbol.for('react.memo_cache_sentinel')] },
-    Qu: () => false,
-    Wn: { billing: { tokenLimits: ['billing', 'tokenLimits'] } },
-    yo: (query, options) => ({ query, options }),
+    Ru: () => false,
+    Gn: { billing: { tokenLimits: ['billing', 'tokenLimits'] } },
+    Co: (query, options) => ({ query, options }),
   });
   document.visibilityState = 'hidden'; document.dispatchEvent('visibilitychange');
   const hidden = unpatchedHooks.billingLimits();
@@ -259,10 +259,10 @@ test('the real theme bridge integration validates only trusted main frames', { s
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: sender => windows.find(w => w.webContents === sender) ?? null },
     },
-    Jn: new Set([trusted.owner, wrongUrl.owner]),
-    $r: sender => !sender.isDestroyed() && !sender.isCrashed(),
-    or: () => windows,
-    $he: () => '#17181c',
+    nr: new Set([trusted.owner, wrongUrl.owner]),
+    Ur: sender => !sender.isDestroyed() && !sender.isCrashed(),
+    Dn: () => windows,
+    tme: () => '#17181c',
   };
   vm.runInNewContext(integration, context);
   await Promise.resolve();
@@ -295,10 +295,10 @@ test('the real integration drives native transparency per followed window', { sk
   assert.ok(patchedLifecycle.includes('transparent:process.platform==="linux"||void 0,titleBarStyle:"hidden",titleBarOverlay:t?'),
     'Linux main windows are not created transparent-capable');
   assert.equal(
-    patchedLifecycle.split('a.on("resize",()=>{rc&&a.setBackgroundColor(rc)})').length - 1, 1,
+    patchedLifecycle.split('a.on("resize",()=>{sc&&a.setBackgroundColor(sc)})').length - 1, 1,
     'the vendor resize repaint must stay intact; the port re-glasses through its own listener');
-  assert.ok(patchedLifecycle.includes('Fhe(k,W);process.platform==="linux"&&factoryLinuxOmarchyTrack&&factoryLinuxOmarchyTrack(k,W)'),
-    'the vendor background IPC must keep vendor Fhe behavior first');
+  assert.ok(patchedLifecycle.includes('nme(x,W);process.platform==="linux"&&factoryLinuxOmarchyTrack&&factoryLinuxOmarchyTrack(x,W)'),
+    'the vendor background IPC must keep vendor nme behavior first');
   assert.ok(patchedLifecycle.includes('factory-linux-theme:follow'),
     'the follow channel is missing from the patched lifecycle');
 
@@ -365,10 +365,10 @@ test('the real integration drives native transparency per followed window', { sk
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: sender => windows.find(w => w.webContents === sender) ?? null },
     },
-    Jn: registered,
-    $r: sender => !sender.isDestroyed() && !sender.isCrashed(),
-    or: () => windows,
-    $he: () => '#17181c',
+    nr: registered,
+    Ur: sender => !sender.isDestroyed() && !sender.isCrashed(),
+    Dn: () => windows,
+    tme: () => '#17181c',
   };
   vm.runInNewContext(integration, context);
   await Promise.resolve();

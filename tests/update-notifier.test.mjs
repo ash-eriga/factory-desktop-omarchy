@@ -300,14 +300,14 @@ test('real upstream integration compiles, retains updater guards and initializes
   assert.equal(unpatchUpdateNotifications(result), previous);
   assert.throws(() => unpatchUpdateNotifications(previous));
   assert.throws(() => patch(result, updateNotificationMainChanges));
-  assert.ok(result.includes('async function eY(){if(process.platform==="linux")return;'));
-  assert.ok(result.includes('async function a0({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'));
+  assert.ok(result.includes('async function uY(){if(process.platform==="linux")return;'));
+  assert.ok(result.includes('async function l0({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'));
   let captured, menus = 0;
   const x = {};
   const env = { hosted: true, airgap: false, policy: false, auto: true };
   const context = {
     process: { platform: 'linux', resourcesPath: '/opt/factory-droid-desktop/resources' }, De: path,
-    I: x, Va: () => env.auto, qd: () => menus++,
+    I: x, Ga: () => env.auto, Yd: () => menus++,
     s: { startupTracker: { beginPhase() {} }, getHostedServicesEnabled: () => env.hosted,
       onDesktopUpdatePolicyChange: () => {},
       getRuntimeAuthConfig: () => ({ airgapEnabled: env.airgap }),

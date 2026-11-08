@@ -184,9 +184,9 @@ export function factoryPortCreateComputerRegistration({
 // authority for what the attempt does.
 const registrationInstance = `const factoryPortComputerRegistration=factoryPortCreateComputerRegistration({
 getToken:()=>s.getAuthToken(s.getRuntimeAuthConfig()),
-getLocalComputerId:()=>FZ(),
-register:token=>HZ(token),
-onIdChanged:(computerId,previousComputerId)=>{ei("computer:localIdChanged",{computerId,previousComputerId})},
+getLocalComputerId:()=>nX(),
+register:token=>iX(token),
+onIdChanged:(computerId,previousComputerId)=>{ni("computer:localIdChanged",{computerId,previousComputerId})},
 logInfo:(message,details)=>s.logInfo(message,details),
 logWarn:(message,details)=>s.logWarn(message,details),
 logError:(message,error)=>s.logException(error,message)
@@ -197,22 +197,22 @@ export const computerRegistrationMainChanges = [
   // scope, so the startup path, the sign-in paths and the IPC handler all
   // reach the same instance.
   ['desktop computer registration driver',
-    'async function FZ(){if(!s.getHostedServicesEnabled())return null;',
-    `${factoryPortCreateComputerRegistration.toString()}\n${registrationInstance}async function FZ(){if(!s.getHostedServicesEnabled())return null;`],
+    'async function nX(){if(!s.getHostedServicesEnabled())return null;',
+    `${factoryPortCreateComputerRegistration.toString()}\n${registrationInstance}async function nX(){if(!s.getHostedServicesEnabled())return null;`],
   // Upstream's registration function now accepts the credentials the driver
   // already read. Upstream keeps the hosted-services gate and the
   // missing-credentials decision; only the repeated credential read is
   // gone, so one read serves both the driver and the registration.
   ['reuse the credentials the registration driver already read',
-    'async function HZ(){if(s.getHostedServicesEnabled())try{const e=await s.getAuthToken(s.getRuntimeAuthConfig());',
-    'async function HZ(factoryPortAuthToken){if(s.getHostedServicesEnabled())try{const e=factoryPortAuthToken===void 0?await s.getAuthToken(s.getRuntimeAuthConfig()):factoryPortAuthToken;'],
+    'async function iX(){if(s.getHostedServicesEnabled())try{const e=await s.getAuthToken(s.getRuntimeAuthConfig());',
+    'async function iX(factoryPortAuthToken){if(s.getHostedServicesEnabled())try{const e=factoryPortAuthToken===void 0?await s.getAuthToken(s.getRuntimeAuthConfig()):factoryPortAuthToken;'],
   // Upstream's startup attempt, now routed through the driver: same call,
   // same upstream function, one shared instance. The driver never skips it
   // because a local id exists, so upstream's verification of an existing
   // registration, its repair of a missing host id and its recovery of a
   // record the backend deleted all still run.
   ['run the startup registration through the driver',
-    'HZ(),s.startupTracker.beginPhase("daemon_start")',
+    'iX(),s.startupTracker.beginPhase("daemon_start")',
     'factoryPortComputerRegistration.ensure(),s.startupTracker.beginPhase("daemon_start")'],
   // The missing link: the browser sign-in stores the credentials and then
   // tells the renderer that the account is ready. This is the first-login
@@ -220,13 +220,13 @@ export const computerRegistrationMainChanges = [
   // awaited, so the sign-in flow is never delayed by the backend round
   // trip, and the forced attempt bypasses the cooldown.
   ['run the registration again once the browser sign-in completes',
-    'g.webContents.send("auth:success",{user:m.user})',
-    'factoryPortComputerRegistration.ensure({force:!0}),g.webContents.send("auth:success",{user:m.user})'],
+    'g.webContents.send("auth:success",{user:h.user})',
+    'factoryPortComputerRegistration.ensure({force:!0}),g.webContents.send("auth:success",{user:h.user})'],
   // The same for the customer-owned deployment sign-in, which commits its
   // credentials through its own session object.
   ['run the registration again once the customer sign-in completes',
-    'await x(),await Q2();const{user:k}=await u9();if(!k)throw new s.MetaError("Could not load the signed-in user.");ei("auth:success",{user:k})',
-    'await x(),await Q2();factoryPortComputerRegistration.ensure({force:!0});const{user:k}=await u9();if(!k)throw new s.MetaError("Could not load the signed-in user.");ei("auth:success",{user:k})'],
+    'await k(),await ng();const{user:x}=await v9();if(!x)throw new s.MetaError("Could not load the signed-in user.");ni("auth:success",{user:x})',
+    'await k(),await ng();factoryPortComputerRegistration.ensure({force:!0});const{user:x}=await v9();if(!x)throw new s.MetaError("Could not load the signed-in user.");ni("auth:success",{user:x})'],
   // The local computer id is what the renderer needs. A registered computer
   // is answered straight from the local configuration, exactly as upstream
   // does, so the steady state costs no extra work. Only an unregistered
@@ -238,8 +238,8 @@ export const computerRegistrationMainChanges = [
   // upstream to verify/repair a record deleted after login, even within
   // the cooldown. Merely opening settings does not force that repair.
   ['settle the local computer id before reporting it',
-    'I.ipcMain.handle("computer:getLocalId",async()=>FZ())',
-    'I.ipcMain.handle("computer:getLocalId",async(event,options)=>{if(options?.register===!0){await factoryPortComputerRegistration.ensure({force:!0});await factoryPortComputerRegistration.settled();return FZ()}const computerId=await FZ();if(computerId)return computerId;await factoryPortComputerRegistration.ensure();await factoryPortComputerRegistration.settled();return FZ()})'],
+    'I.ipcMain.handle("computer:getLocalId",async()=>nX())',
+    'I.ipcMain.handle("computer:getLocalId",async(event,options)=>{if(options?.register===!0){await factoryPortComputerRegistration.ensure({force:!0});await factoryPortComputerRegistration.settled();return nX()}const computerId=await nX();if(computerId)return computerId;await factoryPortComputerRegistration.ensure();await factoryPortComputerRegistration.settled();return nX()})'],
 ];
 
 // Only an explicit action asks upstream to verify and repair a deleted
@@ -250,16 +250,16 @@ export const computerRegistrationPreloadChanges = [
   // serving the old id until it is restarted. The main process broadcasts
   // the replacement; the renderer decides what to do with it.
   ['forward the local computer id change notification',
-    'getLocalHostId:()=>M.ipcRenderer.invoke("computer:getLocalHostId")',
-    'onLocalComputerIdChanged:A=>{const e=(t,n)=>A(n);return M.ipcRenderer.on("computer:localIdChanged",e),()=>M.ipcRenderer.removeListener("computer:localIdChanged",e)},getLocalHostId:()=>M.ipcRenderer.invoke("computer:getLocalHostId")'],
+    'getLocalHostId:()=>F.ipcRenderer.invoke("computer:getLocalHostId")',
+    'onLocalComputerIdChanged:A=>{const e=(t,n)=>A(n);return F.ipcRenderer.on("computer:localIdChanged",e),()=>F.ipcRenderer.removeListener("computer:localIdChanged",e)},getLocalHostId:()=>F.ipcRenderer.invoke("computer:getLocalHostId")'],
   ['forward the explicit computer registration request',
-    'getLocalComputerId:()=>M.ipcRenderer.invoke("computer:getLocalId")',
-    'getLocalComputerId:options=>M.ipcRenderer.invoke("computer:getLocalId",options)'],
+    'getLocalComputerId:()=>F.ipcRenderer.invoke("computer:getLocalId")',
+    'getLocalComputerId:options=>F.ipcRenderer.invoke("computer:getLocalId",options)'],
 ];
 
 export const computerRegistrationRendererChanges = [
   ['offer explicit registration when this computer is absent from the list',
-    'function Rns(){',
+    'function pss(){',
     `function factoryPortRegisterThisComputer({onRegistered}){
 const[busy,setBusy]=P.useState(!1),{showError}=ns();
 return c.jsx(E4,{title:"This Computer",description:"This computer is not listed in your account. Register it to make it available here. Remote Control stays off until you enable it.",action:{label:busy?"Registering…":"Register this computer",onClick:async()=>{
@@ -268,7 +268,7 @@ try{const id=await window.electronAPI?.getLocalComputerId?.({register:!0});if(!i
 catch(error){showError(error instanceof Error?error:new Error("Computer registration failed."),{description:"Failed to register this computer."})}
 finally{setBusy(!1)}
 }}})}
-function Rns(){`],
+function pss(){`],
   // The settings page resolves the local computer id once per mount and
   // needs the account's computer list to match it. When the id only appears
   // after the registration, the list fetched before that point is stale, so
@@ -282,11 +282,11 @@ function Rns(){`],
   // clears the local computer id. The ref is declared, not assigned: the
   // renderer bundle is an ES module, where an undeclared assignment throws.
   ['refresh the computer list when the local computer id appears',
-    '[B,M]=P.useState(null),[D,O]=P.useState(!m);nn(()=>{if(!m)return;async function Ie(){try{const Ce=await window.electronAPI?.getLocalComputerId?.();M(Ce??null)}catch(Ce){tt("Failed to fetch local computer ID (v2)",{cause:Ce}),M(null)}finally{O(!0)}}Ie()});',
-    '[B,M]=P.useState(null),[D,O]=P.useState(!m);const factoryPortLocalComputerIdRef=P.useRef(null);nn(()=>{if(!m)return;async function Ie(){try{const Ce=await window.electronAPI?.getLocalComputerId?.();M(Ce??null);if(Ce&&Ce!==factoryPortLocalComputerIdRef.current){factoryPortLocalComputerIdRef.current=Ce;try{const result=await C();const computers=result?.data?.data?.computers??result?.data?.computers??result?.computers??[];if(!computers.some(computer=>computer.id===Ce))await C()}catch(error){tt("Failed to refresh the computer list",{cause:error})}}}catch(Ce){tt("Failed to fetch local computer ID (v2)",{cause:Ce}),M(null)}finally{O(!0)}}Ie()});'],
+    '[B,M]=P.useState(null),[D,O]=P.useState(!m);Xt(()=>{if(!m)return;async function Ie(){try{const ye=await window.electronAPI?.getLocalComputerId?.();M(ye??null)}catch(ye){nt("Failed to fetch local computer ID (v2)",{cause:ye}),M(null)}finally{O(!0)}}Ie()});',
+    '[B,M]=P.useState(null),[D,O]=P.useState(!m);const factoryPortLocalComputerIdRef=P.useRef(null);Xt(()=>{if(!m)return;async function Ie(){try{const ye=await window.electronAPI?.getLocalComputerId?.();M(ye??null);if(ye&&ye!==factoryPortLocalComputerIdRef.current){factoryPortLocalComputerIdRef.current=ye;try{const result=await C();const computers=result?.data?.data?.computers??result?.data?.computers??result?.computers??[];if(!computers.some(computer=>computer.id===ye))await C()}catch(error){nt("Failed to refresh the computer list",{cause:error})}}}catch(ye){nt("Failed to fetch local computer ID (v2)",{cause:ye}),M(null)}finally{O(!0)}}Ie()});'],
   ['keep a registration action visible after the local computer is deleted',
-    'children:[L&&W?c.jsx(Gzu,{computer:L,droidConnectionManager:g}):null,W?c.jsx(Qvi,{computers:j,description:',
-    'children:[L&&W?c.jsx(Gzu,{computer:L,droidConnectionManager:g}):null,m&&B&&!y&&!b&&W?c.jsx(factoryPortRegisterThisComputer,{onRegistered:async id=>{M(id);const result=await C();const computers=result?.data?.data?.computers??result?.data?.computers??result?.computers??[];if(!computers.some(computer=>computer.id===id))await C()}}):null,W?c.jsx(Qvi,{computers:j,description:'],
+    'children:[L&&W?c.jsx(_Xu,{computer:L,droidConnectionManager:g}):null,W?c.jsx(j2i,{computers:j,description:',
+    'children:[L&&W?c.jsx(_Xu,{computer:L,droidConnectionManager:g}):null,m&&B&&!y&&!b&&W?c.jsx(factoryPortRegisterThisComputer,{onRegistered:async id=>{M(id);const result=await C();const computers=result?.data?.data?.computers??result?.data?.computers??result?.computers??[];if(!computers.some(computer=>computer.id===id))await C()}}):null,W?c.jsx(j2i,{computers:j,description:'],
 ];
 
 export const computerRegistrationHelperNames = [

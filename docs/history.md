@@ -5,6 +5,58 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## Factory Desktop 1.6.0
+
+- The pinned upstream moves from 1.5.0 to 1.6.0 (`@factory/cli-linux-x64`
+  1.6.0). The installer digest and the bundle chunk names in `versions.json`
+  are those of the inspected 1.6.0 payload; the official rotor geometry is
+  unchanged, so the brand pins carry over.
+- Every patch anchor is re-derived against the 1.6.0 bundle across main
+  process, preload, renderer, HTML and CSS. The registered-window set
+  moved from `Jn` to `nr`, the live window reader from `or()` to `Dn()`,
+  the webContents liveness check from `$r()` to `Ur()`, the vendor
+  baseline from `$he()` to `tme()` and the native background applier from
+  `Fhe()` to `nme()`; the Linux guards (`Qhe`→`mme`, `sY`→`gY`, `a0`→`l0`,
+  `eY`→`uY`), the update notifier gate (`Va()`→`Ga()`, `qd`→`Yd`), the
+  computer registration driver (`FZ`/`HZ`→`nX`/`iX`, broadcast
+  `ei`→`ni`), the application menu handler (`mme`→`Pme`, schema
+  `pme`→`kme`) and the theme main bridge keep their exact
+  responsibilities under the new names.
+- The renderer theme layer follows the renamed appearance atoms: the
+  appearance store is `iit` (was `pnt`), the resolved theme atom is `xz`
+  (was `YH`), the theme preference is `hRe` (was `Dke`), the org default
+  override is `zHt` (was `wQt`), the theme enum is `cb` (was `lb`), the
+  palette chain is `COe`/`Hxu`/`MAi` (was `z9e`/`kCu`/`U1i`) over the
+  settings atom `SOe` (was `H9e`), the defaults object is `V6` (was
+  `A6`), the palette generator `C7a`→`DVr` and the background source
+  `$1i`→`DAi` (`MLt`→`tPt`); the theme editor is `_Wu` (was `zUu`) and
+  the Appearance screen is `jWu` (was `t$u`, memo cache 232→230), with
+  the same memo-cache growth (230→233 and 206→211) for the follow state
+  hooks. The settings store hook is `Ws` (was `Gs`), the i18n hook is
+  `ue` (was `fe`), the settings row is `Zc` (was `ad`) and the effect
+  helper is `Xt` (was `nn`).
+- The remote-control layer follows the renamed machine id (`oo`→`ho`),
+  auto-start (`ve`→`ge`), connect (`be`→`Ce`), error log (`tt`→`nt`),
+  error class (`eY`→`TY`), event enums (`ki`/`Kf`→`Ei`/`nh`), the manual
+  enable/disable hook (`Lyn`→`ubn`) and its helpers (`Wgi`→`F1i`,
+  `fru`→`bfu`, `Nyn`→`fbn`); the relay recovery keeps its fixed shape.
+- The sidebar fade keeps its shape on the new bytes: the mask still
+  belongs only to the session-list scroll root the session-list wrapper
+  (`Wad`) actually renders (`zad`, was `Ytd`/`Vtd`), and the fade depth
+  still grows with the real clipped distance of the upstream scroll
+  observer (`NFn` threshold, was `DNn`); the observer's own local names
+  moved (the horizontal flag from `C` to `S`), so the port's inserted
+  guard follows them.
+- The composer markers follow the renamed components (`VE` from the
+  new-session stacked panel, `OLa` from the session card); nothing
+  outside the port's own additions changed. The typography layer re-anchors
+  on 1.6.0's own chip: the composer model chip renders through a plain
+  span now (`GVr`) instead of the 1.5.0 Typography call, whose old anchor
+  matches the mission status text on the new bytes, so the 15px row
+  line-height follows the chip to its new render path. The preload's
+  Electron binding moved from `M` to `F`, and the settings navigation
+  painter is `R1c` (was `Quc`).
+
 ## Factory Desktop 1.5.0
 
 - The pinned upstream moves from 1.3.0 to 1.5.0 (`@factory/cli-linux-x64`

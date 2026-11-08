@@ -11,24 +11,21 @@ Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_
 - Workstreams active by default, no server-side experiment gate required.
 - Remote Control, enabled only when you choose.
 
-## Droid 1.5
+## Droid 1.6
 
-This port tracks Factory Desktop 1.5.0, two upstream releases after the
-previous ported pin: 1.4.0 added Loops on Droid Computers, a readable
-session tree view, one shared image-preview toolbar and a long series of
-session resume and Windows command fixes; 1.5.0 adds the automation
-creation menu (from a template, with Droid, or manually), a simpler custom
-model form, connector logos and categories for Splunk, Elasticsearch and
-Google BigQuery, saved pull request titles in the environment panel, safer
-Environment choices in New Session, and the return of older messages after
-compaction and on short sessions (the upstream changelog lives at
-[docs.factory.com/changelog/release-notes](https://docs.factory.com/changelog/release-notes#v1.5.0)).
+This port tracks Factory Desktop 1.6.0, one upstream release after the
+previous ported pin: 1.6.0 adds a side chat you can summon next to your
+session with `/side`, a reworked settings page layout, faster worktree
+archiving, honoring of the telemetry opt-out, a fix for dragging sessions by
+the sidebar header, clearer sign-in naming for custom deployments, and no
+more "Initializing Session" flash on open (the upstream changelog lives at
+[docs.factory.com/changelog/release-notes](https://docs.factory.com/changelog/release-notes#v1.6.0)).
 Factory presents the 1.x generation as faster, higher scoring and cheaper per
 completed task than the agents around it, and publishes the benchmark behind
 the claim as the figure below.
 
 On top of the pinned release, this port fixes three visual defects against
-1.5.0's own bytes. On a glassy (Follow Omarchy) window the composer no longer
+1.6.0's own bytes. On a glassy (Follow Omarchy) window the composer no longer
 paints a dark gradient band with a hard edge above it, the Orchestrator chip
 renders transparent like every other chip in its row, and the model chip's
 text aligns with its neighbours' line instead of sitting a fraction of a
