@@ -230,7 +230,7 @@ test('renderer snapshot store lets a newer live event win over initial IPC and c
     atoms.push(atom);
     return atom;
   };
-  const bce = (key, initial, storage) => ({ key, initial, storage });
+  const Yce = (key, initial, storage) => ({ key, initial, storage });
   const context = vm.createContext({
     localStorage: {
       getItem: key => values.get(key) ?? null,
@@ -239,7 +239,7 @@ test('renderer snapshot store lets a newer live event win over initial IPC and c
     },
     navigator: { language: 'en-US' },
     window: { electronAPI: { theme: api } },
-    Di, bce, hud: () => "system",
+    Di, Yce, hud: () => "system",
   });
   vm.runInContext(`${storeSetup}\nglobalThis.__snapshot = factoryPortThemeSnapshot;`, context);
   const snapshot = context.__snapshot;
@@ -281,7 +281,7 @@ function miniAtomStore() {
     subs.set(atom, []);
     return atom;
   };
-  const bce = (key, initial, storage) => {
+  const Yce = (key, initial, storage) => {
     const atom = Symbol('stored-atom');
     values.set(atom, initial);
     storages.set(atom, { key, storage });
@@ -309,7 +309,7 @@ function miniAtomStore() {
       };
     },
   };
-  return { Di, bce, store };
+  return { Di, Yce, store };
 }
 
 function evaluateStoreSetup(context = {}) {
@@ -336,9 +336,9 @@ const glassyPalette = {
 };
 
 test('glass tint is gated on follow, availability, the glassy windowMode and main acceptance', () => {
-  const { Di, bce, store } = miniAtomStore();
+  const { Di, Yce, store } = miniAtomStore();
   const { context, values } = evaluateStoreSetup({
-    Di, bce, hud: () => "system",
+    Di, Yce, hud: () => "system",
     window: { electronAPI: { theme: { getOmarchy() {} } } },
   });
   const { follow, snapshot, accepted, glassActive } = context.__port;
@@ -503,9 +503,9 @@ test('Glassy Bar chrome is scoped, keeps solid control tokens and supports both 
 });
 
 test('ThemeSync lifecycle syncs one live native follow per change and never leaks subscriptions', async () => {
-  const { Di, bce, store } = miniAtomStore();
+  const { Di, Yce, store } = miniAtomStore();
   const { context } = evaluateStoreSetup({
-    Di, bce, hud: () => "system",
+    Di, Yce, hud: () => "system",
     window: { electronAPI: { theme: { getOmarchy() {}, setOmarchyFollow: () => {} } } },
   });
   const { follow, accepted } = context.__port;
