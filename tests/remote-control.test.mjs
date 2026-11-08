@@ -676,12 +676,12 @@ test('negative control: real upstream auto-start abandons a first relay error', 
   const source = remoteControlRendererChanges.find(([name]) => name.startsWith('recover the existing'))[1];
   assert.ok(upstream.includes(source));
   let starts = 0;
-  const run = vm.runInNewContext(`${source};ve`, {
+  const run = vm.runInNewContext(`${source};ge`, {
     window: { electronAPI: { getRemoteAccessEnabled: async () => true, getLocalComputerId: async () => 'test' } },
-    _: { current: true }, oo: 'local', ce: { getDaemonConnection: () => ({
+    _: { current: true }, ho: 'local', ce: { getDaemonConnection: () => ({
       getRelayStatus: async () => ({ connected: false }),
       startRelay: async () => { starts++; throw new Error('simulated transient error'); },
-    }) }, gjd: 10, pjd: 1000, tt: () => {}, be: () => {},
+    }) }, jzd: 10, Nzd: 1000, nt: () => {}, Ce: () => {},
   });
   await run(); assert.equal(starts, 1, 'vendor returns instead of retrying after failure');
 });
@@ -694,16 +694,16 @@ test('negative control: real upstream auto-start keeps the relay on the deleted 
   // at the id the relay serves, so it does nothing and the new computer is
   // unreachable although Remote Control is on.
   const calls = [];
-  const run = vm.runInNewContext(`${source};ve`, {
+  const run = vm.runInNewContext(`${source};ge`, {
     window: { electronAPI: {
       getRemoteAccessEnabled: async () => true,
       getLocalComputerId: async () => 'new-computer',
     } },
-    _: { current: true }, oo: 'local', ce: { getDaemonConnection: () => ({
+    _: { current: true }, ho: 'local', ce: { getDaemonConnection: () => ({
       getRelayStatus: async () => ({ connected: true, computerId: 'old-computer' }),
       startRelay: async () => { calls.push('start'); },
       stopRelay: async () => { calls.push('stop'); },
-    }) }, gjd: 10, pjd: 1000, tt: () => {}, be: () => {},
+    }) }, jzd: 10, Nzd: 1000, nt: () => {}, Ce: () => {},
   });
   await run();
   assert.deepEqual(calls, [], 'upstream neither stops nor starts the connected relay');
@@ -729,13 +729,13 @@ test('the patched renderer wires id change notifications to the recovery', sourc
       },
       daemon: { onAvailable: () => () => {} },
     } },
-    ve: () => h.recovery.request(),
+    ge: () => h.recovery.request(),
     ce: { hasMachine: () => true, getDaemonConnection: () => ({ isFullyConnected: () => true, getRelayStatus: async () => h.state.relay ? { connected: true, computerId: h.state.relayId } : { connected: false }, startRelay: h.connection.startRelay, stopRelay: h.connection.stopRelay, on: () => {}, off: () => {} }), on: () => {}, off: () => {} },
-    oo: 'local', Yr: () => {}, be: () => {},
+    ho: 'local', Yr: () => {}, Ce: () => {},
     factoryPortObserveRelay,
     factoryPortRecovery: h.recovery,
-    ki: { MachineAdded: 'added', MachineRemoved: 'removed', RelayStatusChanged: 'relay' },
-    Kf: { Connected: 'connected', Disconnected: 'disconnected' },
+    Ei: { MachineAdded: 'added', MachineRemoved: 'removed', RelayStatusChanged: 'relay' },
+    nh: { Connected: 'connected', Disconnected: 'disconnected' },
   };
   vm.createContext(context);
   vm.runInNewContext(`${patched.slice(start, end + 'factoryPortRecovery.notify);'.length)}\n`
@@ -754,8 +754,8 @@ test('the patched renderer wires id change notifications to the recovery', sourc
 // Execute the real manual-enable hook, not a parallel implementation of its
 // preference/relay transaction. Only its services and React hooks are fixtures.
 function manualHook(source, register, staleStarts = 0) {
-  const start = source.indexOf('function Lyn(){');
-  const end = source.indexOf('const Nyn="factory-oauth"', start);
+  const start = source.indexOf('function ubn(){');
+  const end = source.indexOf('const fbn="factory-oauth"', start);
   assert.ok(start >= 0 && end > start);
   const events = [];
   const state = { enabled: false, connected: false, changing: false };
@@ -769,20 +769,20 @@ function manualHook(source, register, staleStarts = 0) {
     getRelayStatus: async () => ({ connected: state.connected }),
   };
   const store = { subscribe: () => () => {}, getSnapshot: () => ({}), patch: () => {} };
-  const hook = vm.runInNewContext(`${source.slice(start, end)};Lyn()`, {
-    fe: () => ({ t: key => key }),
+  const hook = vm.runInNewContext(`${source.slice(start, end)};ubn()`, {
+    ue: () => ({ t: key => key }),
     _s: () => ({ getDaemonConnection: () => connection }),
-    oo: 'local', jo: () => true,
-    pru: () => ({ subscribe: () => () => {}, getSnapshot: () => ({}), patch: () => {} }),
-    oGt: value => value,
-    Mx: class Fx extends Error {},
-    Wgi2unused: provider => provider,
+    ho: 'local', Ho: () => true,
+    Cfu: () => ({ subscribe: () => () => {}, getSnapshot: () => ({}), patch: () => {} }),
+    Eqt: value => value,
+    Xx: class Fx extends Error {},
+    F1i2unused: provider => provider,
     P: {
       useState: initial => [typeof initial === 'function' ? initial() : initial,
         value => { state.changing = value; }],
       useSyncExternalStore: () => ({}),
     },
-    Wgi: () => ({
+    F1i: () => ({
       getEnabled: async () => state.enabled,
       setEnabled: async value => { events.push(`preference:${value}`); state.enabled = value; },
     }),
@@ -794,8 +794,8 @@ function manualHook(source, register, staleStarts = 0) {
     factoryPortLocalRelayRecovery: { manual: () => ({
       settled: Promise.resolve(), release: () => events.push('release'),
     }) },
-    fru: 90000, tt: () => {}, factoryPortStartRelay,
-    eY: class RelayError extends Error {
+    bfu: 90000, nt: () => {}, factoryPortStartRelay,
+    TY: class RelayError extends Error {
       constructor(arg) {
         const shape = typeof arg === 'string' ? { message: arg } : arg;
         super(shape.message ?? 'relay failed');
@@ -803,7 +803,7 @@ function manualHook(source, register, staleStarts = 0) {
         this.cause = shape.cause;
       }
     },
-    rge: { SavePreference: 'preference', Relay: 'relay' },
+    _ge: { SavePreference: 'preference', Relay: 'relay' },
   });
   return { hook, state, events, snippet: source.slice(start, end) };
 }

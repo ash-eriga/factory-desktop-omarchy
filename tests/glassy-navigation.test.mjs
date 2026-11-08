@@ -21,12 +21,12 @@ test('navigation transparency is restricted to structural painters inside the si
 test('actual appearance atom appends navigation CSS only inside the existing Glassy gate', () => {
   const change = rendererChanges.find(([name]) => name === 'derive palette tokens without changing stored Factory settings');
   const glass = Symbol('glass'), snapshot = Symbol('snapshot');
-  const { U1i, z9e } = vm.runInNewContext(change[2].replace(/,$/, ';') + '({U1i,z9e})', {
-    H9e: Symbol('H9e'),
+  const { MAi, COe } = vm.runInNewContext(change[2].replace(/,$/, ';') + '({MAi,COe})', {
+    SOe: Symbol('SOe'),
     Di: value => typeof value === 'function' ? value : { initial: value },
-    YH: Symbol('YH'), Ir: { Dark: 'dark', Light: 'light' },
-    A6: {},
-    pAe: () => ({}), C7a: () => 'base;',
+    xz: Symbol('xz'), br: { Dark: 'dark', Light: 'light' },
+    V6: {},
+    pAe: () => ({}), DVr: () => 'base;',
     factoryPortOverlayAppearance: (base) => base,
     factoryPortThemeActive: Symbol('active'),
     factoryPortThemeEmpty: {},
@@ -36,10 +36,10 @@ test('actual appearance atom appends navigation CSS only inside the existing Gla
     factoryPortComposerContrast: () => 100,
     factoryPortEffectiveAppearance: Symbol('effective'),
   });
-  const get = (enabled, active) => atom => atom === z9e ? enabled : atom === glass ? active : {};
-  assert.equal(U1i(get(false, true)), '');
-  assert.equal(U1i(get(true, false)), 'base;');
-  assert.equal(U1i(get(true, true)), 'base;glass;' + glassyNavigationCss);
+  const get = (enabled, active) => atom => atom === COe ? enabled : atom === glass ? active : {};
+  assert.equal(MAi(get(false, true)), '');
+  assert.equal(MAi(get(true, false)), 'base;');
+  assert.equal(MAi(get(true, true)), 'base;glass;' + glassyNavigationCss);
 });
 
 test('pinned settings component is marked without altering its routing, search or control logic', {

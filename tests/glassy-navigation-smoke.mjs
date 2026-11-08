@@ -7,7 +7,7 @@ import path from 'node:path';
 import { saveDisposableScreenshot } from './application-menu-smoke.mjs';
 
 export function navigationFixtureSource(renderer) {
-  const start = renderer.indexOf('function Y2f('), end = renderer.indexOf('function J2f(', start);
+  const start = renderer.indexOf('function Bxf('), end = renderer.indexOf('function Mxf(', start);
   assert.ok(start > 0 && end > start, 'pinned settings layout is available');
   const settings = renderer.slice(start, end);
   return `
