@@ -195,7 +195,7 @@ namespaces, and the build probes that with `unshare -Ur true`.
 
 ## 5. Assembly
 
-The bundle is assembled under `dist/factory-droid-desktop-1.6.0`:
+The bundle is assembled under `dist/factory-droid-desktop-1.7.1`:
 
 - the Electron runtime, with the application archive and the rebuilt
   native module,
@@ -331,7 +331,7 @@ The recipe does not build from a checkout. It declares one source, the
 port's own source archive, and one pinned SHA-256 for it:
 
 ```
-source=('https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v1.6.0-1/factory-droid-desktop-port-1.6.0-1.tar.gz')
+source=('https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v1.7.1-1/factory-droid-desktop-port-1.7.1-1.tar.gz')
 sha256sums=('<digest>')
 ```
 
