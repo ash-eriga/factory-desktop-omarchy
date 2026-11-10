@@ -52,15 +52,15 @@ export const changes = [
   // The package's desktop entry advertises factory-desktop:// through XDG.
   // Skip upstream's default-handler takeover; existing user choices stay
   // intact. Only fix the XDG desktop entry name for Linux badges here.
-  ['callback opt-in', 'function mme(){try{const e=s.getDesktopProtocol();',
-    `function mme(){if(process.platform==="linux"){I.app.setDesktopName("${DESKTOP_ENTRY}");return;}try{const e=s.getDesktopProtocol();`],
+  ['callback opt-in', 'function Nhe(){try{const e=s.getDesktopProtocol();',
+    `function Nhe(){if(process.platform==="linux"){I.app.setDesktopName("${DESKTOP_ENTRY}");return;}try{const e=s.getDesktopProtocol();`],
   // The visible name of the port. The official manifest names the
   // application "Factory"; the port ships as its own product, so the name
   // is set before the first window exists and before the protocol helper
   // runs. The window title, the taskbar entry and the application menu
   // read the name from here.
-  ['application name', 's.startupTracker.beginPhase("ipc_and_protocol_setup"),mme()',
-    `s.startupTracker.beginPhase("ipc_and_protocol_setup"),I.app.setName("${PRODUCT_NAME}"),mme()`],
+  ['application name', 's.startupTracker.beginPhase("ipc_and_protocol_setup"),Nhe()',
+    `s.startupTracker.beginPhase("ipc_and_protocol_setup"),I.app.setName("${PRODUCT_NAME}"),Nhe()`],
   // The pacman boundary: an Arch-managed install must never enforce the
   // vendor's minimum-version quit prompt, run its in-app updater entry
   // points, or offer its own updater in the menu. The port notification
@@ -68,12 +68,12 @@ export const changes = [
   // already refuses to *start* the auto-updater for externally managed
   // Linux installs (qz()/Ia() detect the vendor's own packages); these
   // guards keep the manual and prompted paths equally closed.
-  ['minimum version prompt', 'async function gY(){',
-    'async function gY(){if(process.platform==="linux")return!0;'],
-  ['manual updater', 'async function l0({onAborted:e}={}){',
-    'async function l0({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'],
-  ['update checks', 'async function uY(){me("check-now-requested"),',
-    'async function uY(){if(process.platform==="linux")return;me("check-now-requested"),'],
+  ['minimum version prompt', 'async function KK(){',
+    'async function KK(){if(process.platform==="linux")return!0;'],
+  ['manual updater', 'async function Jf({onAborted:e}={}){',
+    'async function Jf({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'],
+  ['update checks', 'async function HK(){me("check-now-requested"),',
+    'async function HK(){if(process.platform==="linux")return;me("check-now-requested"),'],
   ['update menu', 'o=!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:',
     'o=process.platform==="linux"||!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:'],
   // Upstream still ships no keyboard affordance for the hidden Linux menu
@@ -112,8 +112,8 @@ export const rendererHelperNames = [
 
 export const rendererChanges = [
   ['pause hidden billing limits polling',
-    'function nDe(t){const e=z.c(3),n=t===void 0?!0:t,i=Ru(),o=n&&!i;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Gn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!0,retry:!1},e[2]=r):r=e[2],Co(s,r)}',
-    'function factoryLinuxBillingFocusSnapshot(){return typeof document==="undefined"||document.visibilityState!=="hidden"&&(typeof document.hasFocus!=="function"||document.hasFocus())}function factoryLinuxBillingFocusSubscribe(t){if(typeof window==="undefined"||typeof document==="undefined")return()=>{};return window.addEventListener("focus",t),window.addEventListener("blur",t),document.addEventListener("visibilitychange",t),()=>{window.removeEventListener("focus",t),window.removeEventListener("blur",t),document.removeEventListener("visibilitychange",t)}}function factoryLinuxBillingUseFocused(){return P.useSyncExternalStore(factoryLinuxBillingFocusSubscribe,factoryLinuxBillingFocusSnapshot,factoryLinuxBillingFocusSnapshot)}function nDe(t){const focused=factoryLinuxBillingUseFocused(),e=z.c(3),n=t===void 0?!0:t,i=Ru(),o=n&&!i&&focused;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Gn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!1,refetchOnWindowFocus:!0,retry:!1},e[2]=r):r=e[2],Co(s,r)}'],
+    'function xOe(t){const e=z.c(3),n=t===void 0?!0:t,i=mu(),o=n&&!i;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Gn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!0,retry:!1},e[2]=r):r=e[2],So(s,r)}',
+    'function factoryLinuxBillingFocusSnapshot(){return typeof document==="undefined"||document.visibilityState!=="hidden"&&(typeof document.hasFocus!=="function"||document.hasFocus())}function factoryLinuxBillingFocusSubscribe(t){if(typeof window==="undefined"||typeof document==="undefined")return()=>{};return window.addEventListener("focus",t),window.addEventListener("blur",t),document.addEventListener("visibilitychange",t),()=>{window.removeEventListener("focus",t),window.removeEventListener("blur",t),document.removeEventListener("visibilitychange",t)}}function factoryLinuxBillingUseFocused(){return P.useSyncExternalStore(factoryLinuxBillingFocusSubscribe,factoryLinuxBillingFocusSnapshot,factoryLinuxBillingFocusSnapshot)}function xOe(t){const focused=factoryLinuxBillingUseFocused(),e=z.c(3),n=t===void 0?!0:t,i=mu(),o=n&&!i&&focused;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Gn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!1,refetchOnWindowFocus:!0,retry:!1},e[2]=r):r=e[2],So(s,r)}'],
 ];
 
 // The window title belongs to the renderer: Electron propagates a page
@@ -125,9 +125,9 @@ export const rendererChanges = [
 // stays scoped to the billing gate, and the identity layers stay
 // separable from it.
 export const rendererTitleChanges = [
-  ['default window title', 'hdi="Factory"', `hdi="${PRODUCT_NAME}"`],
-  ['session window title suffix', 'r=n?`${n} - Factory`:hdi;',
-    `r=n?\`\${n} - ${PRODUCT_NAME}\`:hdi;`],
+  ['default window title', 'dpi="Factory"', `dpi="${PRODUCT_NAME}"`],
+  ['session window title suffix', 'r=n?`${n} - Factory`:dpi;',
+    `r=n?\`\${n} - ${PRODUCT_NAME}\`:dpi;`],
 ];
 
 export function diagnoseRendererHelperCollisions(source) {

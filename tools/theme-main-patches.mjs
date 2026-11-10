@@ -5,23 +5,23 @@
 // path, ask the main process to read files, or make itself glassy without
 // the provider's glassy marker.
 //
-// Verified 1.6.0 initLifecycle-Cr3KLsuf.js module aliases used below (from
+// Verified 1.7.1 initLifecycle-cB68WyMI.js module aliases used below (from
 // the bundle's import header and definitions; build.mjs refuses to build on
 // any other payload):
 //   I  = require("electron")
-//   s  = require("./index-BfnN3eqV.js")
-//   nr = registered main-window Set (b$() adds in the window factory)
-//   Dn() = live non-destroyed windows
-//   Ur() = webContents not destroyed/crashed
-//   tme() = vendor baseline background (sc || surface-1 by theme)
-//   nme(color, win?) = vendor native background applier (also caches sc)
+//   s  = require("./index-CN5fuH8x.js")
+//   Jn = registered main-window Set (Qj() adds in the window factory)
+//   Nn() = live non-destroyed windows
+//   jr() = webContents not destroyed/crashed
+//   She() = vendor baseline background (ec || surface-1 by theme)
+//   The(color, win?) = vendor native background applier (also caches ec)
 // Path and URL resolution use the local requires of node:path/node:url so
 // the integration does not pin a vendor alias for them.
 //
-// Vendor background paths audited in the 1.6.0 bundle: window creation
-// paints backgroundColor:$he() (opaque), the window:setBackgroundColor IPC
-// handler calls Fhe() (targeted or broadcast), and the window factory
-// re-applies rc on resize (`a.on("resize",...)`).
+// Vendor background paths audited in the 1.7.1 bundle: window creation
+// paints backgroundColor:She() (opaque), the window:setBackgroundColor IPC
+// handler calls The() (targeted or broadcast), and the window factory
+// re-applies ec on resize (`a.on("resize",...)`).
 // window:setThemeSource never touches the background. The resize path is
 // handled without patching it: each followed window gets its own resize
 // listener at follow time, registered after the vendor's, which re-applies
@@ -41,7 +41,7 @@ const factoryLinuxOmarchyTrusted=event=>{
   const sender=event==null?void 0:event.sender;
   const frame=event==null?void 0:event.senderFrame;
   const owner=sender?I.BrowserWindow.fromWebContents(sender):null;
-  if(!owner||owner.isDestroyed()||!nr.has(owner)||!Ur(sender)||frame!==sender.mainFrame)return!1;
+  if(!owner||owner.isDestroyed()||!Jn.has(owner)||!jr(sender)||frame!==sender.mainFrame)return!1;
   const url=frame.url;
   if(typeof url!=="string")return!1;
   try{
@@ -64,7 +64,7 @@ const factoryLinuxOmarchyApply=(win,state)=>{
     try{win.setBackgroundColor("#00000000")}catch{}
   }else if(factoryLinuxOmarchyGlass.get(win)){
     factoryLinuxOmarchyGlass.set(win,!1);
-    try{win.setBackgroundColor(factoryLinuxOmarchyBase.get(win)||tme())}catch{}
+    try{win.setBackgroundColor(factoryLinuxOmarchyBase.get(win)||She())}catch{}
   }
   factoryLinuxApplicationMenu?.sync(win);
 };
@@ -72,16 +72,16 @@ var factoryLinuxOmarchyTrack=null;
 factoryLinuxOmarchyTrack=(color,win)=>{
   if(typeof color!=="string"||!/^#[0-9a-fA-F]{6}$/.test(color))return;
   if(win&&!win.isDestroyed()){factoryLinuxOmarchyBase.set(win,color);factoryLinuxOmarchyApply(win);return}
-  for(const target of Dn()){
+  for(const target of Nn()){
     if(!target||target.isDestroyed())continue;
     factoryLinuxOmarchyBase.set(target,color);factoryLinuxOmarchyApply(target)
   }
 };
 const factoryLinuxOmarchyPublish=state=>{
-  for(const win of Dn()){
+  for(const win of Nn()){
     if(!win||win.isDestroyed())continue;
     if(factoryLinuxOmarchyFollow.get(win)===!0)factoryLinuxOmarchyApply(win,state);
-    if(!Ur(win.webContents)||win.webContents.isLoading())continue;
+    if(!jr(win.webContents)||win.webContents.isLoading())continue;
     const event={sender:win.webContents,senderFrame:win.webContents.mainFrame};
     if(factoryLinuxOmarchyTrusted(event))win.webContents.send("factory-linux-theme:changed",state);
   }
@@ -169,8 +169,8 @@ export const themeMainChanges = [
   // hoisted var so the earlier-registered vendor handler closure can see it
   // while staying inert on non-Linux platforms.
   ['Omarchy read-only theme IPC bridge',
-    'I.ipcMain.handle("window:setBackgroundColor",async(k,{color:x})=>{if(!/^#[0-9a-fA-F]{6}$/.test(x))return;const M=I.BrowserWindow.fromWebContents(k.sender);nme(x,M??void 0)}),I.ipcMain.handle("window:setThemeSource"',
-    'I.ipcMain.handle("window:setBackgroundColor",async(k,{color:x})=>{if(!/^#[0-9a-fA-F]{6}$/.test(x))return;const M=I.BrowserWindow.fromWebContents(k.sender),W=M??void 0;nme(x,W);process.platform==="linux"&&factoryLinuxOmarchyTrack&&factoryLinuxOmarchyTrack(x,W)});' + integration + 'I.ipcMain.handle("window:setThemeSource"'],
+    'I.ipcMain.handle("window:setBackgroundColor",async(R,{color:k})=>{if(!/^#[0-9a-fA-F]{6}$/.test(k))return;const P=I.BrowserWindow.fromWebContents(R.sender);The(k,P??void 0)}),I.ipcMain.handle("window:setThemeSource"',
+    'I.ipcMain.handle("window:setBackgroundColor",async(R,{color:k})=>{if(!/^#[0-9a-fA-F]{6}$/.test(k))return;const P=I.BrowserWindow.fromWebContents(R.sender),W=P??void 0;The(k,W);process.platform==="linux"&&factoryLinuxOmarchyTrack&&factoryLinuxOmarchyTrack(k,W)});' + integration + 'I.ipcMain.handle("window:setThemeSource"'],
 ];
 
 export function diagnoseThemeMainHelpers(source) {

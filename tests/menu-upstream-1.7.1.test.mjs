@@ -14,11 +14,11 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const versions = JSON.parse(readFileSync(path.join(projectRoot, 'versions.json'), 'utf8'));
 const upstreamRendererPath = path.join(
   projectRoot,
-  'build/upstream-pristine-1.6.0/app',
+  'build/upstream-pristine-1.7.1/app',
   versions.renderer,
 );
 
-test('menu anchors apply to the raw 1.6.0 renderer and reverse exactly', {
+test('menu anchors apply to the raw 1.7.1 renderer and reverse exactly', {
   skip: !existsSync(upstreamRendererPath)
     ? 'the pristine vendor snapshot is absent; run the build to produce it'
     : false,
@@ -33,16 +33,16 @@ test('menu anchors apply to the raw 1.6.0 renderer and reverse exactly', {
   assert.equal(unpatchMenuRenderer(patched), upstream);
 
   // Semantic basis for the off-Mac gate used by every transform.
-  assert.equal(upstream.split('Yu=/macintosh|mac os x/i.test(').length - 1, 1,
+  assert.equal(upstream.split('Iu=/macintosh|mac os x/i.test(').length - 1, 1,
     'the renderer isMac user-agent gate is present exactly once');
 
   // Upstream pre-state that the transforms are built against.
   assert.equal(upstream.split('searchId:"appearance-font-smoothing"').length - 1, 1);
   assert.equal(upstream.split('"Finder":"File Explorer"').length - 1, 2);
-  assert.equal(upstream.split('label:Yu?"Finder":"File Explorer"').length - 1, 1);
-  assert.equal(upstream.split('children:Yu?"Finder":"File Explorer"').length - 1, 1);
+  assert.equal(upstream.split('label:Iu?"Finder":"File Explorer"').length - 1, 1);
+  assert.equal(upstream.split('children:Iu?"Finder":"File Explorer"').length - 1, 1);
 
   // Post-state: nothing Windows-specific remains off macOS.
   assert.equal(patched.split('"Finder":"File Explorer"').length - 1, 0);
-  assert.match(patched, /Fe=Yu\?c\.jsx\(Zc,\{control:Me,description:je,searchId:"appearance-font-smoothing",title:Ye\}\):null/);
+  assert.match(patched, /Qe=Iu\?c\.jsx\(Jc,\{control:Me,description:je,searchId:"appearance-font-smoothing",title:Ye\}\):null/);
 });

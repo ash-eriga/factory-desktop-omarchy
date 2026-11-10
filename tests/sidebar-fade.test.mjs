@@ -60,7 +60,7 @@ test('unrelated scroll areas receive no mask styles; CSS masks content and suppr
 
 test('actual upstream observer updates mask depths on scroll/resize/mutation and cleans up', vendorOptions, () => {
   const source = patch(readFileSync(upstreamFile, 'utf8'), sidebarFadeChanges);
-  const component = source.slice(source.indexOf('function qTe('), source.indexOf('function jA('));
+  const component = source.slice(source.indexOf('function fke('), source.indexOf('function WA('));
   const element = viewport(), listeners = new Map(), callbacks = {};
   let cleanup, disconnected = 0;
   element.firstElementChild = { children: [] };
@@ -76,16 +76,15 @@ test('actual upstream observer updates mask depths on scroll/resize/mutation and
     observe() {}
     disconnect() { disconnected++; }
   }
-  vm.runInNewContext(`${factoryPortUpdateSidebarMask.toString()};${component};qTe(props)`, {
+  vm.runInNewContext(`${factoryPortUpdateSidebarMask.toString()};${component};fke(props)`, {
     props: { orientation: 'vertical', viewportRef: { current: element } },
     z: { c: () => [] },
     P: { useState: () => [{ start: false, end: false }, () => {}], Fragment: 'fragment' },
     c: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }), Fragment: 'fragment' },
-    HSa: ['start', 'end'], QSa: [{ offset: 0, opacity: 1 }, { offset: 1, opacity: 0 }],
-    pxo: '10px', bNt: '10px', u6e: '28px',
-    zSa: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
-    qSa: 'fade', VSa: 'fade-color',
-    NFn: 1,
+    n_a: ['start', 'end'], t_a: [{ offset: 0, opacity: 1 }, { offset: 1, opacity: 0 }],
+    lQn: 1,
+    i_a: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
+    s_a: 'fade', r_a: 'fade-color',
     Xt: effect => { cleanup = effect(); }, ResizeObserver, MutationObserver,
   });
   assert.deepEqual(depths(element), ['0px', '40px']);
@@ -107,9 +106,9 @@ test('actual upstream observer updates mask depths on scroll/resize/mutation and
 test('only two exact source anchors change; shared colors, sizes and other call sites stay original', vendorOptions, () => {
   const source = readFileSync(upstreamFile, 'utf8');
   let updated = patch(source, sidebarFadeChanges);
-  assert.ok(updated.includes('QSa=[{offset:0,opacity:.55}'));
-  assert.ok(updated.includes('colorStops:bNt,orientation:"vertical",scrollbarInset:"0px",size:u6e,surface:E.bg.page,testIdPrefix:"plan-list"'));
-  assert.ok(updated.includes('colorStops:bNt,orientation:"vertical",scrollbarInset:pxo,size:u6e,surface:E.bg.surface,testIdPrefix:"session-list"'));
+  assert.ok(updated.includes('t_a=[{offset:0,opacity:.55}'));
+  assert.ok(updated.includes('colorStops:kFt,orientation:"vertical",scrollbarInset:"0px",size:Rke,surface:E.bg.page,testIdPrefix:"plan-list"'));
+  assert.ok(updated.includes('colorStops:kFt,orientation:"vertical",scrollbarInset:iTo,size:Rke,surface:E.bg.surface,testIdPrefix:"session-list"'));
   for (const [, before, after] of [...sidebarFadeChanges].reverse()) updated = updated.replace(after, before);
   assert.equal(updated, source);
 });
@@ -143,7 +142,7 @@ function functionBody(source, start) {
 function styledBase(source, alias) {
   // The alias may carry regex metacharacters ($Uc's `$`), so escape it.
   const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, String.fromCharCode(92) + '$&');
-  return new RegExp(`${escaped}=X\\(([A-Za-z0-9_$]+)\\)`).exec(source)?.[1];
+  return new RegExp(`${escaped}=[A-Za-z0-9_$]+\\(([A-Za-z0-9_$]+)\\)`).exec(source)?.[1];
 }
 
 function traceSessionList(source) {
@@ -176,9 +175,9 @@ function renderSessionList(trace) {
     z: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
     P: { useState: initial => [initial, () => {}], Fragment: 'fragment' },
     c: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }), Fragment: 'fragment' },
-    QSa: [{ offset: 0, opacity: .55 }, { offset: .2, opacity: .34 }, { offset: .4, opacity: .18 }, { offset: .55, opacity: .09 }, { offset: .75, opacity: .03 }, { offset: 1, opacity: 0 }],
-    bNt: [{ offset: 0, opacity: .55 }, { offset: .2, opacity: .34 }, { offset: .4, opacity: .18 }, { offset: .55, opacity: .09 }, { offset: .75, opacity: .03 }, { offset: 1, opacity: 0 }],
-    mvo: '10px', c5e: '28px', pxo: '10px', u6e: '28px',
+    t_a: [{ offset: 0, opacity: .55 }, { offset: .2, opacity: .34 }, { offset: .4, opacity: .18 }, { offset: .55, opacity: .09 }, { offset: .75, opacity: .03 }, { offset: 1, opacity: 0 }],
+    kFt: [{ offset: 0, opacity: .55 }, { offset: .2, opacity: .34 }, { offset: .4, opacity: .18 }, { offset: .55, opacity: .09 }, { offset: .75, opacity: .03 }, { offset: 1, opacity: 0 }],
+    iTo: '10px', Rke: '28px',
     E: { bg: { surface: '#000000' } },
   };
   for (const alias of trace.aliases) context[alias] = { [alias]: function () {} }[alias];
@@ -217,7 +216,7 @@ function findElement(element, type) {
 }
 
 function markedAliases(patched) {
-  return [...patched.matchAll(/([A-Za-z0-9_$]+)=X\([A-Za-z0-9_$]+\)\.attrs\(\{"data-factory-port-sidebar-scroll":!0\}\)/g)]
+  return [...patched.matchAll(/([A-Za-z0-9_$]+)=[A-Za-z0-9_$]+\([A-Za-z0-9_$]+\)\.attrs\(\{"data-factory-port-sidebar-scroll":!0\}\)/g)]
     .map(match => match[1]);
 }
 
@@ -226,8 +225,8 @@ function assertSessionListRootMarked(patched, trace) {
   assert.deepEqual(marked, [trace.root], `only the session-list root ${trace.root} may carry the marker`);
   const base = styledBase(patched, trace.root);
   assert.ok(base, 'the session-list root is a styled component');
-  assert.ok(patched.includes(`${trace.root}=X(${base}).attrs({"data-factory-port-sidebar-scroll":!0})\``));
-  const marker = patched.indexOf(`${trace.root}=X(${base}).attrs(`);
+  assert.ok(patched.includes(`${trace.root}=J(${base}).attrs({"data-factory-port-sidebar-scroll":!0})\``));
+  const marker = patched.indexOf(`${trace.root}=J(${base}).attrs(`);
   const css = patched.indexOf(sidebarMaskCss);
   assert.ok(css > marker && css - marker < 400, 'the mask CSS belongs to the marked root');
 }
@@ -281,9 +280,9 @@ test('negative controls: a shared scroll root and an overlay-only fixture are re
   const source = readFileSync(upstreamFile, 'utf8');
   const trace = traceSessionList(source);
   const base = styledBase(source, trace.root);
-  const shared = [...source.matchAll(new RegExp(`([A-Za-z0-9_$]+)=X\\(${base}\\)`, 'g'))]
+  const shared = [...source.matchAll(new RegExp(`([A-Za-z0-9_$]+)=[A-Za-z0-9_$]+\\(${base}\\)`, 'g'))]
     .map(match => match[1])
-    .filter(alias => alias !== trace.root);
+    .filter(alias => alias !== trace.root && source.includes(`const ${alias}=`));
   assert.ok(shared.length, 'the bundle has another scroll-area root with the same base');
 
   // The pre-fix recipe marked a shared scroll-area root. It is not part of
@@ -291,8 +290,8 @@ test('negative controls: a shared scroll root and an overlay-only fixture are re
   // the mask stays inactive.
   for (const wrongRoot of shared) {
     const wrongChanges = sidebarFadeChanges.map(([name, before, after]) => (
-      before.startsWith(`${trace.root}=X(`)
-        ? [name, `${wrongRoot}=X(${base})`, after.replace(`${trace.root}=X(${base})`, `${wrongRoot}=X(${base})`)]
+      before.includes(`${trace.root}=`)
+        ? [name, before.replace(`${trace.root}=J(${base})`, `${wrongRoot}=J(${base})`), after.replace(`${trace.root}=J(${base})`, `${wrongRoot}=J(${base})`)]
         : [name, before, after]
     ));
     const wrongPatched = patch(source, wrongChanges);
@@ -321,10 +320,10 @@ test('negative controls: a shared scroll root and an overlay-only fixture are re
     z: { c: count => Array(count).fill(Symbol.for('react.memo_cache_sentinel')) },
     P: { useState: initial => [initial, () => {}], Fragment: 'fragment' },
     c: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }), Fragment: 'fragment' },
-    HSa: ['start', 'end'], QSa: [],
-    qSa: 'edge', VSa: 'edge-color',
-    zSa: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
-    Xt: () => {}, NFn: 1,
+    n_a: ['start', 'end'], t_a: [],
+    s_a: 'edge', r_a: 'edge-color',
+    i_a: { vertical: { start: 'top', end: 'bottom' }, horizontal: { start: 'left', end: 'right' } },
+    Xt: () => {}, lQn: 1,
   };
   assert.throws(
     () => vm.runInNewContext(`${overlayBody};${trace.overlay}({viewportRef:{current:null},children:"rows"})`, overlayContext),

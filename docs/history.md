@@ -5,6 +5,48 @@ validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in
 [validation](validation.md).
 
+## Factory Desktop 1.7.1
+
+- The pinned upstream moves from 1.6.0 to 1.7.1 (`@factory/cli-linux-x64`
+  1.7.1). The installer digest and the bundle chunk names in `versions.json`
+  are those of the inspected 1.7.1 payload; the official rotor geometry is
+  unchanged, so the brand pins carry over.
+- Every patch anchor is re-derived against the 1.7.1 bundle across main
+  process, preload, renderer, HTML and CSS. The Linux guards moved
+  (`mme`→`Nhe`, `gY`→`KK`, `l0`→`Jf`, `uY`→`HK`), the application menu
+  builder to `Qhe` with its locale handler at `Yhe`, the update notifier
+  callbacks to `Ud`/`Ha`, and the computer registration functions to
+  `TZ`/`_Z` with the renderer mounting `Rcs` and the explicit action using
+  `za`/`Ge`/`Ue.Primary`/`ts()`.
+- The theme main bridge follows the renamed collaborators: the registered
+  window set is `Jn`, the live window reader `Nn()`, the webContents
+  liveness check `jr()`, the vendor baseline `She()` and the native
+  background applier `The(color, win?)`. The background IPC keeps the
+  payload's own `R`/`k`/`P` names, so the Linux tracking hook runs after
+  the vendor call with the sender window as `W`.
+- The renderer theme layer follows the renamed appearance system: the
+  store is `$ot` with `WAd`/`Hde`, the resolved theme atom `eG`, the follow
+  atoms `Uot`/`D2i`, the settings atom `QPe`, the defaults `Ok`, the palette
+  chain `HPe`/`RBu`/`M2i` over `DZr`/`yve`/`COn`, and the bounds object
+  `pZe`. The Appearance screen is `Rof` (memo cache 230→233) and the theme
+  editor `yof` (206→211); the follow row is still memoized in slot 210 and
+  placed first inside the editor. The composer markers follow `pw` (stacked
+  panel) and `PBc=J.form` (session card); the settings navigation painter is
+  `zCc`.
+- The remote-control layer follows the renamed machine id (`io`), connect
+  helper (`Ee`), auto-start (`ge`), online handler (`fe`), cleanup (`he`),
+  daemon-available subscription (`Ae`), connect error (`_n`), preference
+  hook (`Nvi`), start budget (`r2u`) and OAuth marker (`xSn`); the manual
+  enable/disable hook is `wSn`. Event enums are `Di`/`dA`.
+- The sidebar fade keeps its shape on the new bytes: the mask still belongs
+  only to the session-list scroll root the wrapper (`wmd`) renders (`Cmd`
+  over the shared `Odt` base), and the fade depth still grows with the real
+  clipped distance of the upstream scroll observer (`lQn` threshold). The
+  observer's horizontal flag is `C`, so the inserted guard tests it.
+- The menu renderer re-anchors on `Qe`/`Jc` with the platform flag `Iu`.
+  The typography layer keeps the 15px row line-height on the composer model
+  chip, now rendered through `HZr`. The preload binding stays `F`.
+
 ## Factory Desktop 1.6.0
 
 - The pinned upstream moves from 1.5.0 to 1.6.0 (`@factory/cli-linux-x64`

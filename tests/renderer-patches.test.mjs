@@ -56,7 +56,7 @@ function loadBillingHook(source, { exposeHelpers = true } = {}) {
   };
 
   const hooks = vm.runInNewContext(
-    `${source}\n({billingLimits:nDe${exposeHelpers ? ', snapshot:factoryLinuxBillingFocusSnapshot' : ''}})`,
+    `${source}\n({billingLimits:xOe${exposeHelpers ? ', snapshot:factoryLinuxBillingFocusSnapshot' : ''}})`,
     {
       Symbol,
       P,
@@ -66,11 +66,9 @@ function loadBillingHook(source, { exposeHelpers = true } = {}) {
         assert.equal(size, memoCache.length);
         return memoCache;
       } },
-      Ou: () => airgapEnabled,
-      Ru: () => airgapEnabled,
+      mu: () => airgapEnabled,
       Gn: { billing: { tokenLimits: ['billing', 'tokenLimits'] } },
-      mo: (query, options) => ({ query, options }),
-      Co: (query, options) => ({ query, options }),
+      So: (query, options) => ({ query, options }),
     },
   );
 
@@ -146,7 +144,7 @@ test('billing query follows renderer focus without changing global query focus',
 
 test('the unpatched upstream hook keeps polling while hidden', () => {
   // Control proving the focus assertions above detect an unpatched bundle:
-  // run the real 1.2.0 anchor (no helpers, background refetch enabled) and
+  // run the real 1.7.1 anchor (no helpers, background refetch enabled) and
   // verify it does not react to blur or visibility at all.
   const [, before] = rendererChanges[0];
   const app = loadBillingHook(before, { exposeHelpers: false });
