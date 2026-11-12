@@ -41,13 +41,13 @@ export const sidebarMaskCss = `
 
 export const sidebarFadeChanges = [
   // The marker belongs to the session-list scroll root, the styled Radix Root
-  // the session-list wrapper (`wmd`) renders. 1.7.1 shares the styled base
-  // (`Odt`) with unrelated scroll areas, so the marker must sit on `Cmd`,
-  // the root `wmd` renders for the session list.
+  // the session-list wrapper (`JPd`) renders. 1.9.0 gives the session list a
+  // dedicated root (`VPd` over `hgt`), so the marker can sit on that root
+  // without touching the shared scroll areas.
   ['mask only the session-list viewport instead of painting rectangular edge overlays',
-    'const Cmd=J(Odt)`',
-    `const Cmd=J(Odt).attrs({"data-factory-port-sidebar-scroll":!0})\`${sidebarMaskCss}`],
+    'const VPd=J(hgt)`',
+    `const VPd=J(hgt).attrs({"data-factory-port-sidebar-scroll":!0})\`${sidebarMaskCss}`],
   ['reuse upstream edge observers for continuous sidebar mask depths',
-    'B={end:k<R-lQn,start:k>lQn};m(M=>',
-    'B={end:k<R-lQn,start:k>lQn};if(!C)factoryPortUpdateSidebarMask(b,k,R);m(M=>'],
+    'B={end:k<R-IJn,start:k>IJn};m(M=>',
+    'B={end:k<R-IJn,start:k>IJn};if(!S)factoryPortUpdateSidebarMask(b,k,R);m(M=>'],
 ];

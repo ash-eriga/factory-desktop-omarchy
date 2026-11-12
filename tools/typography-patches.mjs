@@ -11,13 +11,13 @@
 // line-height, matching the row it renders into. The chip's colour,
 // content and the trigger around it stay exactly as upstream shipped them.
 //
-// Exact anchor from the inspected, checksum-pinned Desktop 1.7.1 renderer
+// Exact anchor from the inspected, checksum-pinned Desktop 1.9.0 renderer
 // (the composer model selector trigger, beside the `model-name-shimmer`
-// branch). 1.7.1 renders the chip through a plain span (`HZr`) instead of the
-// Typography call the 1.5.0 payload used, and the old body-2 anchor now
-// matches the mission status text instead, so the anchor follows the chip.
+// branch). 1.9.0 renders the chip through its Typography call (`Dt`, body-2)
+// again, so the anchor follows that call and leaves every other body-2 text
+// on the row untouched.
 export const typographyRendererChanges = [
   ['composer model chip joins the 15px row line-height',
-    '):c.jsx(HZr,{children:o})',
-    '):c.jsx(HZr,{style:{lineHeight:"15px"},children:o})'],
+    'c.jsx(Dt,{color:F?"muted":"default",variant:"body-2",children:rn})',
+    'c.jsx(Dt,{color:F?"muted":"default",variant:"body-2",style:{lineHeight:"15px"},children:rn})'],
 ];

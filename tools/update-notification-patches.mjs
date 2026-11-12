@@ -2,14 +2,14 @@
 // Main-process only: no new renderer IPC, downloads or installation rights.
 export const updateNotificationMainChanges = [
   ['declare port update notifier',
-    'function Ud(){var d;',
-    'var factoryPortUpdates;function Ud(){var d;'],
+    'function Au(){var d;',
+    'var factoryPortUpdates;function Au(){var d;'],
   ['initialize port update notifier before building the application menu',
-    's.startupTracker.beginPhase("application_menu_create"),Ud(),s.onDesktopUpdatePolicyChange(Ud)',
-    's.startupTracker.beginPhase("application_menu_create"),process.platform==="linux"&&(factoryPortUpdates=require(De.resolve(process.resourcesPath,"..","port","update-notifier.cjs")).createUpdateNotifier({electron:I,version:require(De.resolve(process.resourcesPath,"..","port","release.json")).version,allowed:()=>s.getHostedServicesEnabled()&&s.getRuntimeAuthConfig().airgapEnabled!==!0&&!s.areDesktopUpdatesDisabledByCachedOrgSettings(),canAutoCheck:Ha,rebuildMenu:Ud})),Ud(),s.onDesktopUpdatePolicyChange(Ud)'],
+    'r.startupTracker.beginPhase("application_menu_create"),Au(),r.onDesktopUpdatePolicyChange(Au)',
+    'r.startupTracker.beginPhase("application_menu_create"),process.platform==="linux"&&(factoryPortUpdates=require(J.resolve(process.resourcesPath,"..","port","update-notifier.cjs")).createUpdateNotifier({electron:A,version:require(J.resolve(process.resourcesPath,"..","port","release.json")).version,allowed:()=>r.getHostedServicesEnabled()&&r.getRuntimeAuthConfig().airgapEnabled!==!0&&!r.areDesktopUpdatesDisabledByCachedOrgSettings(),canAutoCheck:vc,rebuildMenu:Au})),Au(),r.onDesktopUpdatePolicyChange(Au)'],
   ['offer port release notifications instead of the vendor updater',
-    'o=process.platform==="linux"||!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:',
-    'o=process.platform==="linux"?(factoryPortUpdates?.menuItems()??[]):!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:'],
+    's=process.platform==="linux"||!n||r.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:',
+    's=process.platform==="linux"?(factoryPortUpdates?.menuItems()??[]):!n||r.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:'],
 ];
 
 export function diagnoseUpdateNotificationHelpers(source) {

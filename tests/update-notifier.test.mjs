@@ -300,15 +300,15 @@ test('real upstream integration compiles, retains updater guards and initializes
   assert.equal(unpatchUpdateNotifications(result), previous);
   assert.throws(() => unpatchUpdateNotifications(previous));
   assert.throws(() => patch(result, updateNotificationMainChanges));
-  assert.ok(result.includes('async function HK(){if(process.platform==="linux")return;'));
-  assert.ok(result.includes('async function Jf({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'));
+  assert.ok(result.includes('async function YJ(){if(process.platform==="linux")return;'));
+  assert.ok(result.includes('async function Kh({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'));
   let captured, menus = 0;
   const x = {};
   const env = { hosted: true, airgap: false, policy: false, auto: true };
   const context = {
-    process: { platform: 'linux', resourcesPath: '/opt/factory-droid-desktop/resources' }, De: path,
-    I: x, Ha: () => env.auto, Ud: () => menus++,
-    s: { startupTracker: { beginPhase() {} }, getHostedServicesEnabled: () => env.hosted,
+    process: { platform: 'linux', resourcesPath: '/opt/factory-droid-desktop/resources' }, J: path,
+    A: x, vc: () => env.auto, Au: () => menus++,
+    r: { startupTracker: { beginPhase() {} }, getHostedServicesEnabled: () => env.hosted,
       onDesktopUpdatePolicyChange: () => {},
       getRuntimeAuthConfig: () => ({ airgapEnabled: env.airgap }),
       areDesktopUpdatesDisabledByCachedOrgSettings: () => env.policy },
@@ -328,6 +328,6 @@ test('real upstream integration compiles, retains updater guards and initializes
   }
   env.auto = false; assert.equal(captured.canAutoCheck(), false);
   // Negative control: the original Linux guard hides all update entries.
-  assert.ok(previous.includes('o=process.platform==="linux"||!n||'));
-  assert.ok(result.includes('o=process.platform==="linux"?(factoryPortUpdates?.menuItems()??[])'));
+  assert.ok(previous.includes('s=process.platform==="linux"||!n||'));
+  assert.ok(result.includes('s=process.platform==="linux"?(factoryPortUpdates?.menuItems()??[])'));
 });
