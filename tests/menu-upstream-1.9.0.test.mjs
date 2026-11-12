@@ -14,11 +14,11 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const versions = JSON.parse(readFileSync(path.join(projectRoot, 'versions.json'), 'utf8'));
 const upstreamRendererPath = path.join(
   projectRoot,
-  'build/upstream-pristine-1.7.1/app',
+  'build/upstream-pristine-1.9.0/app',
   versions.renderer,
 );
 
-test('menu anchors apply to the raw 1.7.1 renderer and reverse exactly', {
+test('menu anchors apply to the raw 1.9.0 renderer and reverse exactly', {
   skip: !existsSync(upstreamRendererPath)
     ? 'the pristine vendor snapshot is absent; run the build to produce it'
     : false,
@@ -44,5 +44,5 @@ test('menu anchors apply to the raw 1.7.1 renderer and reverse exactly', {
 
   // Post-state: nothing Windows-specific remains off macOS.
   assert.equal(patched.split('"Finder":"File Explorer"').length - 1, 0);
-  assert.match(patched, /Qe=Iu\?c\.jsx\(Jc,\{control:Me,description:je,searchId:"appearance-font-smoothing",title:Ye\}\):null/);
+  assert.match(patched, /rt=Iu\?c\.jsx\(\$c,\{control:vt,description:Rt,searchId:"appearance-font-smoothing",title:Ye\}\):null/);
 });

@@ -4,8 +4,8 @@
 
 export const menuRendererChanges = [
   ['hide native macOS font smoothing control off macOS',
-    'Qe=c.jsx(Jc,{control:Me,description:je,searchId:"appearance-font-smoothing",title:Ye})',
-    'Qe=Iu?c.jsx(Jc,{control:Me,description:je,searchId:"appearance-font-smoothing",title:Ye}):null'],
+    'rt=c.jsx($c,{control:vt,description:Rt,searchId:"appearance-font-smoothing",title:Ye})',
+    'rt=Iu?c.jsx($c,{control:vt,description:Rt,searchId:"appearance-font-smoothing",title:Ye}):null'],
   ['use a generic non-Mac file manager label in the editor list',
     'label:Iu?"Finder":"File Explorer"',
     'label:Iu?"Finder":"File manager"'],

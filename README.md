@@ -11,24 +11,31 @@ Unofficial, experimental Factory Desktop port for Arch Linux and Omarchy on x86_
 - Workstreams active by default, no server-side experiment gate required.
 - Remote Control, enabled only when you choose.
 
-## Droid 1.7
+## Droid 1.9
 
-This port tracks Factory Desktop 1.7.1, one upstream release after the
-previous ported pin: 1.7.0 keeps the session sidebar responsive while
-sessions stream, moves environment-panel git actions into a menu on the
-Changes row, stops offline Droid Computers from retrying in a loop, shows
-"Next question" for typed answers, and names Environments as the replacement
-for cloud machines. It also fixes merge-commit checks, GitLab token scope
-messages, sign-in walls when fetching pages, and the approved spec surviving
-compaction. 1.7.1 keeps a session working when its earlier thinking went
-stale (the upstream changelog lives at
-[docs.factory.com/changelog/release-notes](https://docs.factory.com/changelog/release-notes#v1.7.1)).
+This port tracks Factory Desktop 1.9.0, two upstream releases after the
+previous ported pin. 1.8.0 puts API keys and service accounts on one Identity
+settings page, gives the model-defaults popover the composer's autonomy
+levels, caps animated image generation at 16 frames, stops Exec from taking
+over a session another machine holds, reveals a new API key immediately,
+removes the gray box behind the Git actions button while Droid works, names
+the connector rate limit you hit, and makes the Script tool run on Windows.
+1.9.0 adds Open in Browser for links in the desktop app, keeps Task
+concurrency from starving new sessions, gives every public API operation a
+stable identifier and consistent errors, validates hook entries one by one,
+keeps the transcript in place when the composer resizes, lets Tasks run
+beside other calls in a Script run, reports the run's autonomy level and
+working directory from the first hook event, and hardens approvals and
+rewind, pending tool calls, file writes, sandboxed Script on Linux, stopping
+a stalled session, checkout cleanup and organization owner safeguards. The
+upstream changelog lives at
+[docs.factory.com/changelog/release-notes](https://docs.factory.com/changelog/release-notes#v1.9.0).
 Factory presents the 1.x generation as faster, higher scoring and cheaper per
 completed task than the agents around it, and publishes the benchmark behind
 the claim as the figure below.
 
 On top of the pinned release, this port fixes three visual defects against
-1.7.1's own bytes. On a glassy (Follow Omarchy) window the composer no longer
+1.9.0's own bytes. On a glassy (Follow Omarchy) window the composer no longer
 paints a dark gradient band with a hard edge above it, the Orchestrator chip
 renders transparent like every other chip in its row, and the model chip's
 text aligns with its neighbours' line instead of sitting a fraction of a

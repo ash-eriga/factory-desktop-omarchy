@@ -1,5 +1,55 @@
 # History
 
+## Factory Desktop 1.9.0
+
+- The pinned upstream moves from 1.7.1 to 1.9.0 (`@factory/cli-linux-x64`
+  1.9.0). The installer digest and the bundle chunk names in `versions.json`
+  are those of the inspected 1.9.0 payload (`initLifecycle-rQhV5RvN.js`,
+  `index-BEyHEbDg.js`, `index-rxnsedGa.js`, `index-D9fnkQQX.css`); the
+  official rotor geometry is unchanged, so the brand pins carry over.
+- Every patch anchor is re-derived against the 1.9.0 bundle. The lifecycle
+  now imports Electron as `A` and the shared runtime module as `r`; the
+  Linux guards move (`Nhe`→`e5e`, `KK`→`eee`, `Jf`→`Kh`, `HK`→`YJ`), the
+  application menu builder to `y5e` with its locale schema at `h5e`, the
+  update notifier rebuild to `Au` with its auto-check gate at `vc`, and the
+  computer registration to `Ote`/`jte` with `hi` broadcasting the id change.
+  The browser sign-in now closes over `c`/`i`, and the customer sign-in
+  through `R`/`Xg`/`kw`/`hi`.
+- The theme main bridge follows the renamed collaborators: the registered
+  window set is `io`, the live window reader `Bn()`, the webContents
+  liveness check `Zo()`, the vendor baseline `F3e()` and the native
+  background applier `U3e(color, win?)`. The background IPC keeps the
+  payload's own `R`/`k` names.
+- The renderer theme layer follows the rewritten appearance system: the
+  system-theme atom is `sdt`, the persisted preference `odt`, the resolved
+  theme `aV`, the theme enum `sC`, the appearance settings store `kUe` with
+  defaults `KR`, the follow opt-in `RUe`, the effective palette `rdf` over
+  `pSe`, the derived CSS `KTi` over `_sl`, the bounds object `lrt` and the
+  contrast curve `Jti`. The temporary source background is `YTi` over
+  `Dqt`. The Appearance screen is `X6f` (memo cache 263→266) and the theme
+  editor `U6f` (206→211); the follow row is memoized in slot 210 and placed
+  first inside the editor's `S1` group. The sidebar painter is `WLd`, the
+  title-bar painter `kt`, and the composer surfaces come from upstream's
+  own `data-composer-surface` wrapper plus the `data-composer-setup-card`
+  stacks. State, storage and effects now use `Xn`/`Qpe`/`nr`/`fe`/`on`.
+- The remote-control layer follows the renamed machine id (`lo`), manager
+  (`re`), auto-start (`Ae`), connect helper (`xe`), cleanup (`pe`),
+  daemon-available subscription (`ve`), preference hook (`D4i`), start
+  budget (`wHu`) and OAuth marker (`rTn`); the manual hook is `sTn`, event
+  enums are `ji`/`bh`, and the relay timeout class is `bx`. The sidebar fade
+  marks the dedicated `VPd` scroll root over `hgt`, follows the `IJn`
+  threshold and the observer's `S` horizontal flag. The settings navigation
+  painter is `vNc`. The composer model chip returns to a Typography call
+  (`Dt`, body-2) and the font-smoothing row moves to `$c`/`rt`.
+- The desktop computer registration keeps its own driver and now details
+  `Pc()`/`lC()`/`qw()` for the local configuration, `IR`/`BR`/`HR`/`bn`/`ec`
+  for the upstream helpers, and the `GCs` settings page with its `on` mount
+  effect and `S()` list refresh. The billing hook is `dFe` over `H`/`xu`/
+  `Vn`/`Ro`.
+- Rename the two upstream payload suites to 1.9.0, refresh the source
+  inventory and archive digest, and document the release in the README,
+  architecture and history.
+
 A short, factual log of what changed in this repository. Internal
 validation reports, machine-specific proofs and personal notes stay out
 of the public tree; the methodology behind each change is described in

@@ -21,7 +21,7 @@ export const linuxMenuKeyboardHandler = `
 if(process.platform==="linux"){
   const linuxOpenApplicationMenu=()=>{
     if(typeof factoryLinuxApplicationMenu!=="undefined"&&factoryLinuxApplicationMenu?.keyboard({sender:a.webContents,senderFrame:a.webContents.mainFrame}))return;
-    I.Menu.getApplicationMenu()?.popup({window:a});
+    A.Menu.getApplicationMenu()?.popup({window:a});
   };
   let linuxAltMenuPending=false;
   a.on("blur",()=>{linuxAltMenuPending=false});
@@ -52,15 +52,15 @@ export const changes = [
   // The package's desktop entry advertises factory-desktop:// through XDG.
   // Skip upstream's default-handler takeover; existing user choices stay
   // intact. Only fix the XDG desktop entry name for Linux badges here.
-  ['callback opt-in', 'function Nhe(){try{const e=s.getDesktopProtocol();',
-    `function Nhe(){if(process.platform==="linux"){I.app.setDesktopName("${DESKTOP_ENTRY}");return;}try{const e=s.getDesktopProtocol();`],
+  ['callback opt-in', 'function e5e(){try{const e=r.getDesktopProtocol();',
+    `function e5e(){if(process.platform==="linux"){A.app.setDesktopName("${DESKTOP_ENTRY}");return;}try{const e=r.getDesktopProtocol();`],
   // The visible name of the port. The official manifest names the
   // application "Factory"; the port ships as its own product, so the name
   // is set before the first window exists and before the protocol helper
   // runs. The window title, the taskbar entry and the application menu
   // read the name from here.
-  ['application name', 's.startupTracker.beginPhase("ipc_and_protocol_setup"),Nhe()',
-    `s.startupTracker.beginPhase("ipc_and_protocol_setup"),I.app.setName("${PRODUCT_NAME}"),Nhe()`],
+  ['application name', 'r.startupTracker.beginPhase("ipc_and_protocol_setup"),e5e()',
+    `r.startupTracker.beginPhase("ipc_and_protocol_setup"),A.app.setName("${PRODUCT_NAME}"),e5e()`],
   // The pacman boundary: an Arch-managed install must never enforce the
   // vendor's minimum-version quit prompt, run its in-app updater entry
   // points, or offer its own updater in the menu. The port notification
@@ -68,14 +68,14 @@ export const changes = [
   // already refuses to *start* the auto-updater for externally managed
   // Linux installs (qz()/Ia() detect the vendor's own packages); these
   // guards keep the manual and prompted paths equally closed.
-  ['minimum version prompt', 'async function KK(){',
-    'async function KK(){if(process.platform==="linux")return!0;'],
-  ['manual updater', 'async function Jf({onAborted:e}={}){',
-    'async function Jf({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'],
-  ['update checks', 'async function HK(){me("check-now-requested"),',
-    'async function HK(){if(process.platform==="linux")return;me("check-now-requested"),'],
-  ['update menu', 'o=!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:',
-    'o=process.platform==="linux"||!n||s.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:'],
+  ['minimum version prompt', 'async function eee(){if(r.getRuntimeAuthConfig().airgapEnabled===!0)',
+    'async function eee(){if(process.platform==="linux")return!0;if(r.getRuntimeAuthConfig().airgapEnabled===!0)'],
+  ['manual updater', 'async function Kh({onAborted:e}={}){',
+    'async function Kh({onAborted:e}={}){if(process.platform==="linux"){e?.();return;}'],
+  ['update checks', 'async function YJ(){me("check-now-requested"),',
+    'async function YJ(){if(process.platform==="linux")return;me("check-now-requested"),'],
+  ['update menu', 'n=r.getHostedServicesEnabled(),s=!n||r.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:[',
+    'n=r.getHostedServicesEnabled(),s=process.platform==="linux"||!n||r.areDesktopUpdatesDisabledByCachedOrgSettings()?[]:['],
   // Upstream still ships no keyboard affordance for the hidden Linux menu
   // bar (only a guest-webview input forwarder listens to before-input-event
   // in 1.5.0), so keep the port's Alt/F10 access through the integrated menu.
@@ -92,7 +92,7 @@ export const changes = [
   // follow machinery (theme-main-patches.mjs) deliberately applies
   // #00000000 for a valid glassy windowMode.
   ['Linux window icon', 'titleBarStyle:"hidden",titleBarOverlay:t?',
-    'icon:process.platform==="linux"?Q.join(process.resourcesPath,"factory-desktop.png"):void 0,transparent:process.platform==="linux"||void 0,titleBarStyle:"hidden",titleBarOverlay:t?'],
+    'icon:process.platform==="linux"?J.join(process.resourcesPath,"factory-desktop.png"):void 0,transparent:process.platform==="linux"||void 0,titleBarStyle:"hidden",titleBarOverlay:t?'],
 ];
 
 // 1.2.0 exposes the integrated header's showApplicationMenu on every
@@ -112,8 +112,8 @@ export const rendererHelperNames = [
 
 export const rendererChanges = [
   ['pause hidden billing limits polling',
-    'function xOe(t){const e=z.c(3),n=t===void 0?!0:t,i=mu(),o=n&&!i;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Gn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!0,retry:!1},e[2]=r):r=e[2],So(s,r)}',
-    'function factoryLinuxBillingFocusSnapshot(){return typeof document==="undefined"||document.visibilityState!=="hidden"&&(typeof document.hasFocus!=="function"||document.hasFocus())}function factoryLinuxBillingFocusSubscribe(t){if(typeof window==="undefined"||typeof document==="undefined")return()=>{};return window.addEventListener("focus",t),window.addEventListener("blur",t),document.addEventListener("visibilitychange",t),()=>{window.removeEventListener("focus",t),window.removeEventListener("blur",t),document.removeEventListener("visibilitychange",t)}}function factoryLinuxBillingUseFocused(){return P.useSyncExternalStore(factoryLinuxBillingFocusSubscribe,factoryLinuxBillingFocusSnapshot,factoryLinuxBillingFocusSnapshot)}function xOe(t){const focused=factoryLinuxBillingUseFocused(),e=z.c(3),n=t===void 0?!0:t,i=mu(),o=n&&!i&&focused;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Gn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!1,refetchOnWindowFocus:!0,retry:!1},e[2]=r):r=e[2],So(s,r)}'],
+    'function dFe(t){const e=H.c(3),n=t===void 0?!0:t,i=xu(),o=n&&!i;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Vn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!0,retry:!1},e[2]=r):r=e[2],Ro(s,r)}',
+    'function factoryLinuxBillingFocusSnapshot(){return typeof document==="undefined"||document.visibilityState!=="hidden"&&(typeof document.hasFocus!=="function"||document.hasFocus())}function factoryLinuxBillingFocusSubscribe(t){if(typeof window==="undefined"||typeof document==="undefined")return()=>{};return window.addEventListener("focus",t),window.addEventListener("blur",t),document.addEventListener("visibilitychange",t),()=>{window.removeEventListener("focus",t),window.removeEventListener("blur",t),document.removeEventListener("visibilitychange",t)}}function factoryLinuxBillingUseFocused(){return P.useSyncExternalStore(factoryLinuxBillingFocusSubscribe,factoryLinuxBillingFocusSnapshot,factoryLinuxBillingFocusSnapshot)}function dFe(t){const focused=factoryLinuxBillingUseFocused(),e=H.c(3),n=t===void 0?!0:t,i=xu(),o=n&&!i&&focused;let s;e[0]!==o?(s={endpoint:"/api/billing/limits",method:"GET",queryKey:Vn.billing.tokenLimits,enabled:o,hideErrorToast:!0},e[0]=o,e[1]=s):s=e[1];let r;return e[2]===Symbol.for("react.memo_cache_sentinel")?(r={refetchInterval:2e4,refetchIntervalInBackground:!1,refetchOnWindowFocus:!0,retry:!1},e[2]=r):r=e[2],Ro(s,r)}'],
 ];
 
 // The window title belongs to the renderer: Electron propagates a page
@@ -125,9 +125,9 @@ export const rendererChanges = [
 // stays scoped to the billing gate, and the identity layers stay
 // separable from it.
 export const rendererTitleChanges = [
-  ['default window title', 'dpi="Factory"', `dpi="${PRODUCT_NAME}"`],
-  ['session window title suffix', 'r=n?`${n} - Factory`:dpi;',
-    `r=n?\`\${n} - ${PRODUCT_NAME}\`:dpi;`],
+  ['default window title', 'iCi="Factory"', `iCi="${PRODUCT_NAME}"`],
+  ['session window title suffix', 'r=n?`${n} - Factory`:iCi;',
+    `r=n?\`\${n} - ${PRODUCT_NAME}\`:iCi;`],
 ];
 
 export function diagnoseRendererHelperCollisions(source) {

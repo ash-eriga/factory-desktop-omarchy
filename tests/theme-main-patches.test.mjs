@@ -98,20 +98,20 @@ function harness({ state, stateFn, env, platform = 'linux' } = {}) {
       assert.equal(request, path.resolve('/opt/factory/resources', '..', 'port', 'theme-bridge.cjs'));
       return bridge;
     },
-    // 1.7.1 initLifecycle-cB68WyMI.js module aliases verified upstream:
-    s: { DESKTOP_RENDERER_ORIGIN: undefined },
-    I: {
+    // 1.9.0 initLifecycle-cB68WyMI.js module aliases verified upstream:
+    r: { DESKTOP_RENDERER_ORIGIN: undefined },
+    A: {
       app: { getPath: name => { assert.equal(name, 'home'); return '/tmp/theme-fixture'; },
         on: (name, listener) => appEvents.set(name, listener) },
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: sender => windows.find(w => w.webContents === sender) ?? null },
     },
-    Jn: registeredSet,
-    jr: sender => !sender.isDestroyed() && !sender.isCrashed(),
-    Nn: () => windows,
+    io: registeredSet,
+    Zo: sender => !sender.isDestroyed() && !sender.isCrashed(),
+    Bn: () => windows,
     // Vendor main-bundle collaborators the integration reaches through:
-    She: () => '#17181c',
-    The: (color, win) => {
+    F3e: () => '#17181c',
+    U3e: (color, win) => {
       vendorBackground.push([color, win]);
       if (win && !win.isDestroyed()) { win.setBackgroundColor(color); return; }
       for (const w of windows) if (!w.isDestroyed()) w.setBackgroundColor(color);
@@ -207,16 +207,16 @@ test('webview frames can never authenticate the bridge or opt into transparency'
       if (request === 'node:crypto') return require('node:crypto');
       return bridge;
     },
-    s: { DESKTOP_RENDERER_ORIGIN: undefined },
-    I: {
+    r: { DESKTOP_RENDERER_ORIGIN: undefined },
+    A: {
       app: { getPath: () => '/tmp/theme-fixture', on: () => {} },
       ipcMain: { handle: (channel, listener) => handlers.set(channel, listener) },
       BrowserWindow: { fromWebContents: () => owner },
     },
-    Jn: new Set([owner]),
-    jr: () => true,
-    Nn: () => [owner],
-    She: () => '#17181c',
+    io: new Set([owner]),
+    Zo: () => true,
+    Bn: () => [owner],
+    F3e: () => '#17181c',
   };
   vm.runInNewContext(patch(
     `${themeMainChanges.map(([, before]) => before).join('\n')},async()=>{})`, themeMainChanges),

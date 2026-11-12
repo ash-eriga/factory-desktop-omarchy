@@ -47,13 +47,13 @@ test('patched main guards keep the pacman boundary closed on Linux', () => {
   // the callback helper must only fix the desktop entry name on Linux.
   const source = changes.map(([, before]) => before).join('\n');
   const patched = patch(source);
-  assert.match(patched, /async function KK\(\)\{if\(process\.platform==="linux"\)return!0;/);
-  assert.match(patched, /async function Jf\(\{onAborted:e\}=\{\}\)\{if\(process\.platform==="linux"\)\{e\?\.\(\);return;\}/);
-  assert.match(patched, /async function HK\(\)\{if\(process\.platform==="linux"\)return;/);
-  assert.match(patched, /function Nhe\(\)\{if\(process\.platform==="linux"\)\{I\.app\.setDesktopName\("factory-droid-desktop\.desktop"\);return;\}/);
+  assert.match(patched, /async function eee\(\)\{if\(process\.platform==="linux"\)return!0;/);
+  assert.match(patched, /async function Kh\(\{onAborted:e\}=\{\}\)\{if\(process\.platform==="linux"\)\{e\?\.\(\);return;\}/);
+  assert.match(patched, /async function YJ\(\)\{if\(process\.platform==="linux"\)return;/);
+  assert.match(patched, /function e5e\(\)\{if\(process\.platform==="linux"\)\{A\.app\.setDesktopName\("factory-droid-desktop\.desktop"\);return;\}/);
   // The visible name of the port is set before the first window exists.
-  assert.match(patched, /s\.startupTracker\.beginPhase\("ipc_and_protocol_setup"\),I\.app\.setName\("Factory Droid Desktop"\),Nhe\(\)/);
-  assert.match(patched, /o=process\.platform==="linux"\|\|!n\|\|s\.areDesktopUpdatesDisabledByCachedOrgSettings\(\)\?\[\]:/);
+  assert.match(patched, /r\.startupTracker\.beginPhase\("ipc_and_protocol_setup"\),A\.app\.setName\("Factory Droid Desktop"\),e5e\(\)/);
+  assert.match(patched, /s=process\.platform==="linux"\|\|!n\|\|r\.areDesktopUpdatesDisabledByCachedOrgSettings\(\)\?\[\]:/);
   // Nothing may widen the guards to other platforms.
   for (const [, , after] of changes) {
     for (const platform of ['"darwin"', '"win32"']) {
@@ -100,7 +100,7 @@ test('hidden Linux menu stays accessible without stealing Alt shortcuts', () => 
     k: { Menu: { getApplicationMenu: () => ({ popup: ({window: target}) => {
       assert.equal(target, window); popups++;
     } }) } },
-    I: { Menu: { getApplicationMenu: () => ({ popup: ({window: target}) => {
+    A: { Menu: { getApplicationMenu: () => ({ popup: ({window: target}) => {
       assert.equal(target, window); popups++;
     } }) } },
   });

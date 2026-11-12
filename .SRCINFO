@@ -1,6 +1,6 @@
 pkgbase = factory-droid-desktop
 	pkgdesc = Unofficial Factory Droid Desktop port for Arch and Omarchy
-	pkgver = 1.7.1
+	pkgver = 1.9.0
 	pkgrel = 1
 	url = https://github.com/ash-eriga/factory-desktop-omarchy
 	arch = x86_64
@@ -40,7 +40,7 @@ pkgbase = factory-droid-desktop
 	replaces = factory-desktop-arch
 	options = !strip
 	options = !debug
-	source = https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v1.7.1-1/factory-droid-desktop-port-1.7.1-1.tar.gz
-	sha256sums = e0cbdeab4654275669284779f2df6f14beb434e2e1b7697721005ba824b1ba91
+	source = https://github.com/ash-eriga/factory-desktop-omarchy/releases/download/v1.9.0-1/factory-droid-desktop-port-1.9.0-1.tar.gz
+	sha256sums = 5ffe459782628e4428eab595327c8887cd894a6afcf3a9af354cd005166e37ee
 
 pkgname = factory-droid-desktop
